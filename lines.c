@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.3 2008/04/20 20:38:28 ylafon Exp $
+ * $Id: lines.c,v 1.4 2008/04/20 21:16:49 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -226,8 +226,8 @@ double distance_to_line(longitude, latitude, longitude_a, latitude_a,
   intersect = intersects(longitude, latitude, longitude_x, latitude_x,
 			 longitude_a, latitude_a, longitude_b, latitude_b,
 			 &longitude_x, &latitude_x);
-  if (inter>=MIN_LIMIT && inter<=MAX_LIMIT) { 
-    t_dist = orthodistance(longitude, latitude, longitude_x, latitude_x);
+  if (intersect>=MIN_LIMIT && intersect<=MAX_LIMIT) { 
+    t_dist = ortho_distance(longitude, latitude, longitude_x, latitude_x);
 #ifdef DEBUG
     printf("Min dist: %.3f, found dist: %.3f\n", min_dist, t_dist);
 #endif /* DEBUG */
@@ -242,8 +242,8 @@ double distance_to_line(longitude, latitude, longitude_a, latitude_a,
   intersect = intersects(longitude, latitude, longitude_x, latitude_x,
 			 longitude_a, latitude_a, longitude_b, latitude_b,
 			 &longitude_x, &latitude_x);
-  if (inter>=MIN_LIMIT && inter<=MAX_LIMIT) { 
-    t_dist = orthodistance(longitude, latitude, longitude_x, latitude_x);
+  if (intersect>=MIN_LIMIT && intersect<=MAX_LIMIT) { 
+    t_dist = ortho_distance(longitude, latitude, longitude_x, latitude_x);
 #ifdef DEBUG
     printf("Min dist: %.3f, found dist: %.3f\n", min_dist, t_dist);
 #endif /* DEBUG */
