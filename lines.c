@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.2 2008/04/20 15:05:36 ylafon Exp $
+ * $Id: lines.c,v 1.3 2008/04/20 20:38:28 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -19,6 +19,7 @@
 #include <math.h>
 #include "defs.h"
 #include "types.h"
+#include "ortho.h"
 
 /**
  * Strict check will et intersection only between 0 and 1 (inclusive)
@@ -34,6 +35,12 @@
 #  define MIN_LIMIT 0.0
 # endif /* SAFE_LINE_CHECK */
 
+/**
+ * The shore line is composed of an array of "coast zones" consisting of
+ * an int, the number of segments to be checked, and the segments, with
+ * longitude and latitude coordinates of the two points of each segment
+ * in radians, this is a global variable 
+ */
 extern coast_zone shoreline[3601][1800];
 
 /**
@@ -144,7 +151,10 @@ double check_coast(longitude, latitude, new_longitude, new_latitude,
   } else if (i_new_long > 3600) {
     i_new_long -= 3600;
   }
-  /*  printf("Checking segments: [%d][%d] -> %d\n", i_long, i_lat, shoreline[i_long][i_lat].nb_segments); */
+#if DEBUG
+  printf("Checking segments: [%d][%d] -> %d\n", i_long, i_lat, 
+	 shoreline[i_long][i_lat].nb_segments); 
+#endif /* DEBUG */
   /* if we cross more than one 1/10 of degree, we must use two loops
      instead -> check based on vac time + max speed */
   if (i_long == i_new_long) {
@@ -186,3 +196,59 @@ double check_coast(longitude, latitude, new_longitude, new_latitude,
   }
   return -1;
 }
+
+/**
+ * compute an approximative distance to a segment. Useful to estimate 
+ * distance to a gate. It is at best an approximation, as the intersection
+ * algorithm is not valid for long distances
+ * Parameters: long/lat of point, then long and lat of A & B defining the
+ * segment
+ */
+double distance_to_line(longitude, latitude, longitude_a, latitude_a,
+			longitude_b, latitude_b)
+     double longitude, latitude;
+     double longitude_a, latitude_a;
+     double longitude_b, latitude_b;
+{
+  double ortho_a, ortho_b, min_dist, ab_dist, t_dist;
+  double longitude_x, latitude_x, intersect;
+
+  ortho_a = ortho_distance(longitude, latitude, longitude_a, latitude_a);
+  ortho_b = ortho_distance(longitude, latitude, longitude_b, latitude_b);
+  ab_dist = ortho_distance(longitude_a, latitude_a, longitude_b, latitude_b);
+  
+  min_dist = fmin(ortho_a, ortho_b);
+  /* we construct a line form the point, orthogonal to the segment, long of
+     at least min_dist */
+  longitude_x = longitude + (latitude_b - latitude_a) * min_dist / ab_dist;
+  latitude_x = latitude + (longitude_a - longitude_b) * min_dist / ab_dist;
+  
+  intersect = intersects(longitude, latitude, longitude_x, latitude_x,
+			 longitude_a, latitude_a, longitude_b, latitude_b,
+			 &longitude_x, &latitude_x);
+  if (inter>=MIN_LIMIT && inter<=MAX_LIMIT) { 
+    t_dist = orthodistance(longitude, latitude, longitude_x, latitude_x);
+#ifdef DEBUG
+    printf("Min dist: %.3f, found dist: %.3f\n", min_dist, t_dist);
+#endif /* DEBUG */
+    return fmin(min_dist, t_dist);
+  }
+
+  /* same as above, but opposite way (it could be factored in one, but this 
+     reduces the odds of crossing the 0 line */
+  longitude_x = longitude + (latitude_a - latitude_b) * min_dist / ab_dist;
+  latitude_x = latitude + (longitude_b - longitude_a) * min_dist / ab_dist;
+  
+  intersect = intersects(longitude, latitude, longitude_x, latitude_x,
+			 longitude_a, latitude_a, longitude_b, latitude_b,
+			 &longitude_x, &latitude_x);
+  if (inter>=MIN_LIMIT && inter<=MAX_LIMIT) { 
+    t_dist = orthodistance(longitude, latitude, longitude_x, latitude_x);
+#ifdef DEBUG
+    printf("Min dist: %.3f, found dist: %.3f\n", min_dist, t_dist);
+#endif /* DEBUG */
+    return fmin(min_dist, t_dist);
+  }
+  return min_dist;
+}
+
