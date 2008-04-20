@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: lines.c,v 1.2 2008/04/20 15:05:36 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -53,15 +53,16 @@ double intersects(longitude, latitude, new_longitude, new_latitude,
 {
   double x, y, x1, x2, t, t_seg,d;
   if (longitude <0) {
-      longitude += TWO_PI;
+    longitude += TWO_PI;
   }
   if (new_longitude <0) {
-      new_longitude += TWO_PI;
+    new_longitude += TWO_PI;
   }
-/*  printf("Checking intersection between %.4fx%4f->%.4fx%.4f and %.4fx%4f->%.4fx%.4f",
+#ifdef DEBUG
+  printf("Checking intersection between %.4fx%4f->%.4fx%.4f and %.4fx%4f->%.4fx%.4f",
 	 longitude, latitude, new_longitude, new_latitude,
 	 seg_a_longitude, seg_a_latitude, seg_b_longitude,seg_b_latitude);
-*/
+#endif /* DEBUG */
   x = (longitude - seg_a_longitude);
   x1 = (new_longitude - longitude);
   x2 = (seg_b_longitude - seg_a_longitude);
@@ -79,7 +80,9 @@ double intersects(longitude, latitude, new_longitude, new_latitude,
   if ((t >= MIN_LIMIT && t <=MAX_LIMIT) && (t_seg>=MIN_LIMIT && t_seg <=MAX_LIMIT)) {
     *inter_longitude = longitude + t*(new_longitude - longitude);
     *inter_latitude = latitude + t*(new_latitude - latitude);
-    /*   printf(" -> YES\n"); */
+#ifdef DEBUG
+    printf(" -> YES\n");
+#endif /* DEBUG */
     return t;
   }
   return -1;
@@ -105,23 +108,23 @@ double check_coast(longitude, latitude, new_longitude, new_latitude,
   double t_lat, t_long;
   double min_lat, min_long;
   
-#define _check_intersection_with_array  \
-      nb_segments = c_zone->nb_segments;\
-      seg_array = c_zone->seg_array;\
-      for (i=0; i<nb_segments; i++) {\
-	inter = intersects(longitude, latitude, new_longitude, new_latitude,\
-			   seg_array->longitude_a, seg_array->latitude_a,\
-			   seg_array->longitude_b, seg_array->latitude_b,\
-			   &t_long, &t_lat);\
-	seg_array++;\
-	if (inter>=0.0 && inter <= 1.0) {\
-	  if (inter < min_val) {\
-	    min_val = inter;\
-	    min_long = t_long;\
-	    min_lat = t_lat;\
-	  }\
-	}\
-      }
+#define _check_intersection_with_array	 				 \
+  nb_segments = c_zone->nb_segments;					 \
+  seg_array = c_zone->seg_array;					 \
+  for (i=0; i<nb_segments; i++) {					 \
+    inter = intersects(longitude, latitude, new_longitude, new_latitude, \
+		       seg_array->longitude_a, seg_array->latitude_a,	 \
+		       seg_array->longitude_b, seg_array->latitude_b,	 \
+		       &t_long, &t_lat);				 \
+    seg_array++;							 \
+    if (inter>=MIN_LIMIT && inter<=MAX_LIMIT) {				 \
+      if (inter < min_val) {						 \
+	min_val = inter;						 \
+	min_long = t_long;						 \
+	min_lat = t_lat;						 \
+      }									 \
+    }									 \
+  }
 
   /* to keep the compiler happy */
   t_lat=t_long=min_lat=min_long=0.0;
@@ -141,7 +144,7 @@ double check_coast(longitude, latitude, new_longitude, new_latitude,
   } else if (i_new_long > 3600) {
     i_new_long -= 3600;
   }
-/*  printf("Checking segments: [%d][%d] -> %d\n", i_long, i_lat, shoreline[i_long][i_lat].nb_segments); */
+  /*  printf("Checking segments: [%d][%d] -> %d\n", i_long, i_lat, shoreline[i_long][i_lat].nb_segments); */
   /* if we cross more than one 1/10 of degree, we must use two loops
      instead -> check based on vac time + max speed */
   if (i_long == i_new_long) {
@@ -176,8 +179,8 @@ double check_coast(longitude, latitude, new_longitude, new_latitude,
       _check_intersection_with_array;
     }
   }
-  if (min_val<=1) {
-      *inter_longitude = min_long;
+  if (min_val<=MAX_LIMIT) {
+    *inter_longitude = min_long;
     *inter_latitude = min_lat;
     return min_val;
   }
