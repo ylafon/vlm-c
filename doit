@@ -1,0 +1,52 @@
+#!/bin/sh
+
+allpoints=`./tst | grep ^GE | sed 's/GE://'`
+cat >foobar.kml<<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+  <Document>
+    <name>Boat Sample</name>
+   <open>1</open>
+   <description>whatever</description>
+    <Style id="fooStyle">
+      <LineStyle>
+        <color>7fff00ff</color>
+        <width>4</width>
+      </LineStyle>
+    </Style>
+    <name>Testing</name>
+    <Placemark>
+      <name>path navire</name>
+      <visibility>1</visibility>
+      <description><![CDATA[essai]]></description>
+      <styleUrl>#fooStyle</styleUrl>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>
+EOF
+echo $allpoints >> foobar.kml
+cat >>foobar.kml<<EOF
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Folder>
+      <name>vac points</name>
+EOF
+num=1
+for i in $allpoints ; do
+    cat >>foobar.kml<<EOF
+      <Placemark>
+        <name>Vacation $num</name>
+        <visibility>1</visibility>
+        <Point>
+          <coordinates>$i</coordinates>
+        </Point>
+      </Placemark>
+EOF
+    num=`expr $num + 1`
+done
+cat>>foobar.kml<<EOF
+    </Folder>
+  </Document>
+</kml>
+EOF
