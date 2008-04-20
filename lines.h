@@ -1,5 +1,5 @@
 /**
- * $Id: lines.h,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: lines.h,v 1.2 2008/04/20 20:38:45 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -25,6 +25,9 @@
 double intersects PARAM10(double, double, double, double,
 			  double, double, double, double,
 			  double *, double *);
+
+double distance_to_line PARAM6(double, double, double, double,
+			       double, double);
 
 double check_coast PARAM6(double, double, double, double,
 			  double *, double *);
