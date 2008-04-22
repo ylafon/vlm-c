@@ -1,5 +1,5 @@
 /**
- * $Id: lines.h,v 1.2 2008/04/20 20:38:45 ylafon Exp $
+ * $Id: lines.h,v 1.3 2008/04/22 10:00:49 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -22,13 +22,31 @@
 #include "defs.h"
 #include "types.h"
 
+/**
+ * All latitude/longitude in rad
+ * latitude/longitude of segment 1, latitude/longitude of segment 2
+ * latitude/longitude addresses of intersection point (99% of seg1-A -> seg1-B)
+ * @returns a double, between MIN_LIMIT and MAX_LIMIT when an intersection
+ * occurs, -1 otherwise
+ */
 double intersects PARAM10(double, double, double, double,
 			  double, double, double, double,
 			  double *, double *);
-
+/**
+ * All latitude/longitude in rad
+ * latitude/longitude of point A, latitude/longitude of segment 1
+ * @returns a double, the distance in nm from point A to segment 1
+ */
 double distance_to_line PARAM6(double, double, double, double,
 			       double, double);
 
+/**
+ * All latitude/longitude in rad
+ * latitude/longitude of segment 1, latitude/longitude of segment 2
+ * latitude/longitude addresses of intersection point (99% of seg1-A -> seg1-B)
+ * @returns a double, between MIN_LIMIT and MAX_LIMIT when an intersection
+ * occurs with the cast line, -1 otherwise
+ */
 double check_coast PARAM6(double, double, double, double,
 			  double *, double *);
 
