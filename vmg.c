@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.2 2008/04/22 12:37:24 ylafon Exp $
+ * $Id: vmg.c,v 1.3 2008/04/22 13:05:34 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -220,7 +220,7 @@ void automatic_selection_heading(aboat)
   boat boatcopy;
   int orthovacs, bvmgvacs;
   double orthodist, bvmgdist;
-  /* FIXME lat/long */
+
   bvmgdist = 999999999.0;
   boatcopy = *aboat;
   boatcopy.set_heading_func=&set_heading_bvmg2_coast;
