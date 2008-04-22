@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: vmg.c,v 1.2 2008/04/22 12:37:24 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -25,6 +25,8 @@
 #include "polar.h"
 #include "ortho.h"
 #include "winds.h"
+
+#define REACH_WP_LIMIT 1.0 /* in nm */
 
 /* the algorith used is to maximize the speed vector projection
    on the orthodromic vector */
@@ -125,9 +127,9 @@ void set_heading_bvmg2(aboat)
     for (i=0; i<900; i++) {
 	angle = wanted_heading + degToRad(((double)i)/10.0);
 	estimate_boat_loxo(aboat, aboat->in_race->vac_duration, 
-			   angle, &t_long, &t_lat);
-	t = ortho_distance(t_long, t_lat, aboat->wp_longitude, 
-			   aboat->wp_latitude);
+			   angle, &t_lat, &t_long);
+	t = ortho_distance(t_lat, t_long, 
+			   aboat->wp_latitude, aboat->wp_longitude);
 	if (t < t_min) {
 	    t_min = t;
 	    maxangle = angle;
@@ -137,9 +139,9 @@ void set_heading_bvmg2(aboat)
     for (i=0; i<900; i++) {
 	angle = wanted_heading - degToRad(((double)i)/10.0);
 	aboat->heading = angle;
-	estimate_boat_loxo(aboat, 600, angle, &t_long, &t_lat);
-	t = ortho_distance(t_long, t_lat, 
-			   aboat->wp_longitude, aboat->wp_latitude);
+	estimate_boat_loxo(aboat, 600, angle, &t_lat, &t_long);
+	t = ortho_distance(t_lat, t_long, 
+			   aboat->wp_latitude, aboat->wp_longitude);
 	if (t < t_min) {
 	    t_min = t;
 	    maxangle = angle;
@@ -178,8 +180,9 @@ void set_heading_bvmg2_coast(aboat)
     /* -90 to +90 form desired diretion */
     for (i=0; i<900; i++) {
 	angle = wanted_heading + degToRad(((double)i)/10.0);
-	if (estimate_boat_loxo_coast(aboat, 600, angle, &t_long, &t_lat)) {
-	    t = ortho_distance(t_long, t_lat, aboat->wp_longitude, aboat->wp_latitude);
+	if (estimate_boat_loxo_coast(aboat, 600, angle, &t_lat, &t_long)) {
+	    t = ortho_distance(t_lat, t_long, 
+			       aboat->wp_latitude, aboat->wp_longitude);
 	    if (t < t_min) {
 		t_min = t;
 		maxangle = angle;
@@ -190,8 +193,9 @@ void set_heading_bvmg2_coast(aboat)
     for (i=0; i<900; i++) {
 	angle = wanted_heading - degToRad(((double)i)/10.0);
 	aboat->heading = angle;
-	if (estimate_boat_loxo_coast(aboat, 600, angle, &t_long, &t_lat)) {
-	    t = ortho_distance(t_long, t_lat, aboat->wp_longitude, aboat->wp_latitude);
+	if (estimate_boat_loxo_coast(aboat, 600, angle, &t_lat, &t_long)) {
+	    t = ortho_distance(t_lat, t_long,
+			       aboat->wp_latitude, aboat->wp_longitude);
 	    if (t < t_min) {
 		t_min = t;
 		maxangle = angle;
@@ -216,17 +220,17 @@ void automatic_selection_heading(aboat)
   boat boatcopy;
   int orthovacs, bvmgvacs;
   double orthodist, bvmgdist;
-
+  /* FIXME lat/long */
   bvmgdist = 999999999.0;
   boatcopy = *aboat;
   boatcopy.set_heading_func=&set_heading_bvmg2_coast;
   bvmgvacs = 0;
   orthodist = 999999999.0; /* to cope with one weird case that should never 
 			      happen */
-  while (!boatcopy.landed && (bvmgdist = ortho_distance(boatcopy.longitude, 
-							boatcopy.latitude, 
-							boatcopy.wp_longitude, 
-							boatcopy.wp_latitude)) > 1.0 ) {
+  while (!boatcopy.landed && (bvmgdist = ortho_distance(boatcopy.latitude, 
+							boatcopy.longitude, 
+							boatcopy.wp_latitude, 
+				   boatcopy.wp_longitude)) > REACH_WP_LIMIT ) {
     move_boat_loxo(&boatcopy);
     bvmgvacs++;
   }
@@ -237,9 +241,9 @@ void automatic_selection_heading(aboat)
   boatcopy.set_heading_func=&set_heading_ortho;
   orthovacs = 0;
   while (!boatcopy.landed && (orthovacs <= bvmgvacs) && 
-	 (orthodist = ortho_distance(boatcopy.longitude, boatcopy.latitude, 
-				     boatcopy.wp_longitude, 
-				     boatcopy.wp_latitude)) > 1.0 ) {
+	 (orthodist = ortho_distance(boatcopy.latitude, boatcopy.longitude, 
+				     boatcopy.wp_latitude, 
+				   boatcopy.wp_longitude)) > REACH_WP_LIMIT ) {
     move_boat_loxo(&boatcopy);
     orthovacs++;
   }
