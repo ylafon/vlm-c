@@ -1,5 +1,5 @@
 /**
- * $Id: loxo.c,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: loxo.c,v 1.2 2008/04/22 12:37:06 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -78,12 +78,12 @@ void move_boat_loxo(aboat)
 /* used to estimate where the boat will go based on a specific heading
    returns longitude and latitude (double) */
 void estimate_boat_loxo(aboat, vac_duration, heading, 
-			new_longitude, new_latitude) 
+			new_latitude, new_longitude) 
     boat *aboat;
     int vac_duration;
     double heading;
-    double *new_longitude;
     double *new_latitude;
+    double *new_longitude;
 {
     double speed;
     double latitude, t_lat;
@@ -113,12 +113,12 @@ void estimate_boat_loxo(aboat, vac_duration, heading,
    function returns 0 if the boat landed, 1 otherwise 
 */
 int estimate_boat_loxo_coast(aboat, vac_duration, heading, 
-			     new_longitude, new_latitude) 
+			     new_latitude, new_longitude) 
     boat *aboat;
     int vac_duration;
     double heading;
-    double *new_longitude;
     double *new_latitude;
+    double *new_longitude;
 {
     double speed;
     double latitude, t_lat;
