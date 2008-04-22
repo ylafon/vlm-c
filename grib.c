@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: grib.c,v 1.2 2008/04/22 19:37:04 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -184,14 +184,22 @@ void init_grib() {
       gribtime_tm.tm_sec    = 0;
       gribtime_tm.tm_isdst  = 0;
       gribtime_tm.tm_gmtoff = 0;
-      gribtime = timegm(&gribtime_tm);
+      gribtime = timegm(&gribtime_tm) + GRIB_TIME_OFFSET;
     }
     if (i&1) {
+#ifdef GRIB_RESOLUTION_1
+      for (y=0; y<ny; y+=2) {
+	for (x=0; x<nx; x+=2) {
+	  winds_t->wind_v[x/2][180 - y/2] = (double) array[y*nx+x];
+	}
+      }
+#else
       for (y=0; y<ny; y++) {
 	for (x=0; x<nx; x++) {
 	  winds_t->wind_v[x][360 - y] = (double) array[y*nx+x];
 	}
       }
+#endif /* GRIB_RESOLUTION_1 */
       winds_t = NULL;
     } else {
       winds_t = calloc(1, sizeof(winds));
@@ -202,11 +210,19 @@ void init_grib() {
 	     ctime(&winds_t->prevision_time));
 #endif /* DEBUG */
      w[i/2] = winds_t;
+#ifdef GRIB_RESOLUTION_1
+      for (y=0; y<ny; y+=2) {	
+	for (x=0; x<nx; x+=2) {
+	  winds_t->wind_u[x/2][180 - y/2] = (double) array[y*nx+x];
+	}
+      }
+#else /* should we check we match GRIB_REOLUTION_0_5 ? */
       for (y=0; y<ny; y++) {	
 	for (x=0; x<nx; x++) {
 	  winds_t->wind_u[x][360 - y] = (double) array[y*nx+x];
 	}
       }
+#endif /* GRIB_RESOLUTION_1 */
     }
     free(array);
     pos += len_grib;
