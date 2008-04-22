@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: winds.c,v 1.2 2008/04/22 12:45:55 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -37,12 +37,12 @@ void get_wind_info(aboat, wind)
   time_t vac_time;
   
   vac_time = aboat->last_vac_time + aboat->in_race->vac_duration;
-  get_wind_info_longlat(aboat->longitude, aboat->latitude, vac_time, wind);
+  get_wind_info_longlat(aboat->latitude, aboat->longitude, vac_time, wind);
 }
 
-wind_info *get_wind_info_longlat(longitude, latitude, vac_time, wind)
-  double longitude;
+wind_info *get_wind_info_longlat(latitude, longitude, vac_time, wind)
   double latitude;
+  double longitude;
   time_t vac_time;
   wind_info *wind;
 {
