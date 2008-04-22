@@ -1,5 +1,5 @@
 /**
- * $Id: ortho.c,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: ortho.c,v 1.2 2008/04/22 12:39:19 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -63,11 +63,11 @@ void set_heading_ortho(aboat)
 }
 
 /* return distance in nautic miles */
-double ortho_distance(longitude, latitude, wp_longitude, wp_latitude)
-     double longitude;
+double ortho_distance(latitude, longitude, wp_latitude, wp_longitude)
      double latitude;
-     double wp_longitude;
+     double longitude;
      double wp_latitude;
+     double wp_longitude;
 {
   double g,d;
   
