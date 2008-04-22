@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.2 2008/04/22 12:45:55 ylafon Exp $
+ * $Id: winds.c,v 1.3 2008/04/22 16:32:22 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -71,11 +71,15 @@ wind_info *get_wind_info_longlat(latitude, longitude, vac_time, wind)
   d_lat = radToDeg(latitude) + 90; /* is there a +90 drift? see grib*/
     
   prev = next = NULL;
-  /* can't be zero, otherwise, we are in serious time drifting issues */
-  for (i=1; i< windtable.nb_prevs; i++) {
+
+  for (i=0; i< windtable.nb_prevs; i++) {
     if (windtable.wind[i]->prevision_time > vac_time) {
-      next = windtable.wind[i];
-      prev = windtable.wind[i-1];
+      if (i) {
+	next = windtable.wind[i];
+	prev = windtable.wind[i-1];
+      } else {
+	prev = windtable.wind[i];
+      }
       break;
     }
   }
