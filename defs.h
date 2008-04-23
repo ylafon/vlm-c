@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: defs.h,v 1.2 2008/04/23 11:59:50 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -37,6 +37,22 @@
 #define msToKts(speed) (1.9438445*speed)
 #define ktsToMs(speed) (0.51444444*speed)
 
+#define BOAT_CLASS_40    0
+#define BOAT_IMOCA_2007  1
+#define MAX_POLAR        2
+
+
+#ifdef VLM_COMPAT
+# define WIND_GRID_LONG   360
+# define WIND_GRID_LAT    181
+# define GRIB_TIME_OFFSET 2100 /* 35mn offset */
+# define GRIB_RESOLUTION_1
+#else
+# define WIND_GRID_LONG   720
+# define WIND_GRID_LAT    361
+# define GRIB_TIME_OFFSET 0
+# define GRIB_RESOLUTION_0_5
+#endif
 
 #ifdef PARAM1
 #  undef PARAM1
@@ -50,8 +66,6 @@
 #ifdef PARAM4
 #  undef PARAM4
 #endif /* PARAM4 */
-
-
 
 #ifdef __STDC__
 #  define PARAM1(a) (a)
@@ -77,13 +91,5 @@
 #  define PARAM10(a,b,c,d,e,f,g,h,i,j) ()
 #  define const
 #endif /* __STDC__ */
-
-#define BOAT_CLASS_40   0
-#define BOAT_IMOCA_2007 1
-#define MAX_POLAR       2
-
-
-#define WIND_GRID_LONG 720
-#define WIND_GRID_LAT 361
 
 #endif /* _DEFS_H_ */
