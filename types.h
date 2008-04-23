@@ -1,5 +1,5 @@
 /**
- * $Id: types.h,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: types.h,v 1.2 2008/04/23 12:00:58 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -94,7 +94,8 @@ typedef struct boat_str {
   double      wp_distance;   /* distance to the WP in nm           */
   double      heading;       /* actual heading in rad              */
   double      loch;          /* loch                               */
-  struct race_str *in_race;
+  int         last_gate_id;  /* The last gate ID targeted          */
+  struct race_str *in_race;  /* the race it belongs to             */
   time_t      last_vac_time; /* time of last move                  */
   struct wind_info_str wind; /* the computed wind                  */
   void   (*set_heading_func)();
