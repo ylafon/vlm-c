@@ -1,5 +1,5 @@
 /**
- * $Id: unittest.c,v 1.2 2008/04/23 14:38:47 ylafon Exp $
+ * $Id: unittest.c,v 1.3 2008/04/23 19:33:31 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -106,11 +106,11 @@ int main (argc, argv)
     get_wind_info_latlong(lat_boat, long_boat, current_time, &wind_boat);
     printf("UV   Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
 	   radToDeg(lat_boat), radToDeg(long_boat),
-	   wind_boat.speed, wind_boat.angle);
+	   wind_boat.speed, radToDeg(wind_boat.angle));
     get_wind_info_latlong_TWSA(lat_boat, long_boat, current_time, &wind_boat);
     printf("TWSA Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
 	   radToDeg(lat_boat), radToDeg(long_boat),
-	   wind_boat.speed, wind_boat.angle);
+	   wind_boat.speed, radToDeg(wind_boat.angle));
     current_time += (15 * 60);
   }
   return 0;
