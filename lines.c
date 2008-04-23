@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.5 2008/04/22 10:01:04 ylafon Exp $
+ * $Id: lines.c,v 1.6 2008/04/23 12:00:15 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -16,6 +16,7 @@
  * Contact: <yves@raubacapeu.net>
  */
 
+#include <stdio.h>
 #include <math.h>
 #include "defs.h"
 #include "types.h"
