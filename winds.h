@@ -1,5 +1,5 @@
 /**
- * $Id: winds.h,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: winds.h,v 1.2 2008/04/23 11:59:25 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -27,6 +27,7 @@
 #include "types.h"
 
 void get_wind_info PARAM2(boat *, wind_info *);
-wind_info *get_wind_info_longlat PARAM4(double, double, time_t, wind_info *);
+wind_info *get_wind_info_latlong PARAM4(double, double, time_t, wind_info *);
+wind_info *get_wind_info_latlong_TWSA PARAM4(double, double, time_t, wind_info *);
 
 #endif /* _WINDS_H_ */
