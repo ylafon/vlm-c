@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.2 2008/04/24 10:51:41 ylafon Exp $
+ * $Id: polar.c,v 1.3 2008/04/24 21:06:04 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -97,7 +97,7 @@ void init_polar() {
  * starting with 0/0.
  * This function fills all the remaining values using linear interpolation
  */
-void init_fill_blanks(boat_type)
+void init_polar_fill_blanks_5_2(boat_type)
      int boat_type;
 {
   int i,j,k;
