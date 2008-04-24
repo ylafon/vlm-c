@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: polar.c,v 1.2 2008/04/24 10:51:41 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -47,7 +47,9 @@ double find_speed(aboat, wind_speed, wind_angle)
   int intangle;
   int intspeed;
   double valfloor, valceil;
-  /* we get the nearest int angle, FIXME do linear interpolation? */
+#ifdef VLM_COMPAT
+  /* in VLM compatibility mode, we interpolate only speed, not angle
+     which is rounded to nearest integer */
   intangle = rint(radToDeg(fabs(fmod(wind_angle, TWO_PI))));
   if (intangle > 180) {
     intangle = 360 - intangle;
@@ -55,6 +57,31 @@ double find_speed(aboat, wind_speed, wind_angle)
   intspeed = floor(wind_speed);
   valfloor = polar[aboat->in_race->boattype][intangle][intspeed];
   valceil  = polar[aboat->in_race->boattype][intangle][intspeed+1];
+#else
+  /* higher reolution mode, where bilinear interpolation is performed
+     (angle and speed) */
+  double tvalfloor, tvalceil, tangle;
+  int intangle_p1;
+  tangle = radToDeg(fabs(fmod(wind_angle, TWO_PI)));
+  if (tangle > 180.0) {
+    tangle = 360.0 - tangle;
+  }
+  intangle = (int)floor(tangle);
+  /* special case when we reach 180 */
+  if (intangle == 180) {
+    intangle_p1 = 179;
+  } else {
+    intangle_p1 = intangle+1;
+  }
+  intspeed  = floor(wind_speed);
+  valfloor  = polar[aboat->in_race->boattype][intangle][intspeed];
+  tvalfloor = polar[aboat->in_race->boattype][intangle_p1][intspeed];
+  valfloor += (tvalfloor - valfloor)*(tangle - (double)intangle);
+
+  valceil  = polar[aboat->in_race->boattype][intangle][intspeed+1];
+  tvalceil = polar[aboat->in_race->boattype][intangle_p1][intspeed+1];
+  valceil += (tvalceil - valceil)*(tangle - (double)intangle);
+#endif /* VLM_COMPAT */
   /* linear interpolation for wind speed */
   return (valfloor + (valceil-valfloor)*(wind_speed-(double)intspeed));
 }
