@@ -1150,5 +1150,5 @@ void init_polar1() {
   polar[1][180][58]=2.920;
   polar[1][180][60]=2.920;
 
-  init_fill_blanks(1);
+  init_polar_fill_blanks_5_2(1);
 }

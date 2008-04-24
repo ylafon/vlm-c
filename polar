@@ -18,6 +18,6 @@ cat $2 | grep -v TWA | awk '{ for (i=1; i<=NF; i++) {if (i == 1) { angle = $i } 
 
 cat >>polar_$1.inc<<EOF
 
-  init_fill_blanks($1);
+  init_polar_fill_blanks_5_2($1);
 }
 EOF
