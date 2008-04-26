@@ -1,4 +1,4 @@
-# $Id: vlmc-unittest.py,v 1.1 2008/04/25 11:58:41 ylafon Exp $
+# $Id: vlmc-unittest.py,v 1.2 2008/04/26 09:20:37 ylafon Exp $
 #
 # (c) 2008 by paparazzia adapted from unittest.c by ylafon
 #      See COPYING file for copying and redistribution conditions.
@@ -68,10 +68,15 @@ init_grib()
 
 current_time = long(time.time())
 print current_time
-lat_boat     = radians(39.812)
-long_boat    = radians(8.43)
+lat_boat     = radians(-39.812)
+long_boat    = radians(-8.43)
 
 wind_boat = wind_info()
+
+if (in_vlm_compat_mode()):
+	print "VLM_COMPAT mode"
+else:
+	print "normal mode"
 
 for i in range(0, 4) :
     print "Date: %s" % time.ctime(current_time)
@@ -81,3 +86,5 @@ for i in range(0, 4) :
     get_wind_info_latlong_TWSA(lat_boat, long_boat, current_time, wind_boat)
     print "TWSA Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f" % ( degrees(lat_boat), degrees(long_boat), wind_boat.speed, degrees(wind_boat.angle) )
     current_time += (15 * 60)
+    get_wind_info_latlong_now(lat_boat, long_boat, wind_boat)
+    print "now   Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f" % ( degrees(lat_boat), degrees(long_boat), wind_boat.speed, degrees(wind_boat.angle) )
