@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.6 2008/04/27 19:34:02 ylafon Exp $
+ * $Id: winds.c,v 1.7 2008/04/27 19:48:10 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -89,6 +89,8 @@ wind_info *wind;
 
   /* if the windtable is not there, return NULL */
   if (windtable.wind == NULL) {
+    wind->speed = 0.0;
+    wind->angle = 0.0;
     return NULL;
   }
 
@@ -269,6 +271,8 @@ wind_info *wind;
 
   /* if the windtable is not there, return NULL */
   if (windtable.wind == NULL) {
+    wind->speed = 0.0;
+    wind->angle = 0.0;
     return NULL;
   }
 
