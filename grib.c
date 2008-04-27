@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.2 2008/04/22 19:37:04 ylafon Exp $
+ * $Id: grib.c,v 1.3 2008/04/27 17:47:11 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -53,14 +53,16 @@ void init_grib() {
   int           count, wpos;
   int           scan, mode;
   int           i,x,y;
-  winds         **w;
+  winds         **w, **oldw;
   winds         *winds_t;
   float         *array;
   double        temp;
+  int           in_error, gribtype, oldcount;
 
   /* to make the compiler happy */
   winds_t = NULL;
   gribtime = 0;
+  in_error = 0;
   /**
    * first we read the file, find the number or records, alloc memory for structures
    * then reread the file to fill them
@@ -111,6 +113,7 @@ void init_grib() {
     }
     if (read_grib(gribfile, pos, len_grib, buffer) == 0) {
       printf("INIT GRIB error, could not read to end of record %d\n",i*2);
+      in_error = 1;
       break;
     }
     msg = buffer;
@@ -132,17 +135,20 @@ void init_grib() {
     pointer += BDS_LEN(bds);
     if (pointer-msg+4 != len_grib) {
       printf("INIT GRIB: Len of grib message is inconsistent.\n");
+      in_error = 1;
       break;
     }
     
     if (pointer[0] != 0x37 || pointer[1] != 0x37 ||
 	pointer[2] != 0x37 || pointer[3] != 0x37) {
       printf("INIT GRIB: missing end section\n");
+      in_error = 1;
       break;
     }
     if (gds == NULL) {
       /* we check only full grids */
       printf("INIT GRIB: wind grid invalid\n");
+      in_error = 1;
       break;
     }
     GDS_grid(gds, bds, &nx, &ny, &nxny);
@@ -156,6 +162,7 @@ void init_grib() {
 
     if ((array = (float *) calloc(nxny, sizeof(float))) == NULL) {
       printf("Unable to alloc float array\n");
+      in_error = 1;
       break;
     }
 
@@ -175,18 +182,48 @@ void init_grib() {
      * as well as the prevision time 
      * FIXME: should we _verify_ that the time is the same ? 
      */
-    if (!i) {
-      gribtime_tm.tm_year   = PDS_Year4(pds) - 1900;
-      gribtime_tm.tm_mon    = PDS_Month(pds) - 1; /* As January is 0 and not 1 */
-      gribtime_tm.tm_mday   = PDS_Day(pds); 
-      gribtime_tm.tm_hour   = PDS_Hour(pds);
-      gribtime_tm.tm_min    = 0;
-      gribtime_tm.tm_sec    = 0;
-      gribtime_tm.tm_isdst  = 0;
-      gribtime_tm.tm_gmtoff = 0;
-      gribtime = timegm(&gribtime_tm) + GRIB_TIME_OFFSET;
+    gribtype = PDS_PARAM(pds); /* 33 is U, 34 is V */
+    gribtime_tm.tm_year   = PDS_Year4(pds) - 1900;
+    gribtime_tm.tm_mon    = PDS_Month(pds) - 1; /* As January is 0 and not 1 */
+    gribtime_tm.tm_mday   = PDS_Day(pds); 
+    gribtime_tm.tm_hour   = PDS_Hour(pds);
+    gribtime_tm.tm_min    = 0;
+    gribtime_tm.tm_sec    = 0;
+    gribtime_tm.tm_isdst  = 0;
+    gribtime_tm.tm_gmtoff = 0;
+    gribtime = timegm(&gribtime_tm) + GRIB_TIME_OFFSET;
+#ifdef DEBUG
+    printf("Time: %ld", gribtime);
+#endif /* DEBUG */
+    if (PDS_ForecastTimeUnit(pds) == HOUR) {
+      gribtime += PDS_P2(pds) * 3600;
+    } else {
+      printf("Unknown forecat time unit %d, contact maintainer\n", 
+	     PDS_ForecastTimeUnit(pds));
+      in_error = 1;
+      break;
     }
-    if (i&1) {
+#ifdef DEBUG
+    printf(" -> %ld\n", gribtime);
+    printf("Time Unit: %d\n", PDS_ForecastTimeUnit(pds));
+    printf("Time P1: %d\n", PDS_P1(pds));
+    printf("Time P2: %d\n", PDS_P2(pds));
+    printf("Time Range: %d\n", PDS_TimeRange(pds));
+#endif /* DEBUG */
+    /* get or create a new winds structure */
+    if (w[i/2] == NULL) {
+      winds_t = calloc(1, sizeof(winds));
+      winds_t->prevision_time = gribtime;
+      w[i/2] = winds_t;
+#ifdef DEBUG
+      printf("Prev time: %ld, %s\n", winds_t->prevision_time, 
+	     ctime(&winds_t->prevision_time));
+#endif /* DEBUG */
+    } else {
+      winds_t = w[i/2];
+    }
+    /* fill depending on grid type */
+    if (gribtype == 34) { /* VGRD */
 #ifdef GRIB_RESOLUTION_1
       for (y=0; y<ny; y+=2) {
 	for (x=0; x<nx; x+=2) {
@@ -201,15 +238,7 @@ void init_grib() {
       }
 #endif /* GRIB_RESOLUTION_1 */
       winds_t = NULL;
-    } else {
-      winds_t = calloc(1, sizeof(winds));
-      winds_t->prevision_time = gribtime + (3*1800*i); /* 1800 as i is *2  FIXME do it
-							from GRIB forecast info */
-#ifdef DEBUG
-      printf("Prev time: %ld, %s\n", winds_t->prevision_time, 
-	     ctime(&winds_t->prevision_time));
-#endif /* DEBUG */
-     w[i/2] = winds_t;
+    } else if (gribtype == 33) { /* UGRD */
 #ifdef GRIB_RESOLUTION_1
       for (y=0; y<ny; y+=2) {	
 	for (x=0; x<nx; x+=2) {
@@ -223,14 +252,30 @@ void init_grib() {
 	}
       }
 #endif /* GRIB_RESOLUTION_1 */
+    } else {
+      in_error = 1;
+      break;
     }
     free(array);
     pos += len_grib;
   }
-  if (i < count) {
+  if ((i < count) || in_error) {
+    count = i;
+    for (i=0; i<count; i++) {
+      free(w[i]);
+    }
+    free(w);
     /* we got an error, dealloc stuff now */
   } else {
+    oldcount = windtable.nb_prevs;
+    oldw = windtable.wind;
     windtable.nb_prevs = count/2; 
     windtable.wind     = w;
+    if (oldw != NULL) {
+      for (i=0; i<oldcount; i++) {
+	free(oldw[i]);
+      }
+      free(oldw);
+    }
   }
 }
