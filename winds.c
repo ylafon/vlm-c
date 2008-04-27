@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.5 2008/04/25 11:55:53 ylafon Exp $
+ * $Id: winds.c,v 1.6 2008/04/27 19:34:02 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -42,10 +42,10 @@ void get_wind_info(aboat, wind)
 }
 
 wind_info *get_wind_info_latlong(latitude, longitude, vac_time, wind)
-  double latitude;
-  double longitude;
-  time_t vac_time;
-  wind_info *wind;
+double latitude;
+double longitude;
+time_t vac_time;
+wind_info *wind;
 {
 #ifdef VLM_COMPAT
   return get_wind_info_latlong_UV(latitude, longitude, vac_time, wind);
@@ -55,9 +55,9 @@ wind_info *get_wind_info_latlong(latitude, longitude, vac_time, wind)
 }
 
 wind_info *get_wind_info_latlong_now(latitude, longitude, wind)
-  double latitude;
-  double longitude;
-  wind_info *wind;
+double latitude;
+double longitude;
+wind_info *wind;
 {
   time_t vac_time;
 
@@ -66,10 +66,10 @@ wind_info *get_wind_info_latlong_now(latitude, longitude, wind)
 }
 
 wind_info *get_wind_info_latlong_UV(latitude, longitude, vac_time, wind)
-  double latitude;
-  double longitude;
-  time_t vac_time;
-  wind_info *wind;
+double latitude;
+double longitude;
+time_t vac_time;
+wind_info *wind;
 {
   winds *prev, *next;
   int i, t_long, t_lat;
@@ -86,6 +86,11 @@ wind_info *get_wind_info_latlong_UV(latitude, longitude, vac_time, wind)
 #ifdef DEBUG
   char buff[64];
 #endif /* DEBUG */
+
+  /* if the windtable is not there, return NULL */
+  if (windtable.wind == NULL) {
+    return NULL;
+  }
 
   d_long = radToDeg(longitude); /* is there a +180 drift? see grib */
   if (d_long < 0) {
@@ -167,10 +172,10 @@ wind_info *get_wind_info_latlong_UV(latitude, longitude, vac_time, wind)
     v3next = next->wind_v[(t_long+1)%WIND_GRID_LONG][t_lat+1];
       
 #ifdef DEBUG
-  printf("u0next: U=%.2f m/s, V=%.2f m/s\n", u0next, v0next);
-  printf("u1next: U=%.2f m/s, V=%.2f m/s\n", u1next, v1next);
-  printf("u2next: U=%.2f m/s, V=%.2f m/s\n", u2next, v2next);
-  printf("u3next: U=%.2f m/s, V=%.2f m/s\n", u3next, v3next);
+    printf("u0next: U=%.2f m/s, V=%.2f m/s\n", u0next, v0next);
+    printf("u1next: U=%.2f m/s, V=%.2f m/s\n", u1next, v1next);
+    printf("u2next: U=%.2f m/s, V=%.2f m/s\n", u2next, v2next);
+    printf("u3next: U=%.2f m/s, V=%.2f m/s\n", u3next, v3next);
 #endif /* DEBUG */  
 
     /* simple bilinear interpolation, we might factor the cos(lat) in
@@ -185,9 +190,9 @@ wind_info *get_wind_info_latlong_UV(latitude, longitude, vac_time, wind)
     vnext = v01next + (v23next - v01next) * (d_long - floor(d_long));
       
 #ifdef DEBUG
-  printf("-> u01next: U=%.2f m/s, V=%.2f m/s\n", u01next, v01next);
-  printf("-> u23next: U=%.2f m/s, V=%.2f m/s\n", u23next, v23next);
-  printf("=>   unext: U=%.2f m/s, V=%.2f m/s\n", unext, vnext);
+    printf("-> u01next: U=%.2f m/s, V=%.2f m/s\n", u01next, v01next);
+    printf("-> u23next: U=%.2f m/s, V=%.2f m/s\n", u23next, v23next);
+    printf("=>   unext: U=%.2f m/s, V=%.2f m/s\n", unext, vnext);
 #endif /* DEBUG */  
 
 #ifdef DEBUG
@@ -210,10 +215,10 @@ wind_info *get_wind_info_latlong_UV(latitude, longitude, vac_time, wind)
     /* check this from grib...
        WE -> NS V (west from east, north from south) and in m/s
        so U/V +/+ -> 270 to 360
-              +/- -> 180 to 270
-	      -/- -> 90 to 180
-	      -/+ -> 0 to 90
-	      going clockwise.
+       +/- -> 180 to 270
+       -/- -> 90 to 180
+       -/+ -> 0 to 90
+       going clockwise.
        1m/s -> 1.9438445 kts
     */
 
@@ -241,10 +246,10 @@ wind_info *get_wind_info_latlong_UV(latitude, longitude, vac_time, wind)
 
 /* same as above, but with interpolation using True Wind Speed and Angle */
 wind_info *get_wind_info_latlong_TWSA(latitude, longitude, vac_time, wind)
-  double latitude;
-  double longitude;
-  time_t vac_time;
-  wind_info *wind;
+double latitude;
+double longitude;
+time_t vac_time;
+wind_info *wind;
 {
   winds *prev, *next;
   int i, t_long, t_lat;
@@ -261,6 +266,11 @@ wind_info *get_wind_info_latlong_TWSA(latitude, longitude, vac_time, wind)
 #ifdef DEBUG
   char buff[64];
 #endif /* DEBUG */
+
+  /* if the windtable is not there, return NULL */
+  if (windtable.wind == NULL) {
+    return NULL;
+  }
 
   d_long = radToDeg(longitude); /* is there a +180 drift? see grib */
   if (d_long < 0) {
@@ -304,12 +314,12 @@ wind_info *get_wind_info_latlong_TWSA(latitude, longitude, vac_time, wind)
   v3prev = prev->wind_v[(t_long+1)%WIND_GRID_LONG][t_lat+1];    
 
   /* we reuse u = speed v = angle after conversion */
-#define _transform_u_v(a, b) \
-  c = -b - _Complex_I * a;   \
-  a = msToKts(cabs(c));      \
-  b = carg(c);		     \
-  if (b < 0) {               \
-    b += TWO_PI;             \
+#define _transform_u_v(a, b)			\
+  c = -b - _Complex_I * a;			\
+  a = msToKts(cabs(c));				\
+  b = carg(c);					\
+  if (b < 0) {					\
+    b += TWO_PI;				\
   }                       
 
   _transform_u_v(u0prev, v0prev);
@@ -328,18 +338,18 @@ wind_info *get_wind_info_latlong_TWSA(latitude, longitude, vac_time, wind)
   u23prev = u2prev + (u3prev - u2prev) * (d_lat - floor(d_lat));
   uprev = u01prev + (u23prev - u01prev) * (d_long - floor(d_long));
 
-#define _check_angle_interp(a)  \
-  if (a >= PI) {                \
-    a -= TWO_PI;                \
-  } else if (a <= -PI) {        \
-    a += TWO_PI;                \
+#define _check_angle_interp(a)			\
+  if (a >= PI) {				\
+    a -= TWO_PI;				\
+  } else if (a <= -PI) {			\
+    a += TWO_PI;				\
   }
 
-#define _positive_angle(a)  \
-  if (a < 0) {              \
-    a += TWO_PI;            \
-  } else if (a >= TWO_PI) { \
-    a -= TWO_PI;            \
+#define _positive_angle(a)			\
+  if (a < 0) {					\
+    a += TWO_PI;				\
+  } else if (a >= TWO_PI) {			\
+    a -= TWO_PI;				\
   }
 
   angle = (v1prev - v0prev);
@@ -379,10 +389,10 @@ wind_info *get_wind_info_latlong_TWSA(latitude, longitude, vac_time, wind)
     _transform_u_v(u3next, v3next);
 
 #ifdef DEBUG
-  printf("u0next: %.2f kts, %.2f deg\n", u0next, radToDeg(v0next));
-  printf("u1next: %.2f kts, %.2f deg\n", u1next, radToDeg(v1next));
-  printf("u2next: %.2f kts, %.2f deg\n", u2next, radToDeg(v2next));
-  printf("u3next: %.2f kts, %.2f deg\n", u3next, radToDeg(v3next));
+    printf("u0next: %.2f kts, %.2f deg\n", u0next, radToDeg(v0next));
+    printf("u1next: %.2f kts, %.2f deg\n", u1next, radToDeg(v1next));
+    printf("u2next: %.2f kts, %.2f deg\n", u2next, radToDeg(v2next));
+    printf("u3next: %.2f kts, %.2f deg\n", u3next, radToDeg(v3next));
 #endif /* DEBUG */  
 
     /* simple bilinear interpolation, we might factor the cos(lat) in
@@ -412,9 +422,9 @@ wind_info *get_wind_info_latlong_TWSA(latitude, longitude, vac_time, wind)
     vnext = v01next + (v23next - v01next) * (d_long - floor(d_long));
 
 #ifdef DEBUG
-  printf("-> u01next: %.2f kts, %.2f deg\n", u01next, radToDeg(v01next));
-  printf("-> u23next: %.2f kts, %.2f deg\n", u23next, radToDeg(v23next));
-  printf("=>   unext: %.2f kts, %.2f deg\n", unext, radToDeg(vnext));
+    printf("-> u01next: %.2f kts, %.2f deg\n", u01next, radToDeg(v01next));
+    printf("-> u23next: %.2f kts, %.2f deg\n", u23next, radToDeg(v23next));
+    printf("=>   unext: %.2f kts, %.2f deg\n", unext, radToDeg(vnext));
 #endif /* DEBUG */  
    
 #ifdef DEBUG
@@ -434,7 +444,7 @@ wind_info *get_wind_info_latlong_TWSA(latitude, longitude, vac_time, wind)
       
     u = uprev + (unext - uprev) * t_ratio;
     angle = (vnext - vprev);
-    _check_angle_interp(angle)
+    _check_angle_interp(angle);
     v = vprev + (angle) * t_ratio;
     _positive_angle(v);
   } else {
