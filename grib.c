@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.4 2008/04/28 12:21:31 ylafon Exp $
+ * $Id: grib.c,v 1.5 2008/04/28 13:28:11 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -61,6 +61,7 @@ void init_grib() {
 
   /* to make the compiler happy */
   winds_t = NULL;
+  array = NULL;
   gribtime = 0;
   in_error = 0;
   /**
