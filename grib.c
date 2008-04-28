@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.3 2008/04/27 17:47:11 ylafon Exp $
+ * $Id: grib.c,v 1.4 2008/04/28 12:21:31 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -257,16 +257,24 @@ void init_grib() {
       break;
     }
     free(array);
+    array = NULL;
     pos += len_grib;
   }
+  /* free structures */
+  free(buffer);
+  fclose(gribfile);
+  /* in case of error, do some cleanup */
   if ((i < count) || in_error) {
+    if (array) {
+      free(array);
+    }
     count = i;
     for (i=0; i<count; i++) {
       free(w[i]);
     }
     free(w);
-    /* we got an error, dealloc stuff now */
   } else {
+    /* no error, cleanup old data */
     oldcount = windtable.nb_prevs;
     oldw = windtable.wind;
     windtable.nb_prevs = count/2; 
