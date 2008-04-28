@@ -11,8 +11,8 @@ all:: wgrib
 
 CC=gcc
 EXTRADEFINES=
-EXTRAOPTIONS=-pipe
-OPTIMFLAGS=-O3 -g
+EXTRAOPTIONS=-pipe -fPIC
+OPTIMFLAGS=-O3 -g 
 
 libgrib.a: $(obj)
 	ar -cr libgrib.a $(obj)
