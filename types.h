@@ -1,5 +1,5 @@
 /**
- * $Id: types.h,v 1.2 2008/04/23 12:00:58 ylafon Exp $
+ * $Id: types.h,v 1.3 2008/04/28 15:40:03 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -101,5 +101,12 @@ typedef struct boat_str {
   void   (*set_heading_func)();
 } boat;
 
+typedef struct vlmc_context_str {
+  char       *polar_definition_filename;
+  char       *gshhs_filename;
+  char       *grib_filename;
+  coast_zone shoreline[3601][1800];
+  winds_prev windtable;
+} vlmc_context;
 
 #endif /* _TYPES_H_ */

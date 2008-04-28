@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.5 2008/04/28 13:28:11 ylafon Exp $
+ * $Id: grib.c,v 1.6 2008/04/28 15:40:03 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -33,7 +33,7 @@
 #include "wgrib/gds.h"
 #include "wgrib/pds4.h"
 
-extern winds_prev windtable;
+extern vlmc_context global_vlmc_context;
 
 #define MSEEK 4096
 #define BUFF_ALLOC0  1048576
@@ -68,9 +68,14 @@ void init_grib() {
    * first we read the file, find the number or records, alloc memory for structures
    * then reread the file to fill them
    */
-  gribfile = fopen("latest.grb", "r");
+  if (!global_vlmc_context.grib_filename) {
+    printf("FATAL: global_vlmc_context not initialized\n");
+    return;
+  }
+  
+  gribfile = fopen(global_vlmc_context.grib_filename, "r");
   if (gribfile == NULL) {
-    printf("FATAL: unable to open \"latest.grib\"\n");
+    printf("FATAL: unable to open \"%s\"\n", global_vlmc_context.grib_filename);
     return;
   }
 
@@ -276,10 +281,10 @@ void init_grib() {
     free(w);
   } else {
     /* no error, cleanup old data */
-    oldcount = windtable.nb_prevs;
-    oldw = windtable.wind;
-    windtable.nb_prevs = count/2; 
-    windtable.wind     = w;
+    oldcount = global_vlmc_context.windtable.nb_prevs;
+    oldw = global_vlmc_context.windtable.wind;
+    global_vlmc_context.windtable.nb_prevs = count/2; 
+    global_vlmc_context.windtable.wind     = w;
     if (oldw != NULL) {
       for (i=0; i<oldcount; i++) {
 	free(oldw[i]);

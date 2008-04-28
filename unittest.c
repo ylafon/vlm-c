@@ -1,5 +1,5 @@
 /**
- * $Id: unittest.c,v 1.3 2008/04/23 19:33:31 ylafon Exp $
+ * $Id: unittest.c,v 1.4 2008/04/28 15:40:03 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -28,9 +28,9 @@
 #include "lines.h"
 #include "winds.h"
 #include "grib.h"
+#include "context.h"
 
-coast_zone shoreline[3601][1800];
-winds_prev windtable;
+vlmc_context global_vlmc_context;
 
 int main (argc, argv) 
     int argc;
@@ -43,6 +43,8 @@ int main (argc, argv)
   time_t current_time;
   int i;
   wind_info wind_boat;
+ 
+  init_context_default();
 
   lat1  = degToRad(10);
   long1 = degToRad(10);
@@ -97,13 +99,14 @@ int main (argc, argv)
 
   printf("\nWind test\n");
   init_grib();
+
   time(&current_time);
   lat_boat     = degToRad(39.812);
   long_boat    = degToRad(8.43);
   for (i=0; i<4; i++) {
     printf("Date: %s", ctime(&current_time));
     /* each 15mn */
-    get_wind_info_latlong(lat_boat, long_boat, current_time, &wind_boat);
+    get_wind_info_latlong_UV(lat_boat, long_boat, current_time, &wind_boat);
     printf("UV   Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
 	   radToDeg(lat_boat), radToDeg(long_boat),
 	   wind_boat.speed, radToDeg(wind_boat.angle));

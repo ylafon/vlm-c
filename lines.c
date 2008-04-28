@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.6 2008/04/23 12:00:15 ylafon Exp $
+ * $Id: lines.c,v 1.7 2008/04/28 15:40:03 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -42,7 +42,7 @@
  * longitude and latitude coordinates of the two points of each segment
  * in radians, this is a global variable 
  */
-extern coast_zone shoreline[3601][1800];
+extern vlmc_context global_vlmc_context;
 
 /**
  * input: longitude/latitude of old position -> new position
@@ -154,39 +154,39 @@ double check_coast(latitude, longitude, new_latitude, new_longitude,
   }
 #if DEBUG
   printf("Checking segments: [%d][%d] -> %d\n", i_long, i_lat, 
-	 shoreline[i_long][i_lat].nb_segments); 
+	 global_vlmc_context.shoreline[i_long][i_lat].nb_segments); 
 #endif /* DEBUG */
   /* if we cross more than one 1/10 of degree, we must use two loops
      instead -> check based on vac time + max speed */
   if (i_long == i_new_long) {
     if (i_lat == i_new_lat) {
-      c_zone=&shoreline[i_long][i_lat];
+      c_zone=&global_vlmc_context.shoreline[i_long][i_lat];
       _check_intersection_with_array;
     } else {
-      c_zone=&shoreline[i_long][i_lat];
+      c_zone=&global_vlmc_context.shoreline[i_long][i_lat];
       _check_intersection_with_array;
 
-      c_zone=&shoreline[i_long][i_new_lat];
+      c_zone=&global_vlmc_context.shoreline[i_long][i_new_lat];
       _check_intersection_with_array;
     }
   } else {
     if (i_lat == i_new_lat) {
-      c_zone=&shoreline[i_long][i_lat];
+      c_zone=&global_vlmc_context.shoreline[i_long][i_lat];
       _check_intersection_with_array;
 
-      c_zone=&shoreline[i_new_long][i_lat];
+      c_zone=&global_vlmc_context.shoreline[i_new_long][i_lat];
       _check_intersection_with_array;
     } else {
-      c_zone=&shoreline[i_long][i_lat];
+      c_zone=&global_vlmc_context.shoreline[i_long][i_lat];
       _check_intersection_with_array;
 
-      c_zone=&shoreline[i_long][i_new_lat];
+      c_zone=&global_vlmc_context.shoreline[i_long][i_new_lat];
       _check_intersection_with_array;
 
-      c_zone=&shoreline[i_new_long][i_lat];
+      c_zone=&global_vlmc_context.shoreline[i_new_long][i_lat];
       _check_intersection_with_array;
 
-      c_zone=&shoreline[i_new_long][i_new_lat];
+      c_zone=&global_vlmc_context.shoreline[i_new_long][i_new_lat];
       _check_intersection_with_array;
     }
   }

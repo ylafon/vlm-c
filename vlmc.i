@@ -24,8 +24,8 @@
     #include "grib.h"
     #include "lines.h"
     #include "util.h"
-    coast_zone shoreline[3601][1800];
-    winds_prev windtable;
+    #include "context.h"
+    vlmc_context global_vlmc_context;
 %}
 
 /* les inclusions pour générer le wrapper python */
@@ -43,5 +43,7 @@ typedef long time_t;
 %include "grib.h"
 %include "lines.h"
 %include "util.h"
-extern coast_zone shoreline[3601][1800];
-extern winds_prev windtable;
+%include "context.h"
+
+extern vlmc_context global_vlmc_context;
+

@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.2 2008/04/23 11:59:50 ylafon Exp $
+ * $Id: defs.h,v 1.3 2008/04/28 15:40:03 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -50,7 +50,9 @@
 #else
 # define WIND_GRID_LONG   720
 # define WIND_GRID_LAT    361
-# define GRIB_TIME_OFFSET 0
+# ifndef GRIB_TIME_OFFSET
+#  define GRIB_TIME_OFFSET 0
+# endif /* GRIB_TIME_OFFSET */
 # define GRIB_RESOLUTION_0_5
 #endif
 

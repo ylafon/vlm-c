@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.7 2008/04/27 19:48:10 ylafon Exp $
+ * $Id: winds.c,v 1.8 2008/04/28 15:40:03 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -27,8 +27,7 @@
 #include "types.h"
 #include "winds.h"
 
-extern winds_prev windtable;
-
+extern vlmc_context global_vlmc_context;
 
 void get_wind_info(aboat, wind)
      boat      *aboat;
@@ -83,12 +82,14 @@ wind_info *wind;
   double u,v;
   double d_long, d_lat, t_ratio, angle;
   double complex c;
+  winds_prev *windtable;
 #ifdef DEBUG
   char buff[64];
 #endif /* DEBUG */
-
+  
+  windtable = &global_vlmc_context.windtable;
   /* if the windtable is not there, return NULL */
-  if (windtable.wind == NULL) {
+  if (windtable->wind == NULL) {
     wind->speed = 0.0;
     wind->angle = 0.0;
     return NULL;
@@ -104,20 +105,20 @@ wind_info *wind;
     
   prev = next = NULL;
 
-  for (i=0; i< windtable.nb_prevs; i++) {
-    if (windtable.wind[i]->prevision_time > vac_time) {
+  for (i=0; i< windtable->nb_prevs; i++) {
+    if (windtable->wind[i]->prevision_time > vac_time) {
       if (i) {
-	next = windtable.wind[i];
-	prev = windtable.wind[i-1];
+	next = windtable->wind[i];
+	prev = windtable->wind[i-1];
       } else {
-	prev = windtable.wind[i];
+	prev = windtable->wind[i];
       }
       break;
     }
   }
   /* none found the two are the last ones */
   if (!next) {
-    prev = windtable.wind[i-1];
+    prev = windtable->wind[i-1];
   } 
 #ifdef GRIB_RESOLUTION_1
   t_long = (int)floor(d_long);
@@ -265,12 +266,14 @@ wind_info *wind;
   double u,v;
   double d_long, d_lat, t_ratio, angle;
   double complex c;
+  winds_prev *windtable;
 #ifdef DEBUG
   char buff[64];
 #endif /* DEBUG */
 
+  windtable = &global_vlmc_context.windtable;
   /* if the windtable is not there, return NULL */
-  if (windtable.wind == NULL) {
+  if (windtable->wind == NULL) {
     wind->speed = 0.0;
     wind->angle = 0.0;
     return NULL;
@@ -286,20 +289,20 @@ wind_info *wind;
     
   prev = next = NULL;
 
-  for (i=0; i< windtable.nb_prevs; i++) {
-    if (windtable.wind[i]->prevision_time > vac_time) {
+  for (i=0; i< windtable->nb_prevs; i++) {
+    if (windtable->wind[i]->prevision_time > vac_time) {
       if (i) {
-	next = windtable.wind[i];
-	prev = windtable.wind[i-1];
+	next = windtable->wind[i];
+	prev = windtable->wind[i-1];
       } else {
-	prev = windtable.wind[i];
+	prev = windtable->wind[i];
       }
       break;
     }
   }
   /* none found the two are the last ones */
   if (!next) {
-    prev = windtable.wind[i-1];
+    prev = windtable->wind[i-1];
   } 
 #ifdef GRIB_RESOLUTION_1
   t_long = (int)floor(d_long);
