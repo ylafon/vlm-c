@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.9 2008/05/03 09:20:37 ylafon Exp $
+ * $Id: winds.c,v 1.10 2008/05/03 15:31:17 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -104,6 +104,9 @@ wind_info *wind;
   d_lat = radToDeg(latitude) + 90; /* is there a +90 drift? see grib*/
     
   prev = next = NULL;
+
+  /* correct the grib time, currently variable in VLM */
+  vac_time -= windtable->time_offset;
 
   for (i=0; i< windtable->nb_prevs; i++) {
     if (windtable->wind[i]->prevision_time > vac_time) {
@@ -288,6 +291,9 @@ wind_info *wind;
   d_lat = radToDeg(latitude) + 90; /* is there a +90 drift? see grib*/
     
   prev = next = NULL;
+
+  /* correct the grib time, currently variable in VLM */
+  vac_time -= windtable->time_offset;
 
   for (i=0; i< windtable->nb_prevs; i++) {
     if (windtable->wind[i]->prevision_time > vac_time) {
