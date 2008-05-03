@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.8 2008/05/03 15:33:25 ylafon Exp $
+ * $Id: grib.c,v 1.9 2008/05/03 15:36:15 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -40,10 +40,10 @@ extern vlmc_context global_vlmc_context;
 #define BUFF_ALLOC0  1048576
 
 void init_grib() {
-  init_grib(GRIB_TIME_OFFSET);
+  init_grib_offset(GRIB_TIME_OFFSET);
 }
 
-void init_grib(time_offset) 
+void init_grib_offset(time_offset) 
 long time_offset;
 {
   /* by default we are looking at the "latest.grib" file, easy to download the file

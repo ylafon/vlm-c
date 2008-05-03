@@ -1,5 +1,5 @@
 /**
- * $Id: grib.h,v 1.2 2008/05/03 15:31:55 ylafon Exp $
+ * $Id: grib.h,v 1.3 2008/05/03 15:36:22 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -25,6 +25,6 @@
 #include "types.h"
 
 void init_grib();
-void init_grib PARAM1(long);
+void init_grib_offset PARAM1(long);
 
 #endif /* _GRIB_H_ */
