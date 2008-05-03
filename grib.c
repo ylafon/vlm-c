@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.6 2008/04/28 15:40:03 ylafon Exp $
+ * $Id: grib.c,v 1.7 2008/05/03 15:32:10 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -39,6 +39,12 @@ extern vlmc_context global_vlmc_context;
 #define BUFF_ALLOC0  1048576
 
 void init_grib() {
+  init_grib(GRIB_TIME_OFFSET);
+}
+
+void init_grib(time_offset) 
+long time_offset;
+{
   /* by default we are looking at the "latest.grib" file, easy to download the file
      then create a symlink. It can be changed easily anyway, as it would be more
      flexible */
@@ -197,7 +203,7 @@ void init_grib() {
     gribtime_tm.tm_sec    = 0;
     gribtime_tm.tm_isdst  = 0;
     gribtime_tm.tm_gmtoff = 0;
-    gribtime = timegm(&gribtime_tm) + GRIB_TIME_OFFSET;
+    gribtime = timegm(&gribtime_tm);
 #ifdef DEBUG
     printf("Time: %ld", gribtime);
 #endif /* DEBUG */
@@ -283,8 +289,9 @@ void init_grib() {
     /* no error, cleanup old data */
     oldcount = global_vlmc_context.windtable.nb_prevs;
     oldw = global_vlmc_context.windtable.wind;
-    global_vlmc_context.windtable.nb_prevs = count/2; 
-    global_vlmc_context.windtable.wind     = w;
+    global_vlmc_context.windtable.nb_prevs    = count/2; 
+    global_vlmc_context.windtable.wind        = w;
+    global_vlmc_context.windtable.time_offset = time_offset;
     if (oldw != NULL) {
       for (i=0; i<oldcount; i++) {
 	free(oldw[i]);
