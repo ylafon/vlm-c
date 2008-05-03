@@ -1,5 +1,5 @@
 /**
- * $Id: winds.h,v 1.4 2008/05/03 09:20:53 ylafon Exp $
+ * $Id: winds.h,v 1.5 2008/05/03 21:10:53 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -32,6 +32,12 @@ wind_info *get_wind_info_latlong_now PARAM3(double, double, wind_info *);
 
 wind_info *get_wind_info_latlong_TWSA PARAM4(double, double, time_t, wind_info *);
 wind_info *get_wind_info_latlong_UV PARAM4(double, double, time_t, wind_info *);
+
+/* get the timestamp (in seconds , see time()) of the first grib entry
+   technically, an observation, not a prevision */
+time_t get_min_prevision_time();
+
+/* get the timestamp (in seconds , see time()) of the last prevision */
 time_t get_max_prevision_time();
 
 #endif /* _WINDS_H_ */
