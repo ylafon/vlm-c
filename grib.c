@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.7 2008/05/03 15:32:10 ylafon Exp $
+ * $Id: grib.c,v 1.8 2008/05/03 15:33:25 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -27,6 +27,7 @@
 
 #include "defs.h"
 #include "types.h"
+#include "grib.h"
 #include "wgrib/grib.h"
 #include "wgrib/bms.h"
 #include "wgrib/bds.h"
