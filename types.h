@@ -1,5 +1,5 @@
 /**
- * $Id: types.h,v 1.3 2008/04/28 15:40:03 ylafon Exp $
+ * $Id: types.h,v 1.4 2008/05/03 15:32:30 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -71,13 +71,14 @@ typedef struct winds_str {
 } winds;
 
 typedef struct wind_prev_str {
-    int nb_prevs;
-    struct winds_str **wind;
+  long time_offset;
+  int nb_prevs;
+  struct winds_str **wind;
 } winds_prev;
 
 typedef struct wind_info_str {
-    double speed;
-    double angle; /* in rad */
+  double speed;
+  double angle; /* in rad */
 } wind_info;
 
 /* is type part of boat, or taken from the race ? */
