@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.8 2008/04/28 15:40:03 ylafon Exp $
+ * $Id: winds.c,v 1.9 2008/05/03 09:20:37 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -464,4 +464,14 @@ wind_info *wind;
   wind->speed = u;
   wind->angle = v;
   return wind;
+}
+
+time_t get_max_prevision_time() {
+  winds_prev *windtable;
+
+  windtable = &global_vlmc_context.windtable;
+  if (windtable->wind == NULL) {
+    return 0;
+  }
+  return windtable->wind[windtable->nb_prevs-1]->prevision_time;
 }
