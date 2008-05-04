@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.7 2008/04/28 15:40:03 ylafon Exp $
+ * $Id: lines.c,v 1.8 2008/05/04 13:43:43 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -67,7 +67,7 @@ double intersects(latitude, longitude, new_latitude, new_longitude,
     new_longitude += TWO_PI;
   }
 #ifdef DEBUG
-  printf("Checking intersection between %.4fx%4f->%.4fx%.4f and %.4fx%4f->%.4fx%.4f",
+  printf("Checking intersection between %.4fx%4f->%.4fx%.4f and %.4fx%4f->%.4fx%.4f\n",
 	 latitude, longitude, new_latitude, new_longitude,
 	 seg_a_latitude, seg_a_longitude, seg_b_latitude,seg_b_longitude);
 #endif /* DEBUG */
@@ -137,10 +137,10 @@ double check_coast(latitude, longitude, new_latitude, new_longitude,
   /* to keep the compiler happy */
   t_lat=t_long=min_lat=min_long=0.0;
 
-  i_long     = floor(radToDeg(longitude)*10);
-  i_lat      = floor(radToDeg(latitude)*10) + 900;
-  i_new_long = floor(radToDeg(new_longitude)*10);
-  i_new_lat  = floor(radToDeg(new_latitude)*10) + 900;
+  i_lat      = floor(radToDeg(latitude)*10.0) + 900;
+  i_long     = floor(radToDeg(longitude)*10.0);
+  i_new_lat  = floor(radToDeg(new_latitude)*10.0) + 900;
+  i_new_long = floor(radToDeg(new_longitude)*10.0);
   
   if (i_long < 0) {
     i_long += 3600;
