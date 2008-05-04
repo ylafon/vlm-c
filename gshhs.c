@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.2 2008/04/28 15:40:03 ylafon Exp $
+ * $Id: gshhs.c,v 1.3 2008/05/04 08:39:45 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -126,12 +126,16 @@ void init_coastline() {
 	    segnum[prev_x][prev_y]++;
 	  }
 	}
+	prev_x = x;
+	prev_y = y;
       }
     }
     nb_read = fread((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, 
 		    coastfile);
   }
   fclose (coastfile);
+
+  /* now allocate the structures */
   for (x=0; x<=3600; x++) {
     for (y=0; y<1800; y++) {
       global_vlmc_context.shoreline[x][y].nb_segments = segnum[x][y];
@@ -223,6 +227,10 @@ void init_coastline() {
 	    _add_segment(prev_x,prev_y);
 	  }
 	}
+	prev_x = x;
+	prev_y = y;
+	prev_longitude = longitude;
+	prev_latitude = latitude;
       }
     }
     nb_read = fread((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, 
