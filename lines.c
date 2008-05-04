@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.8 2008/05/04 13:43:43 ylafon Exp $
+ * $Id: lines.c,v 1.9 2008/05/04 16:22:35 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -21,6 +21,7 @@
 #include "defs.h"
 #include "types.h"
 #include "ortho.h"
+#include "lines.h"
 
 /**
  * Strict check will et intersection only between 0 and 1 (inclusive)
@@ -211,6 +212,26 @@ double distance_to_line(latitude, longitude, latitude_a, longitude_a,
      double latitude_a, longitude_a;
      double latitude_b, longitude_b;
 {
+  double ratio;
+  return distance_to_line_ratio(latitude, longitude, 
+				latitude_a, longitude_a,
+				latitude_b, longitude_b, &ratio);
+}
+
+/**
+ * compute an approximative distance to a segment. Useful to estimate 
+ * distance to a gate. It is at best an approximation, as the intersection
+ * algorithm is not valid for long distances
+ * Parameters: lat/long of point, then lat and long of A & B defining the
+ * segment
+ */
+double distance_to_line_ratio(latitude, longitude, latitude_a, longitude_a,
+			      latitude_b, longitude_b, ab_ratio)
+     double latitude, longitude;
+     double latitude_a, longitude_a;
+     double latitude_b, longitude_b;
+     double *ab_ratio;
+{
   double ortho_a, ortho_b, min_dist, ab_dist, t_dist;
   double longitude_x, latitude_x, intersect;
 
@@ -224,14 +245,15 @@ double distance_to_line(latitude, longitude, latitude_a, longitude_a,
   latitude_x = latitude + (longitude_a - longitude_b) * min_dist / ab_dist;
   longitude_x = longitude + (latitude_b - latitude_a) * min_dist / ab_dist;
   
-  intersect = intersects(latitude, longitude, latitude_x, longitude_x,
-			 latitude_a, longitude_a, latitude_b, longitude_b,
+  intersect = intersects(latitude_a, longitude_a, latitude_b, longitude_b,
+			 latitude, longitude, latitude_x, longitude_x,
 			 &latitude_x, &longitude_x);
   if (intersect>=MIN_LIMIT && intersect<=MAX_LIMIT) { 
     t_dist = ortho_distance(latitude, longitude, latitude_x, longitude_x);
 #ifdef DEBUG
     printf("Min dist: %.3f, found dist: %.3f\n", min_dist, t_dist);
 #endif /* DEBUG */
+    *ab_ratio = intersect;
     return fmin(min_dist, t_dist);
   }
 
@@ -240,14 +262,15 @@ double distance_to_line(latitude, longitude, latitude_a, longitude_a,
   latitude_x = latitude + (longitude_b - longitude_a) * min_dist / ab_dist;
   longitude_x = longitude + (latitude_a - latitude_b) * min_dist / ab_dist;
   
-  intersect = intersects(latitude, longitude, latitude_x, longitude_x,
-			 latitude_a, longitude_a, latitude_b, longitude_b,
+  intersect = intersects(latitude_a, longitude_a, latitude_b, longitude_b,
+			 latitude, longitude, latitude_x, longitude_x,
 			 &latitude_x, &longitude_x);
   if (intersect>=MIN_LIMIT && intersect<=MAX_LIMIT) { 
     t_dist = ortho_distance(latitude, longitude, latitude_x, longitude_x);
 #ifdef DEBUG
     printf("Min dist: %.3f, found dist: %.3f\n", min_dist, t_dist);
 #endif /* DEBUG */
+    *ab_ratio = intersect;
     return fmin(min_dist, t_dist);
   }
   return min_dist;
