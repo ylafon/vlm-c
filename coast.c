@@ -1,5 +1,5 @@
 /**
- * $Id: coast.c,v 1.2 2008/05/05 07:55:48 ylafon Exp $
+ * $Id: coast.c,v 1.3 2008/05/05 09:23:33 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -69,15 +69,31 @@ int main(argc, argv)
   }
   init_context_default();
   init_coastline();
-  lat_a = atof(argv[1]);
-  long_a = atof(argv[2]);
-  lat_b = atof(argv[3]);
-  long_b = atof(argv[4]);
+  lat_a  = fmod(atof(argv[1]), 180.0);
+  long_a = fmod(atof(argv[2]), 360.0);
+  lat_b  = fmod(atof(argv[3]), 180.0);
+  long_b = fmod(atof(argv[4]), 360.0);
   
-  ilat_min  = min((int)floor(lat_a*10.0), (int)floor(lat_b)*10.0) + 900;
-  ilat_max  = max((int)floor(lat_a*10.0), (int)floor(lat_b)*10.0) + 900;
-  ilong_min = min((int)floor(long_a*10.0), (int)floor(long_b)*10.0);
-  ilong_max = max((int)floor(long_a*10.0), (int)floor(long_b)*10.0);
+  if (long_a < 0.0) {
+    long_a += 360.0;
+  }
+  if (long_b < 0.0) {
+    long_b += 360.0;
+  }
+
+  /* sounds strange? yes it is ;) */
+  if (fabs(long_b - long_a) > 180.0) {
+    if (long_b > long_a) {
+      long_b -= 360.0;
+    } else {
+      long_a -= 360.0;
+    }
+  }
+
+  ilat_min  = min((int)floor(lat_a*10.0), (int)floor(lat_b*10.0)) + 900;
+  ilat_max  = max((int)ceil(lat_a*10.0), (int)ceil(lat_b*10.0)) + 900;
+  ilong_min = min((int)floor(long_a*10.0), (int)floor(long_b*10.0));
+  ilong_max = max((int)ceil(long_a*10.0), (int)ceil(long_b*10.0));
 
   printf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <kml xmlns=\"http://earth.google.com/kml/2.2\">\n\
@@ -104,7 +120,7 @@ int main(argc, argv)
   color = 0;
   for (i=ilong_min; i<=ilong_max; i++) {
     for (j=ilat_min; j<= ilat_max; j++) {
-      c_zone=&global_vlmc_context.shoreline[i][j];
+      c_zone=&global_vlmc_context.shoreline[(i<0)?i+3600:i][j];
       nb_segments = c_zone->nb_segments;      
       seg_array = c_zone->seg_array;
       for (k=0; k<nb_segments; k++) {
