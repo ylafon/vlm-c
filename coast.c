@@ -1,5 +1,5 @@
 /**
- * $Id: coast.c,v 1.1 2008/05/04 13:42:55 ylafon Exp $
+ * $Id: coast.c,v 1.2 2008/05/05 07:55:48 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -59,7 +59,7 @@ int main(argc, argv)
 {
   double lat_a, lat_b, long_a, long_b;
   int ilat_min, ilat_max, ilong_min, ilong_max;
-  int i,j,k, nb_segments, segnum;
+  int i,j,k, nb_segments, segnum, color;
   coast_zone *c_zone;
   coast_seg *seg_array;
 
@@ -91,10 +91,17 @@ int main(argc, argv)
         <width>4</width>\n\
       </LineStyle>\n\
     </Style>\n\
+    <Style id=\"barStyle\">\n\
+      <LineStyle>\n\
+        <color>7f00ffff</color>\n\
+        <width>4</width>\n\
+      </LineStyle>\n\
+    </Style>\n\
     <Folder>\n\
       <name>coast segments</name>\n\
 ");
   segnum = 0;
+  color = 0;
   for (i=ilong_min; i<=ilong_max; i++) {
     for (j=ilat_min; j<= ilat_max; j++) {
       c_zone=&global_vlmc_context.shoreline[i][j];
@@ -105,13 +112,14 @@ int main(argc, argv)
       <Placemark>\n\
         <name>Segment %d</name>\n\
         <visibility>1</visibility>\n\
-        <styleUrl>#fooStyle</styleUrl>\n\
+        <styleUrl>#%s</styleUrl>\n\
         <LineString>\n\
           <tessellate>1</tessellate>\n\
-          <coordinates>\n", segnum++);
+          <coordinates>\n", segnum++, (color ? "fooStyle" : "barStyle"));
 	print_position_ge(seg_array->latitude_a, seg_array->longitude_a);
 	print_position_ge(seg_array->latitude_b, seg_array->longitude_b);
 	seg_array++;
+	color = !color;
 	printf("\n\
           </coordinates>\n\
         </LineString>\n\
