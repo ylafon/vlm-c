@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.11 2008/05/07 09:37:20 ylafon Exp $
+ * $Id: grib.c,v 1.12 2008/05/07 16:37:40 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -42,10 +42,6 @@ winds **read_gribs PARAM1(int *);
 #define MSEEK 4096
 #define BUFF_ALLOC0  1048576
 
-void init_grib() {
-  init_grib_offset(GRIB_TIME_OFFSET);
-}
-
 void set_grib_offset(time_offset) 
      long time_offset;
 {
@@ -57,6 +53,10 @@ long get_grib_offset()
   return global_vlmc_context.windtable.time_offset;
 }
 
+void init_grib() {
+  init_grib_offset(GRIB_TIME_OFFSET);
+}
+
 void init_grib_offset(time_offset)
      long time_offset;
 {
@@ -65,7 +65,6 @@ void init_grib_offset(time_offset)
 
   w = read_gribs(&nb_prevs);
   /* no error, cleanup old data */
-  printf("NB prevs: %d\n", nb_prevs);
   if (w) {
     oldcount = global_vlmc_context.windtable.nb_prevs;
     oldw = global_vlmc_context.windtable.wind;
@@ -82,7 +81,7 @@ void init_grib_offset(time_offset)
 }
 
 winds **read_gribs(nb_prevs) 
-  int *nb_prevs;
+int *nb_prevs;
 {
   struct tm     gribtime_tm;
   time_t        gribtime;
@@ -99,7 +98,7 @@ winds **read_gribs(nb_prevs)
   winds         *winds_t;
   float         *array;
   double        temp;
-  int           in_error, gribtype;
+  int           in_error, gribtype, must_loop;
 
   /* to make the compiler happy */
   winds_t = NULL;
@@ -107,7 +106,8 @@ winds **read_gribs(nb_prevs)
   gribtime = 0;
   in_error = 0;
   /**
-   * first we read the file, find the number or records, alloc memory for structures
+   * first we read the file, find the number or records, 
+   * alloc memory for structures
    * then reread the file to fill them
    */
   if (!global_vlmc_context.grib_filename) {
@@ -142,12 +142,17 @@ winds **read_gribs(nb_prevs)
     printf("Error reading GRIB file, found odd number or records\n");
     return NULL;
   }
-  wpos = 0;
 
+  /* 
+     here we assume we have only u/v in the grib, we could be stricter
+     and really enforce the number of previsions before allocating the thing
+     in low priority todo (FIXME)
+  */
   w = calloc (count/2, sizeof(winds *));
 
   /* now reread the file, and dump stuff one by one */
-  pos = 0;
+  pos  = 0;
+  wpos = 0;
   for (i=0; i<count; i++) {
     msg = seek_grib(gribfile, &pos, &len_grib, buffer, MSEEK);
     /* ensure buffer is enough (should be ok for two records by default */
@@ -261,17 +266,25 @@ winds **read_gribs(nb_prevs)
     printf("Time Range: %d\n", PDS_TimeRange(pds));
 #endif /* DEBUG */
     /* get or create a new winds structure */
-    if (w[i/2] == NULL) {
+    winds_t = NULL;
+    if (wpos) {
+      for (x=0; x<wpos; x++) {
+	if (w[x]->prevision_time == gribtime) {
+	  winds_t = w[x];
+	  break;
+	}
+      }
+    } 
+    if (!winds_t) {
       winds_t = calloc(1, sizeof(winds));
       winds_t->prevision_time = gribtime;
-      w[i/2] = winds_t;
+      w[wpos] = winds_t;
 #ifdef DEBUG
       printf("Prev time: %ld, %s\n", winds_t->prevision_time, 
 	     ctime(&winds_t->prevision_time));
 #endif /* DEBUG */
-    } else {
-      winds_t = w[i/2];
-    }
+      wpos++;
+    } 
     /* fill depending on grid type */
     if (gribtype == 34) { /* VGRD */
 #ifdef GRIB_RESOLUTION_1
@@ -324,8 +337,20 @@ winds **read_gribs(nb_prevs)
     }
     free(w);
     return NULL;
-  } else {
-    *nb_prevs = count/2;
-    return w;
   }
+
+  must_loop = 1;
+  while (must_loop) {
+    must_loop = 0;
+    for (x=1; x<wpos; x++) {
+      if (w[x-1]->prevision_time > w[x]->prevision_time) {
+	winds_t = w[x];
+	w[x]    = w[x-1];
+	w[x-1]  = winds_t;
+	must_loop = 1;
+      }
+    }
+  }
+  *nb_prevs = wpos;
+  return w;
 }
