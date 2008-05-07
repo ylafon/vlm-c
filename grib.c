@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.17 2008/05/07 20:20:07 ylafon Exp $
+ * $Id: grib.c,v 1.18 2008/05/07 20:27:50 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -183,7 +183,7 @@ void merge_gribs(int purge) {
     }
   }
   /* we added new gribs at the end, but not sure that it has been done
-     in order -> reodred this */
+     in order -> reorder this */
   must_loop = 1;
   while (must_loop) {
     must_loop = 0;
