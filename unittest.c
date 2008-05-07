@@ -1,5 +1,5 @@
 /**
- * $Id: unittest.c,v 1.5 2008/05/03 09:51:13 ylafon Exp $
+ * $Id: unittest.c,v 1.6 2008/05/07 07:29:18 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -98,7 +98,7 @@ int main (argc, argv)
 	 distance_to_line(lat3, long3, lata, longa, latb, longb));
 
   printf("\nWind test\n");
-  init_grib();
+  init_grib_offset(36*60);
   previ_time = get_max_prevision_time();
   printf("Max prevision time: %s\n", ctime(&previ_time));
   time(&current_time);
