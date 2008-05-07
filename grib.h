@@ -1,5 +1,5 @@
 /**
- * $Id: grib.h,v 1.4 2008/05/03 15:40:56 ylafon Exp $
+ * $Id: grib.h,v 1.5 2008/05/07 11:20:22 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -31,5 +31,7 @@ void init_grib();
    future, so the boats will be late.
 */
 void init_grib_offset PARAM1(long);
+void set_grib_offset PARAM1(long);
+long get_grib_offset ();
 
 #endif /* _GRIB_H_ */
