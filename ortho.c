@@ -1,5 +1,5 @@
 /**
- * $Id: ortho.c,v 1.2 2008/04/22 12:39:19 ylafon Exp $
+ * $Id: ortho.c,v 1.3 2008/05/07 22:19:08 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -26,9 +26,7 @@
 /* could save on computing power if we do all computing for a boat at once,
    that way, we can save calls to sin or cos */
 
-void set_heading_ortho_nowind(aboat)
-     boat *aboat;
-{
+void set_heading_ortho_nowind(boat *aboat) {
   double g,d, den;
   
   g = aboat->wp_longitude - aboat->longitude;
@@ -55,20 +53,14 @@ void set_heading_ortho_nowind(aboat)
   }
 }
 
-void set_heading_ortho(aboat)
-     boat *aboat;
-{
+void set_heading_ortho(boat *aboat) {
   get_wind_info(aboat, &aboat->wind);
   set_heading_ortho_nowind(aboat);
 }
 
 /* return distance in nautic miles */
-double ortho_distance(latitude, longitude, wp_latitude, wp_longitude)
-     double latitude;
-     double longitude;
-     double wp_latitude;
-     double wp_longitude;
-{
+double ortho_distance(double latitude, double longitude, 
+		      double wp_latitude, double wp_longitude) {
   double g,d;
   
   g = wp_longitude - longitude;
