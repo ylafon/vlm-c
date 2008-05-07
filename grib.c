@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.15 2008/05/07 19:54:17 ylafon Exp $
+ * $Id: grib.c,v 1.16 2008/05/07 19:54:37 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -112,7 +112,9 @@ void purge_grib() {
       oldw                 = windtable->wind;
       windtable->wind      = w;
       windtable->nb_prevs -= gribidx;
+#ifdef DEBUG
       printf("Purging, from 0 to %d\n", gribidx);
+#endif /* DEBUG */
       for (i=0; i<gribidx; i++) {
 	free(oldw[i]);
       }
