@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.14 2008/05/07 17:09:18 ylafon Exp $
+ * $Id: grib.c,v 1.15 2008/05/07 19:54:17 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -57,7 +57,7 @@ void init_grib() {
   init_grib_offset(GRIB_TIME_OFFSET);
 }
 
-void init_grib_offset(longtime_offset) {
+void init_grib_offset(long time_offset) {
   winds **w, **oldw;
   int nb_prevs, oldcount, i;
 
@@ -78,6 +78,54 @@ void init_grib_offset(longtime_offset) {
   }
 }
 
+void purge_grib() {
+  time_t now;
+  int i, gribidx, nb_prevs;
+  winds_prev *windtable;
+  winds **w, **oldw;
+
+  windtable = &global_vlmc_context.windtable;
+  if (!windtable) {
+    return;
+  }
+  nb_prevs = windtable->nb_prevs; 
+  if (nb_prevs < 3) {
+    /* no need to work on this */
+    return;
+  }
+
+  time(&now);
+  for (i=0; i< nb_prevs; i++) {
+    if (windtable->wind[i]->prevision_time > now) {
+      /* the first one is already ahead of now, or we are between 0 and 1,
+	 then skip */
+      if (!(i>>1)) {
+	return;
+      }
+      i--;
+      /* allocate and copy */
+      w = calloc (nb_prevs - i, sizeof(winds *));
+      for (gribidx = i; i<nb_prevs; i++) {
+	w[i-gribidx] = windtable->wind[i];
+      }
+      /* assign then purge old structures */
+      oldw                 = windtable->wind;
+      windtable->wind      = w;
+      windtable->nb_prevs -= gribidx;
+      printf("Purging, from 0 to %d\n", gribidx);
+      for (i=0; i<gribidx; i++) {
+	free(oldw[i]);
+      }
+      free(oldw);
+      /* we did our job, abort the outer loop */
+      break;
+    }
+  }
+}
+/**
+ * read grib form context->grib filename and return a an array
+ * of newly allocated winds *, and fill the number of previsions
+ */
 winds **read_gribs(int *nb_prevs) {
   struct tm     gribtime_tm;
   time_t        gribtime;
