@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.12 2008/05/07 16:37:40 ylafon Exp $
+ * $Id: grib.c,v 1.13 2008/05/07 16:39:33 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -267,6 +267,7 @@ int *nb_prevs;
 #endif /* DEBUG */
     /* get or create a new winds structure */
     winds_t = NULL;
+    /* first try to locate an entry with the same timestamp */
     if (wpos) {
       for (x=0; x<wpos; x++) {
 	if (w[x]->prevision_time == gribtime) {
@@ -275,6 +276,7 @@ int *nb_prevs;
 	}
       }
     } 
+    /* if not, allocate the structure */
     if (!winds_t) {
       winds_t = calloc(1, sizeof(winds));
       winds_t->prevision_time = gribtime;
@@ -338,7 +340,7 @@ int *nb_prevs;
     free(w);
     return NULL;
   }
-
+  /* and reorder the gribs, if the source file is not in ascending order */
   must_loop = 1;
   while (must_loop) {
     must_loop = 0;
@@ -351,6 +353,7 @@ int *nb_prevs;
       }
     }
   }
+  /* populate data and exit */
   *nb_prevs = wpos;
   return w;
 }
