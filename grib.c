@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.13 2008/05/07 16:39:33 ylafon Exp $
+ * $Id: grib.c,v 1.14 2008/05/07 17:09:18 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -57,9 +57,7 @@ void init_grib() {
   init_grib_offset(GRIB_TIME_OFFSET);
 }
 
-void init_grib_offset(time_offset)
-     long time_offset;
-{
+void init_grib_offset(longtime_offset) {
   winds **w, **oldw;
   int nb_prevs, oldcount, i;
 
@@ -80,9 +78,7 @@ void init_grib_offset(time_offset)
   }
 }
 
-winds **read_gribs(nb_prevs) 
-int *nb_prevs;
-{
+winds **read_gribs(int *nb_prevs) {
   struct tm     gribtime_tm;
   time_t        gribtime;
   FILE          *gribfile;
