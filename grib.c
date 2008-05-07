@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.18 2008/05/07 20:27:50 ylafon Exp $
+ * $Id: grib.c,v 1.19 2008/05/07 21:57:18 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -42,14 +42,11 @@ winds **read_gribs PARAM1(int *);
 #define MSEEK 4096
 #define BUFF_ALLOC0  1048576
 
-void set_grib_offset(time_offset) 
-     long time_offset;
-{
+void set_grib_offset(long time_offset) {
   global_vlmc_context.windtable.time_offset = time_offset;
 }
 
-long get_grib_offset() 
-{
+long get_grib_offset() {
   return global_vlmc_context.windtable.time_offset;
 }
 
