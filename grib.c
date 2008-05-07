@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.9 2008/05/03 15:36:15 ylafon Exp $
+ * $Id: grib.c,v 1.10 2008/05/07 07:30:16 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -203,7 +203,9 @@ long time_offset;
     gribtime_tm.tm_min    = 0;
     gribtime_tm.tm_sec    = 0;
     gribtime_tm.tm_isdst  = 0;
+#ifndef __CYGWIN
     gribtime_tm.tm_gmtoff = 0;
+#endif /* __CYGWIN */
     gribtime = timegm(&gribtime_tm);
 #ifdef DEBUG
     printf("Time: %ld", gribtime);
