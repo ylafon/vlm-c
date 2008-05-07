@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.16 2008/05/07 19:54:37 ylafon Exp $
+ * $Id: grib.c,v 1.17 2008/05/07 20:20:07 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -78,7 +78,10 @@ void init_grib_offset(long time_offset) {
   }
 }
 
-void purge_grib() {
+/**
+ * remove old gribs (compared to _now_)
+ */
+void purge_gribs() {
   time_t now;
   int i, gribidx, nb_prevs;
   winds_prev *windtable;
@@ -124,6 +127,86 @@ void purge_grib() {
     }
   }
 }
+
+/**
+ * merge gribs, then purge is 'purge' is non-zero 
+ */
+void merge_gribs(int purge) {
+  winds **w, **oldw, **neww, *winds_t;
+  int nb_prevs, oldcount, i, j, addit, idx;
+  int totalcount, must_loop;
+  
+  w = read_gribs(&nb_prevs);
+  /* error, fail silently */
+  if (!w) {
+    return;
+  }
+  
+  oldcount = global_vlmc_context.windtable.nb_prevs;
+  oldw = global_vlmc_context.windtable.wind;
+  
+  /* compute the size of the merged grib */
+  totalcount = oldcount;
+  for (i=0; i<nb_prevs; i++) {
+    addit = 1;
+    for (j=0; j<oldcount; j++) {
+      /* same as an existing grib, it will be replaced, not added */
+      if (w[i]->prevision_time == oldw[j]->prevision_time) {
+	addit = 0;
+	break;
+      }
+    }
+    totalcount += addit;
+  }
+
+  /* allow the structure, copy then merge/replace */
+  neww = calloc (totalcount, sizeof(winds *));
+  for (i=0; i<oldcount; i++) {
+    neww[i] = oldw[i];
+  }
+  idx = oldcount;
+  for (i=0; i<nb_prevs; i++) {
+    addit = 1;
+    for (j=0; j<oldcount; j++) {
+      /* same as an existing grib, clean up old data, and install
+	 the most recent grib */
+      if (w[i]->prevision_time == neww[j]->prevision_time) {
+	free(neww[j]);
+	neww[j] = w[i];
+	addit = 0;
+	break;
+      }
+    }
+    /* not a replacement, add it at the end */
+    if (addit) {
+      neww[idx++] = w[i];
+    }
+  }
+  /* we added new gribs at the end, but not sure that it has been done
+     in order -> reodred this */
+  must_loop = 1;
+  while (must_loop) {
+    must_loop = 0;
+    for (i=1; i<totalcount; i++) {
+      if (w[i-1]->prevision_time > w[i]->prevision_time) {
+	winds_t = w[i];
+	w[i]    = w[i-1];
+	w[i-1]  = winds_t;
+	must_loop = 1;
+      }
+    }
+  }
+  global_vlmc_context.windtable.nb_prevs    = totalcount; 
+  global_vlmc_context.windtable.wind        = neww;
+  /* we freed the old gribs, but not the containing structure, do it now */
+  free(oldw);
+  free(w);
+  /* and finish by purging the old gribs */
+  if (purge) {
+    purge_gribs();
+  }
+}
+
 /**
  * read grib form context->grib filename and return a an array
  * of newly allocated winds *, and fill the number of previsions

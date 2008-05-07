@@ -1,5 +1,5 @@
 /**
- * $Id: grib.h,v 1.6 2008/05/07 16:44:33 ylafon Exp $
+ * $Id: grib.h,v 1.7 2008/05/07 20:20:07 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -47,5 +47,15 @@ void set_grib_offset PARAM1(long);
  * get the current grib offset (see above)
  */
 long get_grib_offset ();
+
+/**
+ * get rid of past gribs entry and free structure 
+ */
+void purge_gribs();
+
+/**
+ * merge gribs, and purge if parameter is true (non zero)
+ */
+void merge_gribs PARAM1(int);
 
 #endif /* _GRIB_H_ */
