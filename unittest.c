@@ -1,5 +1,5 @@
 /**
- * $Id: unittest.c,v 1.7 2008/05/07 20:20:31 ylafon Exp $
+ * $Id: unittest.c,v 1.8 2008/05/07 22:24:35 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -32,10 +32,7 @@
 
 vlmc_context global_vlmc_context;
 
-int main (argc, argv) 
-    int argc;
-    char **argv;
-{
+int main (int argc, char **argv) {
   double lat1,long1, lat2, long2, lat3, long3;
   double lata, longa, latb, longb;
   
