@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.11 2008/05/03 21:11:05 ylafon Exp $
+ * $Id: winds.c,v 1.12 2008/05/07 07:17:13 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -81,7 +81,11 @@ wind_info *wind;
   double uprev, unext, vprev, vnext;
   double u,v;
   double d_long, d_lat, t_ratio, angle;
+#ifdef OLD_C_COMPILER
+  double t_speed;
+#else
   double complex c;
+#endif /* OLD_C_COMPILER */
   winds_prev *windtable;
 #ifdef DEBUG
   char buff[64];
@@ -120,8 +124,8 @@ wind_info *wind;
     }
   }
   /* none found the two are the last ones */
-  if (!next) {
-    prev = windtable->wind[i-1];
+  if (!next && !prev) {
+    prev = windtable->wind[windtable->nb_prevs-1];
   } 
 #ifdef GRIB_RESOLUTION_1
   t_long = (int)floor(d_long);
@@ -152,7 +156,7 @@ wind_info *wind;
     
     Doing interpolation on angle/speed might be better 
   */
-    
+  /* FIXME use complex there */
   u01prev = u0prev + (u1prev - u0prev) * (d_lat - floor(d_lat));
   v01prev = v0prev + (v1prev - v0prev) * (d_lat - floor(d_lat));
   u23prev = u2prev + (u3prev - u2prev) * (d_lat - floor(d_lat));
@@ -227,17 +231,34 @@ wind_info *wind;
        going clockwise.
        1m/s -> 1.9438445 kts
     */
-
+#ifdef OLD_C_COMPILER
+    t_speed = sqrt(u*u+v*v);
+    angle = acos(-v / t_speed);
+    if (u > 0.0) {
+      angle = TWO_PI - angle;
+    }
+#else
     c = - v - _Complex_I * u;
+#endif /* OLD_C_COMPILER */
 #ifdef DEBUG
     printf("time stamps: prev %ld, boat_time %ld", prev->prevision_time,
 	   vac_time);
     printf(", next %ld, time ratio %.3f\n", next->prevision_time, t_ratio);
 #endif /* DEBUG */
   } else {
+#ifdef OLD_C_COMPILER
+    t_speed = sqrt(uprev*uprev+vprev*vprev);
+    angle = acos(-vprev / t_speed);
+    if (uprev > 0.0) {
+      angle = TWO_PI - angle;
+    }
+#else
     c = - vprev - _Complex_I * uprev;
+#endif /* OLD_C_COMPILER */
   }
+#ifndef OLD_C_COMPILER
   angle = carg(c);
+#endif /* !OLD_C_COMPILER */
   if (angle < 0) {
     angle += TWO_PI;
   }
@@ -245,7 +266,11 @@ wind_info *wind;
   printf("U component %.3f, V component %.3f, speed %.3f, angle %.3f\n",
 	 -cimag(c), -creal(c), msToKts(cabs(c)), radToDeg(angle));
 #endif /* DEBUG */
+#ifdef OLD_C_COMPILER
+  wind->speed = msToKts(t_speed);
+#else
   wind->speed = msToKts(cabs(c));
+#endif /* OLD_C_COMPILER */
   wind->angle = angle;
   return wind;
 }
@@ -268,7 +293,11 @@ wind_info *wind;
   double uprev, unext, vprev, vnext;
   double u,v;
   double d_long, d_lat, t_ratio, angle;
+#ifdef OLD_C_COMPILER
+  double t_speed;
+#else
   double complex c;
+#endif /* OLD_C_COMPILER */
   winds_prev *windtable;
 #ifdef DEBUG
   char buff[64];
@@ -307,8 +336,8 @@ wind_info *wind;
     }
   }
   /* none found the two are the last ones */
-  if (!next) {
-    prev = windtable->wind[i-1];
+  if (!next && !prev) {
+    prev = windtable->wind[windtable->nb_prevs-1];
   } 
 #ifdef GRIB_RESOLUTION_1
   t_long = (int)floor(d_long);
@@ -327,13 +356,26 @@ wind_info *wind;
   v3prev = prev->wind_v[(t_long+1)%WIND_GRID_LONG][t_lat+1];    
 
   /* we reuse u = speed v = angle after conversion */
-#define _transform_u_v(a, b)			\
+#ifdef OLD_C_COMPILER
+# define _transform_u_v(a, b)                   \
+  t_speed = sqrt(a*a+b*b);                      \
+  b = acos(-b/t_speed);                         \
+  if (a > 0.0) {                                \
+    b = TWO_PI - b;                             \
+  }                                             \
+  a = msToKts(t_speed);                         \
+  if (b < 0.0) {                                \
+    b += TWO_PI;                                \
+  }
+#else
+#  define _transform_u_v(a, b)			\
   c = -b - _Complex_I * a;			\
   a = msToKts(cabs(c));				\
   b = carg(c);					\
   if (b < 0) {					\
     b += TWO_PI;				\
   }                       
+#endif /* OLD_C_COMPILER */
 
   _transform_u_v(u0prev, v0prev);
   _transform_u_v(u1prev, v1prev);
