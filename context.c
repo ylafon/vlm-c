@@ -1,5 +1,5 @@
 /**
- * $Id: context.c,v 1.1 2008/04/28 15:37:31 ylafon Exp $
+ * $Id: context.c,v 1.2 2008/05/07 21:55:48 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -29,10 +29,9 @@
  */
 extern vlmc_context global_vlmc_context;
 
-void context_set(structelem, fname)
-     char **structelem;
-     char *fname;
-{
+void context_set PARAM2(char **, char *);
+
+void context_set(char **structelem, char *fname) {
   char *c;
   int len;
   if (*structelem) {
@@ -51,25 +50,19 @@ void context_set(structelem, fname)
   }
 }
 
-void set_grib_filename(fname)
-     char *fname;
-{
+void set_grib_filename(char *fname) {
   context_set(&global_vlmc_context.grib_filename, fname);
 }
 
-void set_gshhs_filename(fname)
-     char *fname;
-{
+void set_gshhs_filename(char *fname) {
   context_set(&global_vlmc_context.gshhs_filename, fname);
 }
-void set_polar_definition_filename(fname)
-     char *fname;
-{
+
+void set_polar_definition_filename(char *fname) {
   context_set(&global_vlmc_context.polar_definition_filename, fname);
 }
 
-void init_context()
-{
+void init_context() {
   global_vlmc_context.windtable.wind     = NULL;
   global_vlmc_context.windtable.nb_prevs = 0;
   memset(global_vlmc_context.shoreline, 0, 3601*1800*sizeof(coast_zone));

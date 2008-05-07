@@ -1,5 +1,5 @@
 /**
- * $Id: coast.c,v 1.3 2008/05/05 09:23:33 ylafon Exp $
+ * $Id: coast.c,v 1.4 2008/05/07 21:54:08 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -39,10 +39,7 @@ vlmc_context global_vlmc_context;
 #define min(a,b) ((a<b)?a:b)
 #define max(a,b) ((a<b)?b:a)
 
-void print_position_ge(latitude, longitude)
-     double latitude;
-     double longitude;
-{
+void print_position_ge(double latitude, double longitude) {
   longitude = radToDeg(longitude);
   if (longitude > 180) {
     longitude -= 360;
@@ -53,10 +50,7 @@ void print_position_ge(latitude, longitude)
   printf("%.12g,%.12g,0 ", longitude, latitude); 
 }
 
-int main(argc, argv)
-     int argc;
-     char **argv;
-{
+int main(int argc, char **argv) {
   double lat_a, lat_b, long_a, long_b;
   int ilat_min, ilat_max, ilong_min, ilong_max;
   int i,j,k, nb_segments, segnum, color;
@@ -148,5 +142,4 @@ int main(argc, argv)
   </Document>\n\
 </kml>\n");
 
-  
 }

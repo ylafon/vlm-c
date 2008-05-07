@@ -1,5 +1,5 @@
 /**
- * $Id: boat.c,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: boat.c,v 1.2 2008/05/07 21:53:12 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -22,14 +22,8 @@
 #include "types.h"
 #include "loxo.h"
 
-boat *init_boat(aboat, num, name, latitude, longitude, heading) 
-boat *aboat;
-int num;
-char *name;
-double latitude;
-double longitude;
-double heading;
-{
+boat *init_boat(boat *aboat, int num, char *name, 
+		double latitude, double longitude, double heading) {
   aboat->num = num;
   aboat->name = (char *)calloc(strlen(name)+1, sizeof(char));
   strcpy(aboat->name, name);
@@ -45,12 +39,7 @@ double heading;
   return aboat;
 }
 
-boat *set_wp(aboat, latitude, longitude, heading) 
-boat *aboat;
-double latitude;
-double longitude;
-double heading;
-{
+boat *set_wp(boat *aboat, double latitude, double longitude, double heading) {
   aboat->wp_latitude = latitude;
   aboat->wp_longitude = longitude;
   aboat->wp_heading = heading;
