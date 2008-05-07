@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.10 2008/05/07 07:30:16 ylafon Exp $
+ * $Id: grib.c,v 1.11 2008/05/07 09:37:20 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -36,6 +36,9 @@
 
 extern vlmc_context global_vlmc_context;
 
+/* local definition */
+winds **read_gribs PARAM1(int *);
+
 #define MSEEK 4096
 #define BUFF_ALLOC0  1048576
 
@@ -43,12 +46,44 @@ void init_grib() {
   init_grib_offset(GRIB_TIME_OFFSET);
 }
 
-void init_grib_offset(time_offset) 
-long time_offset;
+void set_grib_offset(time_offset) 
+     long time_offset;
 {
-  /* by default we are looking at the "latest.grib" file, easy to download the file
-     then create a symlink. It can be changed easily anyway, as it would be more
-     flexible */
+  global_vlmc_context.windtable.time_offset = time_offset;
+}
+
+long get_grib_offset() 
+{
+  return global_vlmc_context.windtable.time_offset;
+}
+
+void init_grib_offset(time_offset)
+     long time_offset;
+{
+  winds **w, **oldw;
+  int nb_prevs, oldcount, i;
+
+  w = read_gribs(&nb_prevs);
+  /* no error, cleanup old data */
+  printf("NB prevs: %d\n", nb_prevs);
+  if (w) {
+    oldcount = global_vlmc_context.windtable.nb_prevs;
+    oldw = global_vlmc_context.windtable.wind;
+    global_vlmc_context.windtable.nb_prevs    = nb_prevs; 
+    global_vlmc_context.windtable.wind        = w;
+    global_vlmc_context.windtable.time_offset = time_offset;
+    if (oldw != NULL) {
+      for (i=0; i<oldcount; i++) {
+	free(oldw[i]);
+      }
+      free(oldw);
+    }
+  }
+}
+
+winds **read_gribs(nb_prevs) 
+  int *nb_prevs;
+{
   struct tm     gribtime_tm;
   time_t        gribtime;
   FILE          *gribfile;
@@ -60,11 +95,11 @@ long time_offset;
   int           count, wpos;
   int           scan, mode;
   int           i,x,y;
-  winds         **w, **oldw;
+  winds         **w;
   winds         *winds_t;
   float         *array;
   double        temp;
-  int           in_error, gribtype, oldcount;
+  int           in_error, gribtype;
 
   /* to make the compiler happy */
   winds_t = NULL;
@@ -77,18 +112,18 @@ long time_offset;
    */
   if (!global_vlmc_context.grib_filename) {
     printf("FATAL: global_vlmc_context not initialized\n");
-    return;
+    return NULL;
   }
   
   gribfile = fopen(global_vlmc_context.grib_filename, "r");
   if (gribfile == NULL) {
     printf("FATAL: unable to open \"%s\"\n", global_vlmc_context.grib_filename);
-    return;
+    return NULL;
   }
 
   if ((buffer = (unsigned char *) calloc(BUFF_ALLOC0, sizeof(char))) == NULL) {
     printf("FATAL: not enough memory while allocating buffer to read grib files\n");
-    return;
+    return NULL;
   }
   buffer_size = BUFF_ALLOC0;
   pos = 0;
@@ -105,7 +140,7 @@ long time_offset;
 #endif /* DEBUG */
   if (count & 1) {
     printf("Error reading GRIB file, found odd number or records\n");
-    return;
+    return NULL;
   }
   wpos = 0;
 
@@ -121,7 +156,7 @@ long time_offset;
       buffer = (unsigned char *) realloc((void *) buffer, buffer_size);
       if (buffer == NULL) {
 	printf("INIT GRIB ran out of memory\n");
-	return;
+	return NULL;
       }
     }
     if (read_grib(gribfile, pos, len_grib, buffer) == 0) {
@@ -288,18 +323,9 @@ long time_offset;
       free(w[i]);
     }
     free(w);
+    return NULL;
   } else {
-    /* no error, cleanup old data */
-    oldcount = global_vlmc_context.windtable.nb_prevs;
-    oldw = global_vlmc_context.windtable.wind;
-    global_vlmc_context.windtable.nb_prevs    = count/2; 
-    global_vlmc_context.windtable.wind        = w;
-    global_vlmc_context.windtable.time_offset = time_offset;
-    if (oldw != NULL) {
-      for (i=0; i<oldcount; i++) {
-	free(oldw[i]);
-      }
-      free(oldw);
-    }
+    *nb_prevs = count/2;
+    return w;
   }
 }
