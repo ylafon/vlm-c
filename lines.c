@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.9 2008/05/04 16:22:35 ylafon Exp $
+ * $Id: lines.c,v 1.10 2008/05/07 22:13:07 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -51,15 +51,11 @@ extern vlmc_context global_vlmc_context;
  * return a double is intersects, with inter_longitude/latitude filled
  * -1 otherwise */
 
-double intersects(latitude, longitude, new_latitude, new_longitude,
-		  seg_a_latitude, seg_a_longitude, seg_b_latitude,
-		  seg_b_longitude, inter_latitude, inter_longitude)
-     double latitude, longitude;
-     double new_latitude, new_longitude;
-     double seg_a_latitude, seg_a_longitude;
-     double seg_b_latitude, seg_b_longitude;
-     double *inter_latitude, *inter_longitude;
-{
+double intersects(double latitude, double longitude,
+		  double new_latitude, double new_longitude,
+		  double seg_a_latitude, double seg_a_longitude,
+		  double seg_b_latitude, double seg_b_longitude, 
+		  double *inter_latitude, double *inter_longitude) {
   double x, y, x1, x2, t, t_seg,d;
   if (longitude <0) {
     longitude += TWO_PI;
@@ -102,12 +98,9 @@ double intersects(latitude, longitude, new_latitude, new_longitude,
  * return a double is intersects, with inter_longitude/latitude filled
  * -1 otherwise 
  */
-double check_coast(latitude, longitude, new_latitude, new_longitude, 
-		   inter_latitude, inter_longitude) 
-     double latitude, longitude;
-     double new_latitude, new_longitude;
-     double *inter_latitude, *inter_longitude;
-{
+double check_coast(double latitude, double longitude,
+		   double new_latitude, double new_longitude, 
+		   double *inter_latitude, double *inter_longitude) {
   double min_val = 1000.0;
   double inter;
   int i_lat, i_long, i_new_lat, i_new_long;
@@ -206,12 +199,9 @@ double check_coast(latitude, longitude, new_latitude, new_longitude,
  * Parameters: lat/long of point, then lat and long of A & B defining the
  * segment
  */
-double distance_to_line(latitude, longitude, latitude_a, longitude_a,
-			latitude_b, longitude_b)
-     double latitude, longitude;
-     double latitude_a, longitude_a;
-     double latitude_b, longitude_b;
-{
+double distance_to_line(double latitude, double longitude, 
+			double latitude_a, double longitude_a,
+			double latitude_b, double longitude_b) {
   double ratio;
   return distance_to_line_ratio(latitude, longitude, 
 				latitude_a, longitude_a,
@@ -225,13 +215,10 @@ double distance_to_line(latitude, longitude, latitude_a, longitude_a,
  * Parameters: lat/long of point, then lat and long of A & B defining the
  * segment
  */
-double distance_to_line_ratio(latitude, longitude, latitude_a, longitude_a,
-			      latitude_b, longitude_b, ab_ratio)
-     double latitude, longitude;
-     double latitude_a, longitude_a;
-     double latitude_b, longitude_b;
-     double *ab_ratio;
-{
+double distance_to_line_ratio(double latitude, double longitude,
+			      double latitude_a, double longitude_a,
+			      double latitude_b, double longitude_b,
+			      double *ab_ratio) {
   double ortho_a, ortho_b, min_dist, ab_dist, t_dist;
   double longitude_x, latitude_x, intersect;
 
