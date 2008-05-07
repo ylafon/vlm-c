@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.12 2008/05/07 07:17:13 ylafon Exp $
+ * $Id: winds.c,v 1.13 2008/05/07 17:12:10 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -29,10 +29,7 @@
 
 extern vlmc_context global_vlmc_context;
 
-void get_wind_info(aboat, wind)
-     boat      *aboat;
-     wind_info *wind;
-{
+void get_wind_info(boat *aboat, wind_info *wind) {
   time_t vac_time;
   
   vac_time = aboat->last_vac_time + aboat->in_race->vac_duration;
@@ -40,12 +37,8 @@ void get_wind_info(aboat, wind)
   get_wind_info_latlong(aboat->latitude, aboat->longitude, vac_time, wind);
 }
 
-wind_info *get_wind_info_latlong(latitude, longitude, vac_time, wind)
-double latitude;
-double longitude;
-time_t vac_time;
-wind_info *wind;
-{
+wind_info *get_wind_info_latlong(double latitude, double longitude,
+				 time_t vac_time, wind_info *wind) {
 #ifdef VLM_COMPAT
   return get_wind_info_latlong_UV(latitude, longitude, vac_time, wind);
 #else
@@ -53,23 +46,16 @@ wind_info *wind;
 #endif /* VLM_COMPAT */
 }
 
-wind_info *get_wind_info_latlong_now(latitude, longitude, wind)
-double latitude;
-double longitude;
-wind_info *wind;
-{
+wind_info *get_wind_info_latlong_now(double latitude, double longitude,
+				     wind_info *wind) {
   time_t vac_time;
-
+  
   time(&vac_time);
   return get_wind_info_latlong(latitude, longitude, vac_time, wind);
 }
 
-wind_info *get_wind_info_latlong_UV(latitude, longitude, vac_time, wind)
-double latitude;
-double longitude;
-time_t vac_time;
-wind_info *wind;
-{
+wind_info *get_wind_info_latlong_UV(double latitude, double longitude, 
+				    time_t vac_time, wind_info *wind) {
   winds *prev, *next;
   int i, t_long, t_lat;
   double u0prev, u0next, v0prev, v0next;
@@ -276,12 +262,8 @@ wind_info *wind;
 }
 
 /* same as above, but with interpolation using True Wind Speed and Angle */
-wind_info *get_wind_info_latlong_TWSA(latitude, longitude, vac_time, wind)
-double latitude;
-double longitude;
-time_t vac_time;
-wind_info *wind;
-{
+wind_info *get_wind_info_latlong_TWSA(double latitude, double longitude,
+				      time_t vac_time, wind_info *wind) {
   winds *prev, *next;
   int i, t_long, t_lat;
   double u0prev, u0next, v0prev, v0next;
@@ -368,6 +350,8 @@ wind_info *wind;
     b += TWO_PI;                                \
   }
 #else
+  /* acos should be between 0 and PI, but we never know what happens
+     on strange platforms */
 #  define _transform_u_v(a, b)			\
   c = -b - _Complex_I * a;			\
   a = msToKts(cabs(c));				\
