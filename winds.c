@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.13 2008/05/07 17:12:10 ylafon Exp $
+ * $Id: winds.c,v 1.14 2008/05/08 09:57:12 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -17,7 +17,9 @@
  */
 
 #include <math.h>
+#ifndef OLD_C_COMPILER
 #include <complex.h>
+#endif /* OLD_C_COMPILER */
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
@@ -142,7 +144,6 @@ wind_info *get_wind_info_latlong_UV(double latitude, double longitude,
     
     Doing interpolation on angle/speed might be better 
   */
-  /* FIXME use complex there */
   u01prev = u0prev + (u1prev - u0prev) * (d_lat - floor(d_lat));
   v01prev = v0prev + (v1prev - v0prev) * (d_lat - floor(d_lat));
   u23prev = u2prev + (u3prev - u2prev) * (d_lat - floor(d_lat));
@@ -244,10 +245,10 @@ wind_info *get_wind_info_latlong_UV(double latitude, double longitude,
   }
 #ifndef OLD_C_COMPILER
   angle = carg(c);
-#endif /* !OLD_C_COMPILER */
   if (angle < 0) {
     angle += TWO_PI;
   }
+#endif /* !OLD_C_COMPILER */
 #ifdef DEBUG
   printf("U component %.3f, V component %.3f, speed %.3f, angle %.3f\n",
 	 -cimag(c), -creal(c), msToKts(cabs(c)), radToDeg(angle));
@@ -345,13 +346,8 @@ wind_info *get_wind_info_latlong_TWSA(double latitude, double longitude,
   if (a > 0.0) {                                \
     b = TWO_PI - b;                             \
   }                                             \
-  a = msToKts(t_speed);                         \
-  if (b < 0.0) {                                \
-    b += TWO_PI;                                \
-  }
+  a = msToKts(t_speed);                         
 #else
-  /* acos should be between 0 and PI, but we never know what happens
-     on strange platforms */
 #  define _transform_u_v(a, b)			\
   c = -b - _Complex_I * a;			\
   a = msToKts(cabs(c));				\
