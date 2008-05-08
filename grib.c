@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.19 2008/05/07 21:57:18 ylafon Exp $
+ * $Id: grib.c,v 1.20 2008/05/08 19:57:20 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -185,10 +185,10 @@ void merge_gribs(int purge) {
   while (must_loop) {
     must_loop = 0;
     for (i=1; i<totalcount; i++) {
-      if (w[i-1]->prevision_time > w[i]->prevision_time) {
-	winds_t = w[i];
-	w[i]    = w[i-1];
-	w[i-1]  = winds_t;
+      if (neww[i-1]->prevision_time > neww[i]->prevision_time) {
+	winds_t   = neww[i];
+	neww[i]   = neww[i-1];
+	neww[i-1] = winds_t;
 	must_loop = 1;
       }
     }
