@@ -1,5 +1,5 @@
 /**
- * $Id: context.c,v 1.2 2008/05/07 21:55:48 ylafon Exp $
+ * $Id: context.c,v 1.3 2008/05/12 15:48:42 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -63,14 +63,16 @@ void set_polar_definition_filename(char *fname) {
 }
 
 void init_context() {
-  global_vlmc_context.windtable.wind     = NULL;
-  global_vlmc_context.windtable.nb_prevs = 0;
+  global_vlmc_context.windtable.wind       = NULL;
+  global_vlmc_context.windtable.nb_prevs   = 0;
+  global_vlmc_context.polar_list.polars    = NULL;
+  global_vlmc_context.polar_list.nb_polars = 0;
   memset(global_vlmc_context.shoreline, 0, 3601*1800*sizeof(coast_zone));
 }
 
 void init_context_default() {
   set_grib_filename("latest.grb");
   set_gshhs_filename("gshhs.b");
-  set_polar_definition_filename(NULL);
+  set_polar_definition_filename("../datas/polars.list");
   init_context();
 }

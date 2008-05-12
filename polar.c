@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.4 2008/05/07 22:22:00 ylafon Exp $
+ * $Id: polar.c,v 1.5 2008/05/12 15:48:42 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -18,13 +18,179 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 
 #include "defs.h"
 #include "types.h"
 
+extern vlmc_context global_vlmc_context;
+
 void init_polar0();
 void init_polar1();
 void init_fill_blanks PARAM1(int);
+
+#define INITIAL_BUFFER_SIZE 65536; /* 64k */
+
+void add_polar PARAM2(char *, char *);
+void read_polars();
+
+void add_polar(char *pname, char *fname) {
+  boat_polar      *pol;
+  boat_polar_list *plist;
+  boat_polar      **p;
+  FILE            *pfile;
+  int    i,j, wspeed, wangle, ok, nb_polar;
+  double speed;
+
+  /* safety check */
+  if ((pname == NULL) || (fname == NULL)) {
+    return;
+  }
+  /* now check the file name */
+  pfile = fopen(fname, "r");
+  if (pfile == NULL) {
+    printf("FATAL: unable to open \"%s\" for polar \"%s\"\n", fname, pname);
+    return;
+  }
+  /* ok so far, process it */
+  pol = calloc(1, sizeof(pol));
+  pol->polar_tab = calloc(181*61, sizeof(double));
+
+  /* copy the name */
+  pol->polar_name = calloc(strlen(pname)+1, sizeof(char));
+  strcpy(pol->polar_name, pname);
+
+  /* now cycle to read all the values */
+  for (i=0; i<=180; i++) {
+    for (j=0; j<=60; j++) {
+      ok = fscanf(pfile, "%d;%d;%lf", &wangle, &wspeed, &speed);
+      if (!ok) {
+	printf("ERROR while reading the polar file %s\n", fname);
+      }
+      assert((wangle == i) && (wspeed == j));
+      pol->polar_tab[i*61+j] = speed;
+    }
+  }
+  fclose (pfile);
+
+  plist = &global_vlmc_context.polar_list;
+  if (plist->polars == NULL) {
+    plist->nb_polars = 1;
+    plist->polars = malloc(sizeof (boat_polar *));
+    plist->polars[0] = pol;
+  } else {
+    nb_polar = plist->nb_polars;
+    p = calloc(nb_polar+1, sizeof(boat_polar *));
+    for (i=0; i<nb_polar; i++) {
+      p[i] = plist->polars[i];
+    }
+    p[nb_polar] = pol;
+    free(plist->polars);
+    plist->polars = p;
+    plist->nb_polars++;
+  }
+}
+
+/* get the pointer to the polar entry based on its name */
+boat_polar *get_polar_by_name(char *pname) {
+  boat_polar_list *plist;
+  int i, nb_polars;
+
+  plist =  &global_vlmc_context.polar_list;
+  if ((pname == NULL) || (plist->polars == NULL)) {
+    return NULL;
+  }
+  nb_polars = plist->nb_polars;
+  for (i=0; i<nb_polars; i++) {
+    if (!strcpy(pname, plist->polars[i]->polar_name)) {
+      return plist->polars[i];
+    }
+  }
+  return NULL;
+}
+
+void read_polars() {
+  FILE *polar_definitions;
+  char *buffer, *bufend, *t;
+  char *polar_name, *polar_filename;
+  int nb_read;
+  int buffer_size;
+  int remaining_size;
+  int a;
+
+  /* if we don't have a global context... bail out */
+  if (!global_vlmc_context.polar_definition_filename) {
+    printf("FATAL: unable to read polar, no definition name given\n");
+    return;
+  }
+  buffer_size       = INITIAL_BUFFER_SIZE;
+  remaining_size    = buffer_size;
+  buffer            = calloc(buffer_size, sizeof(char)); 
+  polar_definitions = fopen(global_vlmc_context.polar_definition_filename, "r");
+  if (polar_definitions == NULL) {
+    printf("FATAL: unable to open \"%s\"\n", 
+	   global_vlmc_context.polar_definition_filename);
+    return;
+  }
+  t = buffer;
+  /* fill the buffer with the entire file */
+  nb_read = fread((void *)t, (size_t) sizeof(char), remaining_size,
+		  polar_definitions);
+  while (nb_read) {
+    remaining_size -= nb_read;
+    t += nb_read;
+    if (remaining_size < 8192) {
+      a = (buffer_size / 2);
+      buffer = realloc((void *)buffer, (size_t)(buffer_size+a)*sizeof(char));
+      if (buffer == NULL) {
+	printf("FATAL: unable to allocate memory while processing \"%s\"\n", 
+	       global_vlmc_context.polar_definition_filename);
+	return;
+      }
+      buffer_size    += a;
+      remaining_size += a;
+    }
+    nb_read = fread((void *)t, (size_t) sizeof(char), remaining_size,
+		    polar_definitions);
+  }
+  bufend = t;
+  *bufend = 0; /* just to be sure */
+  /* close file */
+  fclose(polar_definitions);
+
+  /* now parse quick and dirty */
+  t = buffer;
+  polar_name = NULL;
+  polar_filename = NULL;
+  while (*t && t < bufend) {
+    /* first get the name */
+    if ((polar_name == NULL) &&
+	(((*t >= 'A') && (*t <= 'Z')) || ((*t >= 'a') && (*t <= 'z')))) {
+      polar_name = t++;
+    } 
+    /* then the filename */
+    if (polar_name && (polar_filename == NULL) && (*t == ':')) {
+      *t++ = 0;
+      polar_filename = t;
+    }
+    /* go to the end of line */
+    if ((*t == '\n') || (*t == '\r')) {
+      *t++ = 0;
+      add_polar(polar_name, polar_filename);
+      polar_name = NULL;
+      polar_filename = NULL;
+      continue;
+    }
+    /* nothing special, loop */
+    t++;
+  }
+  if (polar_name != NULL && polar_filename != NULL) {
+    add_polar(polar_name, polar_filename);
+  }
+  free(buffer);
+}
 
 /**
  * boat type / wind angle (deg) / speed (kts) 

@@ -1,5 +1,5 @@
 /**
- * $Id: types.h,v 1.4 2008/05/03 15:32:30 ylafon Exp $
+ * $Id: types.h,v 1.5 2008/05/12 15:48:42 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -81,7 +81,15 @@ typedef struct wind_info_str {
   double angle; /* in rad */
 } wind_info;
 
-/* is type part of boat, or taken from the race ? */
+/* spf :
+     is type part of boat, or taken from the race ?
+   paparazzia :
+     in vlm, it's "taken" from the race
+     however, you have to read the type from the boat page
+     thus, I suggest to simply proxy/copy the type from the race to the boat
+     (you really don't need all the race infos for routing
+*/
+ 
 typedef struct boat_str {
   int         racing;        /* has the boat started or not ? bool */
   int         landed;
@@ -102,12 +110,24 @@ typedef struct boat_str {
   void   (*set_heading_func)();
 } boat;
 
+
+typedef struct boat_polar_list_str {
+  int                   nb_polars;
+  struct boat_polar_str **polars;
+} boat_polar_list;
+
 typedef struct vlmc_context_str {
-  char       *polar_definition_filename;
-  char       *gshhs_filename;
-  char       *grib_filename;
-  coast_zone shoreline[3601][1800];
-  winds_prev windtable;
+  char            *polar_definition_filename;
+  char            *gshhs_filename;
+  char            *grib_filename;
+  coast_zone      shoreline[3601][1800];
+  winds_prev      windtable;
+  boat_polar_list polar_list;
 } vlmc_context;
+
+typedef struct boat_polar_str {
+  char *polar_name;
+  double *polar_tab;
+} boat_polar;
 
 #endif /* _TYPES_H_ */
