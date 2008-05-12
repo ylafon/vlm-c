@@ -1,5 +1,5 @@
 /**
- * $Id: types.h,v 1.5 2008/05/12 15:48:42 ylafon Exp $
+ * $Id: types.h,v 1.6 2008/05/12 16:30:51 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -34,6 +34,16 @@ typedef struct coast_zone_str {
   int                   nb_segments;
   struct coast_seg_str *seg_array;
 } coast_zone;
+
+typedef struct boat_polar_str {
+  char *polar_name;
+  double *polar_tab;
+} boat_polar;
+
+typedef struct boat_polar_list_str {
+  int                   nb_polars;
+  struct boat_polar_str **polars;
+} boat_polar_list;
 
 typedef struct waypoint_str {
   int    idwaypoint;
@@ -87,34 +97,29 @@ typedef struct wind_info_str {
      in vlm, it's "taken" from the race
      however, you have to read the type from the boat page
      thus, I suggest to simply proxy/copy the type from the race to the boat
-     (you really don't need all the race infos for routing
+     (you really don't need all the race infos for routing)
 */
  
 typedef struct boat_str {
-  int         racing;        /* has the boat started or not ? bool */
-  int         landed;
-  int         num ;          /* boat number                        */
-  char        *name;         /* boat name                          */
-  double      latitude;      /* latitude  in rad                   */
-  double      longitude;     /* longitude in rad                   */
-  double      wp_latitude;   /* latitude  in rad                   */
-  double      wp_longitude;  /* longitude in rad                   */
-  double      wp_heading;    /* for fixed angle/wind_angle in rad  */
-  double      wp_distance;   /* distance to the WP in nm           */
-  double      heading;       /* actual heading in rad              */
-  double      loch;          /* loch                               */
-  int         last_gate_id;  /* The last gate ID targeted          */
-  struct race_str *in_race;  /* the race it belongs to             */
-  time_t      last_vac_time; /* time of last move                  */
-  struct wind_info_str wind; /* the computed wind                  */
+  int         racing;          /* has the boat started or not ? bool */
+  int         landed;          /* did we reach the coast ? bool      */
+  int         num;             /* boat number                        */
+  char        *name;           /* boat name                          */
+  double      latitude;        /* latitude  in rad                   */
+  double      longitude;       /* longitude in rad                   */
+  double      wp_latitude;     /* latitude  in rad                   */
+  double      wp_longitude;    /* longitude in rad                   */
+  double      wp_heading;      /* for fixed angle/wind_angle in rad  */
+  double      wp_distance;     /* distance to the WP in nm           */
+  double      heading;         /* actual heading in rad              */
+  double      loch;            /* loch                               */
+  int         last_gate_id;    /* The last gate ID targeted          */
+  struct race_str *in_race;    /* the race it belongs to             */
+  struct boat_polar_str *polar;/* The polar in use                   */
+  time_t      last_vac_time;   /* time of last move                  */
+  struct wind_info_str wind;   /* the computed wind                  */
   void   (*set_heading_func)();
 } boat;
-
-
-typedef struct boat_polar_list_str {
-  int                   nb_polars;
-  struct boat_polar_str **polars;
-} boat_polar_list;
 
 typedef struct vlmc_context_str {
   char            *polar_definition_filename;
@@ -125,9 +130,5 @@ typedef struct vlmc_context_str {
   boat_polar_list polar_list;
 } vlmc_context;
 
-typedef struct boat_polar_str {
-  char *polar_name;
-  double *polar_tab;
-} boat_polar;
 
 #endif /* _TYPES_H_ */

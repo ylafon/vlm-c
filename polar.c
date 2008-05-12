@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.5 2008/05/12 15:48:42 ylafon Exp $
+ * $Id: polar.c,v 1.6 2008/05/12 16:30:51 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -24,12 +24,9 @@
 
 #include "defs.h"
 #include "types.h"
+#include "polar.h"
 
 extern vlmc_context global_vlmc_context;
-
-void init_polar0();
-void init_polar1();
-void init_fill_blanks PARAM1(int);
 
 #define INITIAL_BUFFER_SIZE 65536; /* 64k */
 
@@ -104,13 +101,18 @@ boat_polar *get_polar_by_name(char *pname) {
   }
   nb_polars = plist->nb_polars;
   for (i=0; i<nb_polars; i++) {
-    if (!strcpy(pname, plist->polars[i]->polar_name)) {
+    if (!strcmp(pname, plist->polars[i]->polar_name)) {
       return plist->polars[i];
     }
   }
   return NULL;
 }
 
+/**
+ * read polar file from the polar definition filename, then
+ * generate all polars, they will be associated by their name
+ * to races and boats
+ */
 void read_polars() {
   FILE *polar_definitions;
   char *buffer, *bufend, *t;
@@ -193,14 +195,6 @@ void read_polars() {
 }
 
 /**
- * boat type / wind angle (deg) / speed (kts) 
- * current granularity is one degree, no interpolation,
- * rounding to nearest integer;
- * and linear interpolation for speed
- */
-double polar[MAX_POLAR][181][61];
-
-/**
  * finds current speed based on boat location,
  * wind_speed (in kts), wind_angle from boat's heading (in rad)
  * return boat speed (in kts)
@@ -209,6 +203,7 @@ double find_speed(boat *aboat, double wind_speed, double wind_angle) {
   int intangle;
   int intspeed;
   double valfloor, valceil;
+  double *polar_tab;
 #ifdef VLM_COMPAT
   /* in VLM compatibility mode, we interpolate only speed, not angle
      which is rounded to nearest integer */
@@ -216,14 +211,15 @@ double find_speed(boat *aboat, double wind_speed, double wind_angle) {
   if (intangle > 180) {
     intangle = 360 - intangle;
   }
-  intspeed = floor(wind_speed);
-  valfloor = polar[aboat->in_race->boattype][intangle][intspeed];
-  valceil  = polar[aboat->in_race->boattype][intangle][intspeed+1];
+  intspeed  = floor(wind_speed);
+  polar_tab = aboat->polar->polar_tab;
+  valfloor  = polar_tab[intangle*61+intspeed];
+  valceil   = polar_tab[intangle*61+intspeed+1];
 #else
   /* higher reolution mode, where bilinear interpolation is performed
      (angle and speed) */
   double tvalfloor, tvalceil, tangle;
-  int intangle_p1;
+  int intangle_p1, intspeed_p1;
   tangle = radToDeg(fabs(fmod(wind_angle, TWO_PI)));
   if (tangle > 180.0) {
     tangle = 360.0 - tangle;
@@ -236,12 +232,15 @@ double find_speed(boat *aboat, double wind_speed, double wind_angle) {
     intangle_p1 = intangle+1;
   }
   intspeed  = floor(wind_speed);
-  valfloor  = polar[aboat->in_race->boattype][intangle][intspeed];
-  tvalfloor = polar[aboat->in_race->boattype][intangle_p1][intspeed];
+  valfloor  = polar_tab[intangle*61+intspeed];
+  tvalfloor = polar_tab[intangle_p1*61+intspeed];
   valfloor += (tvalfloor - valfloor)*(tangle - (double)intangle);
-
-  valceil  = polar[aboat->in_race->boattype][intangle][intspeed+1];
-  tvalceil = polar[aboat->in_race->boattype][intangle_p1][intspeed+1];
+  /* if we reach the limit, return the right value now */
+  if (intspeed == 60) {
+    return valfloor;
+  }
+  valceil  = polar_tab[intangle*61+intspeed+1];
+  tvalceil = polar_tab[intangle_p1*61+intspeed+1];
   valceil += (tvalceil - valceil)*(tangle - (double)intangle);
 #endif /* VLM_COMPAT */
   /* linear interpolation for wind speed */
@@ -250,31 +249,5 @@ double find_speed(boat *aboat, double wind_speed, double wind_angle) {
 
 
 void init_polar() {
-  init_polar0();
-  init_polar1();
+  read_polars();
 }
-
-/**
- * Polar files have one value per 5 degrees, and per 2 kts,
- * starting with 0/0.
- * This function fills all the remaining values using linear interpolation
- */
-void init_polar_fill_blanks_5_2(int boat_type) {
-  int i,j,k;
-  
-  for (i=0; i<=60; i+=2) {
-    for (j=1; j<180; j++) {
-      if (!(j%5)) continue;
-      k=j-(j%5);
-      polar[0][j][i]=polar[0][k][i]+(polar[0][k+5][i]-polar[0][k][i])*((double)(j%5))/5.0;
-    } 
-  }
-  for (i=1; i<60; i+=2) {
-    for (j=0; j<=180; j++) {
-      polar[0][j][i]=(polar[0][j][i-1]+polar[0][j][i+1])/2.0;
-    }
-  }
-}
-
-#include "polar_0.inc"
-#include "polar_1.inc"

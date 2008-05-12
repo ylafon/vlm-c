@@ -1,5 +1,5 @@
 /**
- * $Id: polar.h,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: polar.h,v 1.2 2008/05/12 16:30:51 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -24,5 +24,6 @@
 
 void init_polar ();
 double find_speed PARAM3(boat *, double, double);
+boat_polar *get_polar_by_name PARAM1(char *);
 
 #endif /* _POLAR_H_ */

@@ -1,5 +1,5 @@
 /**
- * $Id: boat.c,v 1.2 2008/05/07 21:53:12 ylafon Exp $
+ * $Id: boat.c,v 1.3 2008/05/12 16:30:52 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -21,6 +21,18 @@
 
 #include "types.h"
 #include "loxo.h"
+#include "boat.h"
+#include "polar.h"
+
+/* associate a polar by its name to a boat */
+void associate_polar_boat(boat *aboat, char *polar_name) {
+  boat_polar *p;
+  p = get_polar_by_name(polar_name);
+  
+  if (p != NULL) {
+    aboat->polar = p;
+  }
+}
 
 boat *init_boat(boat *aboat, int num, char *name, 
 		double latitude, double longitude, double heading) {

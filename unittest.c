@@ -1,5 +1,5 @@
 /**
- * $Id: unittest.c,v 1.8 2008/05/07 22:24:35 ylafon Exp $
+ * $Id: unittest.c,v 1.9 2008/05/12 16:30:51 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -29,6 +29,7 @@
 #include "winds.h"
 #include "grib.h"
 #include "context.h"
+#include "polar.h"
 
 vlmc_context global_vlmc_context;
 
@@ -94,9 +95,13 @@ int main (int argc, char **argv) {
   printf("Distance Point3 -> Line A-B: %.3f\n", 
 	 distance_to_line(lat3, long3, lata, longa, latb, longb));
 
+  init_polar();
   printf("\nWind test\n");
+  set_grib_filename("../datas/latest-180.grb");
   init_grib();
   purge_gribs();
+  set_grib_filename("../datas/latest-24.grb");
+  merge_gribs(1);
   previ_time = get_max_prevision_time();
   printf("Max prevision time: %s\n", ctime(&previ_time));
   time(&current_time);
