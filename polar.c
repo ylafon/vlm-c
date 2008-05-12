@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.6 2008/05/12 16:30:51 ylafon Exp $
+ * $Id: polar.c,v 1.7 2008/05/12 21:22:51 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -212,6 +212,10 @@ double find_speed(boat *aboat, double wind_speed, double wind_angle) {
     intangle = 360 - intangle;
   }
   intspeed  = floor(wind_speed);
+  /* nothing set? return 0 */
+  if (about->polar == NULL) {
+    return 0.0;
+  }
   polar_tab = aboat->polar->polar_tab;
   valfloor  = polar_tab[intangle*61+intspeed];
   valceil   = polar_tab[intangle*61+intspeed+1];
