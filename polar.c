@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.7 2008/05/12 21:22:51 ylafon Exp $
+ * $Id: polar.c,v 1.8 2008/05/13 08:18:22 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -213,7 +213,7 @@ double find_speed(boat *aboat, double wind_speed, double wind_angle) {
   }
   intspeed  = floor(wind_speed);
   /* nothing set? return 0 */
-  if (about->polar == NULL) {
+  if (aboat->polar == NULL) {
     return 0.0;
   }
   polar_tab = aboat->polar->polar_tab;
