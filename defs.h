@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.4 2008/05/07 07:29:48 ylafon Exp $
+ * $Id: defs.h,v 1.5 2008/05/14 15:25:07 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -36,11 +36,6 @@
 #define radToDeg(angle) ((angle*180.0) / PI)
 #define msToKts(speed) (1.9438445*speed)
 #define ktsToMs(speed) (0.51444444*speed)
-
-#define BOAT_CLASS_40    0
-#define BOAT_IMOCA_2007  1
-#define MAX_POLAR        2
-
 
 #ifdef VLM_COMPAT
 # define WIND_GRID_LONG   360
