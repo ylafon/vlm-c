@@ -31,6 +31,7 @@
 /* les inclusions pour générer le wrapper python */
 typedef long time_t;
 
+%include "cpointer.i"
 %import "defs.h"
 %include "types.h"
 %include "gshhs.h"
@@ -44,6 +45,8 @@ typedef long time_t;
 %include "lines.h"
 %include "util.h"
 %include "context.h"
+
+%pointer_class(double, doublep)
 
 extern vlmc_context global_vlmc_context;
 
