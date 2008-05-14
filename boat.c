@@ -1,5 +1,5 @@
 /**
- * $Id: boat.c,v 1.3 2008/05/12 16:30:52 ylafon Exp $
+ * $Id: boat.c,v 1.4 2008/05/14 15:31:11 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -41,13 +41,14 @@ boat *init_boat(boat *aboat, int num, char *name,
   strcpy(aboat->name, name);
   aboat->latitude = latitude;
   aboat->longitude = longitude;
+  aboat->heading = heading;
   aboat->set_heading_func = &set_heading_loxo;
   /* FIXME fill this as well */
   aboat->loch = 0.0;
-  aboat->heading = 0.0;
   aboat->wp_latitude = 0.0;
   aboat->wp_longitude = 0.0;
   aboat->wp_distance = 0.0;
+  /* FIXME : initialise the polar ??? */
   return aboat;
 }
 
