@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.8 2008/05/13 08:18:22 ylafon Exp $
+ * $Id: polar.c,v 1.9 2008/05/14 15:30:31 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -214,7 +214,16 @@ double find_speed(boat *aboat, double wind_speed, double wind_angle) {
   intspeed  = floor(wind_speed);
   /* nothing set? return 0 */
   if (aboat->polar == NULL) {
-    return 0.0;
+    /* check if we can find the polar form the race */
+    if (aboat->in_race) {
+      if (aboat->in_race->boattype) {
+	aboat->polar = aboat->in_race->boattype;
+      } else {
+	return 0.0;
+      }
+    } else {
+      return 0.0;
+    }
   }
   polar_tab = aboat->polar->polar_tab;
   valfloor  = polar_tab[intangle*61+intspeed];
