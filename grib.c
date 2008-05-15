@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.21 2008/05/15 14:19:42 ylafon Exp $
+ * $Id: grib.c,v 1.22 2008/05/15 14:30:35 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -550,6 +550,7 @@ winds *generate_interim_grib_UV(time_t grib_time) {
   winds_t->prevision_time = corrected_time;
   return winds_t;
 }
+
 /* return a winds entry interpolated in the time domain using TWSA */
 winds *generate_interim_grib_TWSA(time_t grib_time) {
   winds_prev *windtable;
@@ -635,4 +636,30 @@ winds *generate_interim_grib_TWSA(time_t grib_time) {
   }
   winds_t->prevision_time = corrected_time;
   return winds_t;
+}
+
+/**
+ * generate a snapshot of current time (offset corrected), then merge with
+ * a new grib collection file, and purge the stale entries
+ */
+void interpolate_and_merge_grib() {
+  winds *interpolated, *tw;
+  time_t now;
+  winds_prev *windtable;
+
+  windtable = &global_vlmc_context.windtable;
+  if (windtable->wind == NULL) {
+    init_grib();
+    return;
+  }
+  interpolated = generate_interim_grib(time(&now));
+  if (interpolated) {
+    /* the first one is more likely to be outdated, otherwise
+       no interpolation would happen. reorder will appear later */
+    tw = windtable->wind[0];
+    windtable->wind[0] = interpolated;
+    free(tw);
+  }
+  /* merge and purge. The merge should reorder things, prior to the purge */
+  merge_gribs(1);
 }
