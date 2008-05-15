@@ -1,5 +1,5 @@
 /**
- * $Id: grib.h,v 1.7 2008/05/07 20:20:07 ylafon Exp $
+ * $Id: grib.h,v 1.8 2008/05/15 14:31:24 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -57,5 +57,37 @@ void purge_gribs();
  * merge gribs, and purge if parameter is true (non zero)
  */
 void merge_gribs PARAM1(int);
+
+/**
+ * generate interim grib for a specific time (real time, further
+ * corrected depending on offset
+ * One usage is to generate a grib with a date of 'now' prior merging
+ * new gribs, and purge the old ones
+ */
+winds *generate_interim_grib PARAM1(time_t);
+
+/**
+ * generate interim grib for a specific time (real time, further
+ * corrected depending on offset
+ * One usage is to generate a grib with a date of 'now' prior merging
+ * new gribs, and purge the old ones
+ * Interpolation takes place in the UV domain
+ */
+winds *generate_interim_grib_UV PARAM1(time_t);
+
+/**
+ * generate interim grib for a specific time (real time, further
+ * corrected depending on offset
+ * One usage is to generate a grib with a date of 'now' prior merging
+ * new gribs, and purge the old ones
+ * Interpolation takes place in the TWSA domain
+ */
+winds *generate_interim_grib_TWSA PARAM1(time_t);
+
+/**
+ * generate a snapshot of current time (offset corrected), then merge with
+ * a new grib collection file, and purge the stale entries
+ */
+void interpolate_and_merge_grib();
 
 #endif /* _GRIB_H_ */
