@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.20 2008/05/08 19:57:20 ylafon Exp $
+ * $Id: grib.c,v 1.21 2008/05/15 14:19:42 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -24,6 +24,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef OLD_C_COMPILER
+#include <complex.h>
+#endif /* OLD_C_COMPILER */
 
 #include "defs.h"
 #include "types.h"
@@ -126,7 +129,7 @@ void purge_gribs() {
 }
 
 /**
- * merge gribs, then purge is 'purge' is non-zero 
+ * merge gribs, then purge if 'purge' is non-zero 
  */
 void merge_gribs(int purge) {
   winds **w, **oldw, **neww, *winds_t;
@@ -482,4 +485,154 @@ winds **read_gribs(int *nb_prevs) {
   /* populate data and exit */
   *nb_prevs = wpos;
   return w;
+}
+
+/* return a winds entry interpolated in the time domain */
+winds *generate_interim_grib(time_t gribtime) {
+#ifdef VLM_COMPAT
+  return generate_interim_grib_UV(gribtime);
+#else
+  return generate_interim_grib_TWSA(gribtime);
+#endif /* VLM_COMPAT */
+}
+
+/* return a winds entry interpolated in the time domain using UV */
+winds *generate_interim_grib_UV(time_t grib_time) {
+  winds_prev *windtable;
+  winds *prev, *next, *winds_t;
+  double *uprev, *unext, *vprev, *vnext;
+  double *ures, *vres;
+  double t_ratio;
+  time_t corrected_time;
+  int i;
+
+  windtable = &global_vlmc_context.windtable;
+  if (windtable->wind == NULL) {
+    return NULL;
+  }
+  /* correct the time according to the offset */
+  corrected_time = grib_time - windtable->time_offset;
+  /* find the surrounding grib entries */
+  prev = next = NULL;
+  for (i=0; i< windtable->nb_prevs; i++) {
+    if (windtable->wind[i]->prevision_time > corrected_time) {
+      if (i) {
+	next = windtable->wind[i];
+	prev = windtable->wind[i-1];
+      } else {
+	prev = windtable->wind[i];
+      }
+      break;
+    }
+  }
+  /* we are before the first of after the last, no work needed */
+  if (!next || !prev) {
+    return NULL;
+  }
+  winds_t = (winds *)calloc(1, sizeof(winds));
+  if (!winds_t) {
+    /* error while allocating the structure -> fail silently */
+    return NULL;
+  }
+  uprev = &prev->wind_u[0][0];
+  vprev = &prev->wind_v[0][0];
+  unext = &next->wind_u[0][0];
+  vnext = &next->wind_v[0][0];
+  ures = &winds_t->wind_u[0][0];
+  vres = &winds_t->wind_v[0][0];
+
+  t_ratio = ((double)(corrected_time - prev->prevision_time)) / 
+    ((double)(next->prevision_time - prev->prevision_time));
+  for (i=0; i<WIND_GRID_LONG*WIND_GRID_LAT; i++) {
+    *ures++ = (1-t_ratio) * (*uprev++) + t_ratio*(*unext++);
+    *vres++ = (1-t_ratio) * (*vprev++) + t_ratio*(*vnext++);
+  }
+  winds_t->prevision_time = corrected_time;
+  return winds_t;
+}
+/* return a winds entry interpolated in the time domain using TWSA */
+winds *generate_interim_grib_TWSA(time_t grib_time) {
+  winds_prev *windtable;
+  winds *prev, *next, *winds_t;
+  double *uprev, *unext, *vprev, *vnext;
+  double *ures, *vres;
+  double t_ratio;
+  double p_speed, p_angle, n_speed, n_angle;
+  double speed, angle;
+  double diff_angle;
+  time_t corrected_time;
+  int i;
+
+  windtable = &global_vlmc_context.windtable;
+  if (windtable->wind == NULL) {
+    return NULL;
+  }
+  /* correct the time according to the offset */
+  corrected_time = grib_time - windtable->time_offset;
+  /* find the surrounding grib entries */
+  prev = next = NULL;
+  for (i=0; i< windtable->nb_prevs; i++) {
+    if (windtable->wind[i]->prevision_time > corrected_time) {
+      if (i) {
+	next = windtable->wind[i];
+	prev = windtable->wind[i-1];
+      } else {
+	prev = windtable->wind[i];
+      }
+      break;
+    }
+  }
+  /* we are before the first of after the last, no work needed */
+  if (!next || !prev) {
+    return NULL;
+  }
+  winds_t = (winds *)calloc(1, sizeof(winds));
+  /* error while allocating the structure, fail silently */
+  if (!winds_t) {
+    return NULL;
+  }
+  uprev = &prev->wind_u[0][0];
+  vprev = &prev->wind_v[0][0];
+  unext = &next->wind_u[0][0];
+  vnext = &next->wind_v[0][0];
+  ures = &winds_t->wind_u[0][0];
+  vres = &winds_t->wind_v[0][0];
+
+#define _check_angle_interp(a)			\
+  if (a >= PI) {				\
+    a -= TWO_PI;				\
+  } else if (a <= -PI) {			\
+    a += TWO_PI;				\
+  }
+
+#define _positive_angle(a)			\
+  if (a < 0) {					\
+    a += TWO_PI;				\
+  } else if (a >= TWO_PI) {			\
+    a -= TWO_PI;				\
+  }
+
+  t_ratio = ((double)(corrected_time - prev->prevision_time)) / 
+    ((double)(next->prevision_time - prev->prevision_time));
+  for (i=0; i<WIND_GRID_LONG*WIND_GRID_LAT; i++) {
+    p_speed =sqrt((*uprev)*(*uprev)+(*vprev)*(*vprev));
+    n_speed =sqrt((*unext)*(*unext)+(*vnext)*(*vnext));
+    p_angle = acos((*uprev)/p_speed);
+    if (*vprev < 0.0) {
+      p_angle = TWO_PI - p_angle;
+    }
+    n_angle = acos((*unext)/n_speed);
+    if (*vnext < 0.0) {
+      n_angle = TWO_PI - n_angle;
+    }
+    diff_angle = (n_angle - p_angle);
+    _check_angle_interp(diff_angle);
+    angle = p_angle + (diff_angle) * t_ratio;
+    speed = p_speed + (n_speed - p_speed) * t_ratio;
+    *ures++ = speed*cos(angle);
+    *vres++ = speed*sin(angle);
+    uprev++; vprev++; unext++; vnext++;
+  }
+  winds_t->prevision_time = corrected_time;
+  return winds_t;
 }
