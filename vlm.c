@@ -1,5 +1,5 @@
 /**
- * $Id: vlm.c,v 1.1 2008/05/19 21:36:14 ylafon Exp $
+ * $Id: vlm.c,v 1.2 2008/05/19 21:42:57 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -25,15 +25,19 @@ void set_vlm_pilot_mode(boat *aboat, int vlm_mode) {
 
    switch (vlm_mode) {
    case 1:
-     aboat->set_heading_func=&set_heading_loxo;
+     /* needs heading filled in aboat->wp_heading */
+     aboat->set_heading_func=&set_heading_constant;
      break;
    case 2:
+     /* needs heading filled in aboat->wp_heading */
      aboat->set_heading_func=&set_heading_wind_angle;
      break;
    case 3:
+     /* needs WP filled in aboat->wp_lat/long */
      aboat->set_heading_func=&set_heading_ortho;
      break;
    case 4:
+     /* needs WP filled in aboat->wp_lat/long */
      aboat->set_heading_func=&set_heading_bvmg;
      break;
    default:
