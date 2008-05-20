@@ -1,5 +1,5 @@
 /**
- * $Id: context.c,v 1.4 2008/05/20 17:30:04 ylafon Exp $
+ * $Id: context.c,v 1.5 2008/05/20 20:33:07 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -81,7 +81,7 @@ void init_context_default() {
 int is_init_done() {
   /* we test only wind and polars, it is not mandatory
      to have the coastline filled */
-  if ((global_vlmc_context.windtable.win == NULL) ||
+  if ((global_vlmc_context.windtable.wind == NULL) ||
       (global_vlmc_context.polar_list.polars == NULL)) {
     return 0;
   }
