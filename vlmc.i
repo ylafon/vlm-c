@@ -26,6 +26,7 @@
     #include "util.h"
     #include "context.h"
     #include "vlm.h"
+    #include "move.h"
     vlmc_context global_vlmc_context;
 %}
 
@@ -47,6 +48,7 @@ typedef long time_t;
 %include "util.h"
 %include "context.h"
 %include "vlm.h"
+%include "move.h"
 
 %pointer_class(double, doublep)
 
