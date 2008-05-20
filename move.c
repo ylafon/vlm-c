@@ -1,5 +1,5 @@
 /**
- * $Id: move.c,v 1.2 2008/05/20 17:08:20 ylafon Exp $
+ * $Id: move.c,v 1.3 2008/05/20 17:08:41 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -28,7 +28,7 @@ void move_boat(boat *aboat) {
 
 /*
  * move the boat during 'n' vacations 
- * input the boat structure, properly filed
+ * input the boat structure, properly filled
  * return an int, result of boat->landed (false, is still on water)
  */
 int move_boat_n_vac(boat *aboat, int nb_vacs) {
