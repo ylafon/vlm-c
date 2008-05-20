@@ -1,5 +1,5 @@
 /**
- * $Id: move.c,v 1.1 2008/05/20 17:07:20 ylafon Exp $
+ * $Id: move.c,v 1.2 2008/05/20 17:08:20 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -32,7 +32,6 @@ void move_boat(boat *aboat) {
  * return an int, result of boat->landed (false, is still on water)
  */
 int move_boat_n_vac(boat *aboat, int nb_vacs) {
-  int has_landed;
   int i;
   
   for (i=0; !aboat->landed && i<nb_vacs; i++) {
