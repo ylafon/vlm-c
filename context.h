@@ -1,5 +1,5 @@
 /**
- * $Id: context.h,v 1.1 2008/04/28 15:37:31 ylafon Exp $
+ * $Id: context.h,v 1.2 2008/05/20 17:30:04 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -27,5 +27,12 @@ void set_grib_filename PARAM1(char *);
 void set_gshhs_filename PARAM1(char *);
 void set_polar_definition_filename PARAM1(char *);
 void init_context();
+
+/**
+ * check if all the relevant structures (gribs and polar) are
+ * filled
+ * @return a boolean, true if everything is ready
+ */
+int is_init_done();
 
 #endif /* _CONTEXT_H_ */

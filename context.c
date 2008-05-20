@@ -1,5 +1,5 @@
 /**
- * $Id: context.c,v 1.3 2008/05/12 15:48:42 ylafon Exp $
+ * $Id: context.c,v 1.4 2008/05/20 17:30:04 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -76,3 +76,16 @@ void init_context_default() {
   set_polar_definition_filename("../datas/polars.list");
   init_context();
 }
+
+/* return true if all the needed structures are filled */
+int is_init_done() {
+  /* we test only wind and polars, it is not mandatory
+     to have the coastline filled */
+  if ((global_vlmc_context.windtable.win == NULL) ||
+      (global_vlmc_context.polar_list.polars == NULL)) {
+    return 0;
+  }
+  return 1;
+}
+      
+  
