@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.10 2008/05/07 22:13:07 ylafon Exp $
+ * $Id: lines.c,v 1.11 2008/05/23 15:26:46 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -18,6 +18,8 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <assert.h>
+#include <stdlib.h>
 #include "defs.h"
 #include "types.h"
 #include "ortho.h"
@@ -104,16 +106,18 @@ double check_coast(double latitude, double longitude,
   double min_val = 1000.0;
   double inter;
   int i_lat, i_long, i_new_lat, i_new_long;
-  int i, nb_segments;
+  int i, j, k, i_min, i_max, j_min, j_max, nb_segments;
   coast_zone *c_zone;
   coast_seg *seg_array;
   double t_lat, t_long;
   double min_lat, min_long;
+
+  /* FIXME, must do sanity check on boundaries accross 0 for line tests */
   
 #define _check_intersection_with_array	 				 \
   nb_segments = c_zone->nb_segments;					 \
   seg_array = c_zone->seg_array;					 \
-  for (i=0; i<nb_segments; i++) {					 \
+  for (k=0; k<nb_segments; k++) {					 \
     inter = intersects(latitude, longitude, new_latitude, new_longitude, \
 		       seg_array->latitude_a, seg_array->longitude_a,	 \
 		       seg_array->latitude_b, seg_array->longitude_b,	 \
@@ -135,7 +139,7 @@ double check_coast(double latitude, double longitude,
   i_long     = floor(radToDeg(longitude)*10.0);
   i_new_lat  = floor(radToDeg(new_latitude)*10.0) + 900;
   i_new_long = floor(radToDeg(new_longitude)*10.0);
-  
+
   if (i_long < 0) {
     i_long += 3600;
   } else if (i_long > 3600) {
@@ -146,42 +150,45 @@ double check_coast(double latitude, double longitude,
   } else if (i_new_long > 3600) {
     i_new_long -= 3600;
   }
+
+  /* get the loop in the right order */
+  if (i_long < i_new_long) {
+    i_min = i_long;
+    i_max = i_new_long;
+  } else {
+    i_min = i_new_long;
+    i_max = i_long;
+  }
+  if (i_lat < i_new_lat) {
+    j_min = i_lat;
+    j_max = i_new_lat;
+  } else {
+    j_min = i_new_lat;
+    j_max = i_lat;
+  }
+
 #if DEBUG
   printf("Checking segments: [%d][%d] -> %d\n", i_long, i_lat, 
 	 global_vlmc_context.shoreline[i_long][i_lat].nb_segments); 
 #endif /* DEBUG */
-  /* if we cross more than one 1/10 of degree, we must use two loops
-     instead -> check based on vac time + max speed */
-  if (i_long == i_new_long) {
-    if (i_lat == i_new_lat) {
-      c_zone=&global_vlmc_context.shoreline[i_long][i_lat];
-      _check_intersection_with_array;
-    } else {
-      c_zone=&global_vlmc_context.shoreline[i_long][i_lat];
-      _check_intersection_with_array;
 
-      c_zone=&global_vlmc_context.shoreline[i_long][i_new_lat];
-      _check_intersection_with_array;
+  if ((i_max - i_min) < 1800) {
+    for (i=i_min; i<=i_max; i++) {
+      for (j=j_min; j<=j_max; j++) {
+	c_zone=&global_vlmc_context.shoreline[i][j];
+	_check_intersection_with_array;
+      }
     }
   } else {
-    if (i_lat == i_new_lat) {
-      c_zone=&global_vlmc_context.shoreline[i_long][i_lat];
-      _check_intersection_with_array;
-
-      c_zone=&global_vlmc_context.shoreline[i_new_long][i_lat];
-      _check_intersection_with_array;
-    } else {
-      c_zone=&global_vlmc_context.shoreline[i_long][i_lat];
-      _check_intersection_with_array;
-
-      c_zone=&global_vlmc_context.shoreline[i_long][i_new_lat];
-      _check_intersection_with_array;
-
-      c_zone=&global_vlmc_context.shoreline[i_new_long][i_lat];
-      _check_intersection_with_array;
-
-      c_zone=&global_vlmc_context.shoreline[i_new_long][i_new_lat];
-      _check_intersection_with_array;
+    for (j=j_min; j<=j_max; j++) {
+      for (i=i_max; i<3601; i++) {
+	c_zone=&global_vlmc_context.shoreline[i][j];
+	_check_intersection_with_array;
+      }
+      for (i=i_min; i<=0; i--) {
+	c_zone=&global_vlmc_context.shoreline[i][j];
+	_check_intersection_with_array;
+      }
     }
   }
   if (min_val<=MAX_LIMIT) {
