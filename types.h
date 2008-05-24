@@ -1,5 +1,5 @@
 /**
- * $Id: types.h,v 1.8 2008/05/24 14:21:21 ylafon Exp $
+ * $Id: types.h,v 1.9 2008/05/24 14:50:15 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -46,13 +46,15 @@ typedef struct boat_polar_list_str {
 } boat_polar_list;
 
 typedef struct waypoint_str {
-  int    idwaypoint;
-  double latitude1;
-  double longitude1;
-  double latitude2;
-  double longitude2;
-  char   *name;
-  /* int laisser_au; */
+  int    type      ;  /* type of waypoint                     */
+  int    idwaypoint;  /* id in the race                       */
+  double latitude1 ;  /* latitude of first point              */
+  double longitude1;  /* longitude of first point             */
+  double latitude2 ;  /* latitude of second point (if used)   */
+  double longitude2;  /* longitude of second point (if used)  */
+  double angle     ;  /* angle from the first point (if used) */
+  char   *name     ;  /* (if needed)                          */
+  /* int laisser_au; unknown, taken from the forum */
 } waypoint;
 
 typedef struct race_str {
