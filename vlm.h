@@ -1,5 +1,5 @@
 /**
- * $Id: vlm.h,v 1.1 2008/05/19 21:36:14 ylafon Exp $
+ * $Id: vlm.h,v 1.2 2008/05/24 14:21:21 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -25,5 +25,6 @@
 #include "types.h"
 
 void set_vlm_pilot_mode PARAM2(boat *, int);
+void set_heading_wind_angle   PARAM1(boat *);
 
 #endif /* _VLM_H_ */

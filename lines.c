@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.11 2008/05/23 15:26:46 ylafon Exp $
+ * $Id: lines.c,v 1.12 2008/05/24 14:21:21 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -24,20 +24,6 @@
 #include "types.h"
 #include "ortho.h"
 #include "lines.h"
-
-/**
- * Strict check will et intersection only between 0 and 1 (inclusive)
- * However, to ensure that no rounding issues happens, we can widen this
- * and extend by a 1%o factor, in practise, if we take into account that
- * the boat is not a single pixel, it makes sense :)
- */
-#ifdef SAFE_LINE_CHECK
-#  define MAX_LIMIT 1.001
-#  define MIN_LIMIT -0.001
-#else
-#  define MAX_LIMIT 1.0
-#  define MIN_LIMIT 0.0
-# endif /* SAFE_LINE_CHECK */
 
 /**
  * The shore line is composed of an array of "coast zones" consisting of
@@ -84,7 +70,8 @@ double intersects(double latitude, double longitude,
   t = (x2*y - (seg_b_latitude - seg_a_latitude)*x) / d;
   t_seg = (x1*y - (new_latitude - latitude)*x) / d;
   
-  if ((t >= MIN_LIMIT && t <=MAX_LIMIT) && (t_seg>=MIN_LIMIT && t_seg <=MAX_LIMIT)) {
+  if ((t >= INTER_MIN_LIMIT && t <=INTER_MAX_LIMIT) &&
+      (t_seg>=INTER_MIN_LIMIT && t_seg <=INTER_MAX_LIMIT)) {
     *inter_longitude = longitude + t*(new_longitude - longitude);
     *inter_latitude = latitude + t*(new_latitude - latitude);
 #ifdef DEBUG
@@ -123,7 +110,7 @@ double check_coast(double latitude, double longitude,
 		       seg_array->latitude_b, seg_array->longitude_b,	 \
 		       &t_lat, &t_long);				 \
     seg_array++;							 \
-    if (inter>=MIN_LIMIT && inter<=MAX_LIMIT) {				 \
+    if (inter>=INTER_MIN_LIMIT && inter<=INTER_MAX_LIMIT) {		 \
       if (inter < min_val) {						 \
 	min_val = inter;						 \
 	min_long = t_long;						 \
@@ -191,7 +178,7 @@ double check_coast(double latitude, double longitude,
       }
     }
   }
-  if (min_val<=MAX_LIMIT) {
+  if (min_val<=INTER_MAX_LIMIT) {
     *inter_latitude = min_lat;
     *inter_longitude = min_long;
     return min_val;
@@ -242,7 +229,7 @@ double distance_to_line_ratio(double latitude, double longitude,
   intersect = intersects(latitude_a, longitude_a, latitude_b, longitude_b,
 			 latitude, longitude, latitude_x, longitude_x,
 			 &latitude_x, &longitude_x);
-  if (intersect>=MIN_LIMIT && intersect<=MAX_LIMIT) { 
+  if (intersect>=INTER_MIN_LIMIT && intersect<=INTER_MAX_LIMIT) { 
     t_dist = ortho_distance(latitude, longitude, latitude_x, longitude_x);
 #ifdef DEBUG
     printf("Min dist: %.3f, found dist: %.3f\n", min_dist, t_dist);
@@ -259,7 +246,7 @@ double distance_to_line_ratio(double latitude, double longitude,
   intersect = intersects(latitude_a, longitude_a, latitude_b, longitude_b,
 			 latitude, longitude, latitude_x, longitude_x,
 			 &latitude_x, &longitude_x);
-  if (intersect>=MIN_LIMIT && intersect<=MAX_LIMIT) { 
+  if (intersect>=INTER_MIN_LIMIT && intersect<=INTER_MAX_LIMIT) { 
     t_dist = ortho_distance(latitude, longitude, latitude_x, longitude_x);
 #ifdef DEBUG
     printf("Min dist: %.3f, found dist: %.3f\n", min_dist, t_dist);

@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.4 2008/05/07 22:23:55 ylafon Exp $
+ * $Id: vmg.c,v 1.5 2008/05/24 14:21:21 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -88,15 +88,6 @@ void set_heading_bvmg(boat *aboat) {
   set_heading_direct(aboat, angle);
 }
 
-void set_heading_constant_wind_angle(boat *aboat) {
-  double w_speed, w_angle;
-
-  get_wind_info(aboat, &aboat->wind);
-
-  w_speed = aboat->wind.speed;
-  w_angle = aboat->wind.angle;
-  set_heading_direct(aboat, w_angle + aboat->wp_heading);
-}
 
 /* the algorith used is to minimize the distance to the WP */
 void set_heading_bvmg2(boat *aboat) {

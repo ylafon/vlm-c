@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.5 2008/05/14 15:25:07 ylafon Exp $
+ * $Id: defs.h,v 1.6 2008/05/24 14:21:21 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -50,6 +50,20 @@
 # endif /* GRIB_TIME_OFFSET */
 # define GRIB_RESOLUTION_0_5
 #endif
+
+/**
+ * Strict check will check intersection only between 0 and 1 (inclusive)
+ * However, to ensure that no rounding issues happens, we can widen this
+ * and extend by a 1%o factor, in practise, if we take into account that
+ * the boat is not a single pixel, it makes sense :)
+ */
+#ifdef SAFE_LINE_CHECK
+#  define INTER_MAX_LIMIT 1.001
+#  define INTER_MIN_LIMIT -0.001
+#else
+#  define INTER_MAX_LIMIT 1.0
+#  define INTER_MIN_LIMIT 0.0
+# endif /* SAFE_LINE_CHECK */
 
 #ifdef PARAM1
 #  undef PARAM1

@@ -1,5 +1,5 @@
 /**
- * $Id: loxo.c,v 1.5 2008/05/19 21:42:57 ylafon Exp $
+ * $Id: loxo.c,v 1.6 2008/05/24 14:21:21 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -53,7 +53,7 @@ void move_boat_loxo(boat *aboat) {
   d = check_coast(aboat->longitude, aboat->latitude, longitude, latitude,
 		  &t_lat, &speed);
   /* FIXME, usr SAFE_LINE_CHECK , move things from lines.c */
-  if (d>=0.0 && d<=1.0) {
+  if (d>=INTER_MIN_LIMIT && d<=INTER_MAX_LIMIT) {
     /* move right before the coast */
     vac_l = vac_l * 0.99 * d;
     d = degToRad(vac_l/60.0);
@@ -126,7 +126,7 @@ int estimate_boat_loxo_coast(boat *aboat, int vac_duration, double heading,
   vac_l = check_coast(aboat->longitude, aboat->latitude,
 		      *new_longitude, *new_latitude,
 		      &t_lat, &speed);
-  return ((vac_l<0.0) || (vac_l>1.0));
+  return ((vac_l<INTER_MIN_LIMIT) || (vac_l>INTER_MAX_LIMIT));
 }
 
 void set_heading_loxo(boat *aboat) {
@@ -136,18 +136,6 @@ void set_heading_loxo(boat *aboat) {
 
 void set_heading_direct(boat *aboat, double heading) {
   aboat->heading = heading;
-}
-
-/* set heading according to wind angle */
-void set_heading_wind_angle(boat *aboat) {
-  double angle;
-
-  get_wind_info(aboat, &aboat->wind);
-  angle = fmod(aboat->wind.angle + aboat->wp_heading, TWO_PI);
-  if (angle < 0) {
-    angle += TWO_PI;
-  }
-  set_heading_direct(aboat, angle);
 }
 
 /* set heading according to wanted heading */

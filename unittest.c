@@ -1,5 +1,5 @@
 /**
- * $Id: unittest.c,v 1.9 2008/05/12 16:30:51 ylafon Exp $
+ * $Id: unittest.c,v 1.10 2008/05/24 14:21:21 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -97,13 +97,18 @@ int main (int argc, char **argv) {
 
   init_polar();
   printf("\nWind test\n");
-  set_grib_filename("../datas/latest-180.grb");
+  set_grib_filename("../datas/latest.grb");
   init_grib();
   purge_gribs();
-  set_grib_filename("../datas/latest-24.grb");
+  set_grib_filename("../datas/latest24.grb");
   merge_gribs(1);
+  printf("init grib done, doing interp+merge24\n");
+  interpolate_and_merge_grib();
+  printf("done\n");
   previ_time = get_max_prevision_time();
-  printf("Max prevision time: %s\n", ctime(&previ_time));
+  printf("Max prevision time: %s", ctime(&previ_time));
+  previ_time = get_min_prevision_time();
+  printf("Min prevision time: %s", ctime(&previ_time));
   time(&current_time);
   lat_boat     = degToRad(39.812);
   long_boat    = degToRad(8.43);

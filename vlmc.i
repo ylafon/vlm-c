@@ -9,6 +9,7 @@
  * - au nom de la lib dynamique (_vlmc.so)
  */
 %module vlmc
+%feature("autodoc", "1");
 
 /* Le code C concerné */
 %{
