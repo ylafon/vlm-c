@@ -1,5 +1,5 @@
 /**
- * $Id: loxo.h,v 1.4 2008/05/24 14:21:21 ylafon Exp $
+ * $Id: loxo.h,v 1.5 2008/05/24 14:54:31 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -30,5 +30,6 @@ int  estimate_boat_loxo_coast PARAM5(boat *, int, double, double *, double *);
 void set_heading_loxo         PARAM1(boat *);
 void set_heading_direct       PARAM2(boat *, double);
 void set_heading_constant     PARAM1(boat *);
+void set_heading_wind_angle   PARAM1(boat *);
 
 #endif /* _LOXO_H_ */

@@ -1,5 +1,5 @@
 /**
- * $Id: loxo.c,v 1.6 2008/05/24 14:21:21 ylafon Exp $
+ * $Id: loxo.c,v 1.7 2008/05/24 14:54:22 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -144,4 +144,16 @@ void set_heading_constant(boat *aboat) {
 
   get_wind_info(aboat, &aboat->wind);
   set_heading_direct(aboat, aboat->wp_heading);
+}
+
+/* set heading according to wind angle */
+void set_heading_wind_angle(boat *aboat) {
+  double angle;
+
+  get_wind_info(aboat, &aboat->wind);
+  angle = fmod(aboat->wind.angle + aboat->wp_heading, TWO_PI);
+  if (angle < 0) {
+    angle += TWO_PI;
+  }
+  set_heading_direct(aboat, angle);
 }
