@@ -1,5 +1,5 @@
 /**
- * $Id: vlm.c,v 1.3 2008/05/24 13:58:49 ylafon Exp $
+ * $Id: vlm.c,v 1.4 2008/05/24 15:12:19 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -20,9 +20,13 @@
 #include "loxo.h"
 #include "vmg.h"
 #include "ortho.h"
-#include "vlm.h"
-#include "winds.h"
 
+/**
+ * using VLM's PIM definition, set the heading function of the boat
+ * accordingly 
+ * @param aboat, a pointer to a boat struct
+ * @param vlm_mode, an int, the numeric value of the PIM
+ */
 void set_vlm_pilot_mode(boat *aboat, int vlm_mode) {
 
    switch (vlm_mode) {
@@ -46,17 +50,4 @@ void set_vlm_pilot_mode(boat *aboat, int vlm_mode) {
      /* add a warning? fail? exit? */
      ;
    }
-}
-   
-     
-void set_heading_wind_angle(boat *aboat) {
-  /* set heading according to wind angle */
-  double angle;
-
-  get_wind_info(aboat, &aboat->wind);
-  angle = fmod(aboat->wind.angle + aboat->wp_heading, TWO_PI);
-  if (angle < 0) {
-    angle += TWO_PI;
-  }
-  set_heading_direct(aboat, angle);
 }
