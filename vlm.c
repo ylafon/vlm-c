@@ -1,5 +1,5 @@
 /**
- * $Id: vlm.c,v 1.2 2008/05/19 21:42:57 ylafon Exp $
+ * $Id: vlm.c,v 1.3 2008/05/24 13:58:49 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -20,6 +20,8 @@
 #include "loxo.h"
 #include "vmg.h"
 #include "ortho.h"
+#include "vlm.h"
+#include "winds.h"
 
 void set_vlm_pilot_mode(boat *aboat, int vlm_mode) {
 
@@ -47,3 +49,14 @@ void set_vlm_pilot_mode(boat *aboat, int vlm_mode) {
 }
    
      
+void set_heading_wind_angle(boat *aboat) {
+  /* set heading according to wind angle */
+  double angle;
+
+  get_wind_info(aboat, &aboat->wind);
+  angle = fmod(aboat->wind.angle + aboat->wp_heading, TWO_PI);
+  if (angle < 0) {
+    angle += TWO_PI;
+  }
+  set_heading_direct(aboat, angle);
+}
