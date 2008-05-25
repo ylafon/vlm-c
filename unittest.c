@@ -1,5 +1,5 @@
 /**
- * $Id: unittest.c,v 1.10 2008/05/24 14:21:21 ylafon Exp $
+ * $Id: unittest.c,v 1.11 2008/05/25 10:21:57 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -30,6 +30,7 @@
 #include "grib.h"
 #include "context.h"
 #include "polar.h"
+#include "waypoint.h"
 
 vlmc_context global_vlmc_context;
 
@@ -38,10 +39,11 @@ int main (int argc, char **argv) {
   double lata, longa, latb, longb;
   
   double lat_boat, long_boat;
-  time_t current_time, previ_time;
+  time_t current_time, previ_time, crossing_time;
   int i;
   wind_info wind_boat;
- 
+  waypoint fake_waypoint;
+
   init_context_default();
 
   lat1  = degToRad(10);
@@ -124,6 +126,32 @@ int main (int argc, char **argv) {
 	   radToDeg(lat_boat), radToDeg(long_boat),
 	   wind_boat.speed, radToDeg(wind_boat.angle));
     current_time += (15 * 60);
+  }
+  printf("\nWaypoint crossing:\n");
+  fake_waypoint.latitude1  = degToRad(40);
+  fake_waypoint.longitude1 = degToRad(-47);
+  fake_waypoint.latitude2  = degToRad(40);
+  fake_waypoint.longitude2 = degToRad(-50);
+  fake_waypoint.type = 0;
+  if (check_waypoint_crossed(degToRad(39.8), degToRad(-47), 
+			     (time_t)(current_time - 1000),
+			     degToRad(40.3), degToRad(-47),
+			     current_time,
+			     &fake_waypoint, &crossing_time)) {
+    printf("First waypoint crossed at %ld (%ld) -> %s", crossing_time, 
+	   crossing_time - current_time + 1000, ctime(&crossing_time));
+  } else {
+    printf("Edge case 1 failed\n");
+  }
+  if (check_waypoint_crossed(degToRad(39.8), degToRad(-49), 
+			     (time_t)(current_time - 1000),
+			     degToRad(40.3), degToRad(-49),
+			     current_time,
+			     &fake_waypoint, &crossing_time)) {
+    printf("First waypoint crossed at %ld (%ld) -> %s", crossing_time, 
+	   crossing_time - current_time + 1000, ctime(&crossing_time));
+  } else {
+    printf("Edge case 2 failed\n");
   }
   return 0;
 }
