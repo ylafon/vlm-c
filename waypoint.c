@@ -1,5 +1,5 @@
 /**
- * $Id: waypoint.c,v 1.1 2008/05/24 15:44:55 ylafon Exp $
+ * $Id: waypoint.c,v 1.2 2008/05/25 10:21:23 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -15,7 +15,7 @@
  *
  * Contact: <yves@raubacapeu.net>
  */
-
+#include <stdio.h>
 #include <math.h>
 
 #include "defs.h"
@@ -28,9 +28,9 @@
  * populates the time when the wp was crossed
  * @returns a boolean, 1 if waypoint was crossed, 0 otherwise
  */
-int check_waypoint_crossed(long prev_latitude, long prev_longitude,
+int check_waypoint_crossed(double prev_latitude, double prev_longitude,
 			   time_t prev_time,
-			   long current_latitude, long current_longitude, 
+			   double current_latitude, double current_longitude, 
 			   time_t current_time,
 			   waypoint *wp, time_t *crossing_time) {
   double intersect_ratio;
@@ -49,7 +49,7 @@ int check_waypoint_crossed(long prev_latitude, long prev_longitude,
     if (intersect_ratio >= INTER_MIN_LIMIT) {
       /* got it! Compute the time */
       *crossing_time = prev_time + (long) rint(intersect_ratio * 
-				   ((double) (current_time - prev_time)));
+				        ((double) (current_time - prev_time)));
       return 1;
     }
   }

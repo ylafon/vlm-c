@@ -1,5 +1,5 @@
 /**
- * $Id: waypoint.h,v 1.1 2008/05/24 15:44:55 ylafon Exp $
+ * $Id: waypoint.h,v 1.2 2008/05/25 10:21:23 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -24,7 +24,8 @@
 #include "defs.h"
 #include "types.h"
 
-int check_waypoint_crossed PARAM8(long, long, time_t, long, long, time_t, 
+int check_waypoint_crossed PARAM8(double, double, time_t, 
+				  double, double, time_t, 
 				  waypoint *, time_t *);
 
 #endif /* _WAYPOINT_H_ */
