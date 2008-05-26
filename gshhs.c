@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.3 2008/05/04 08:39:45 ylafon Exp $
+ * $Id: gshhs.c,v 1.4 2008/05/26 19:53:41 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -26,12 +26,40 @@
 #include "types.h"
 #include "dist_gshhs.h"
 
-#define MAX_DETAILS 3 /* 1 land, 2 lake, 3 island_in_lake, 4 pond_in_island_in_lake */
-
 extern vlmc_context global_vlmc_context;
-int segnum[3601][1800]; /* this one goes here as otherwise the structure is not allocated */
+void internal_init_partial_coastline PARAM4(int, int, int ,int);
+
+/* this one goes here as otherwise the structure is not allocated */
+int segnum[3601][1800]; 
+
 
 void init_coastline() {
+  internal_init_partial_coastline(0,0,1799,3600);
+}
+
+/* it is important to get the order right when calling, as rounding will
+   take place */
+void init_partial_coastline(double minlat, double minlong, 
+			    double maxlat, double maxlong) {
+  int iminlat, imaxlat, iminlong, imaxlong;
+  
+  minlong = fmod(minlong, TWO_PI);
+  maxlong = fmod(maxlong, TWO_PI);
+  if (minlong < 0) {
+    minlong += TWO_PI;
+  }
+  if (maxlong < 0) {
+    maxlong += TWO_PI;
+  }
+  iminlat  = (int)floor(10.0*minlat) + 900;
+  imaxlat  = (int)ceil(10.0*maxlat) + 900;
+  iminlong = (int)floor(10.0*minlong);
+  imaxlong = (int)ceil(10.0*maxlong);
+  internal_init_partial_coastline(iminlat, iminlong, imaxlat, imaxlong);
+}
+			    
+void internal_init_partial_coastline(int minlat, int minlong,
+				     int maxlat, int maxlong) {
   FILE *coastfile;
   struct GSHHS h;
   struct POINT p;
@@ -39,20 +67,51 @@ void init_coastline() {
   int x,y, prev_x, prev_y;
   double longitude, latitude, prev_longitude, prev_latitude;
   coast_seg *segment;
-  int flip;
+  int flip, zerocrossed;
   double min_longitude, max_longitude;
   min_longitude = 100000.0;
   max_longitude = -100000.0;
 
+  zerocrossed = 0;
+  /* sanity check on given values */
+  if (minlat < 0) {
+    minlat = 0;
+  }
+  if (maxlat > 1799) {
+    maxlat = 1799;
+  }
+  minlong = minlong % 3601;
+  if (minlong < 0 ) {
+    minlong += 3600;
+  }
+  minlong = minlong % 3601;
+  if (maxlong < 0 ) {
+    maxlong += 3600;
+  }
+
+  if (minlat > maxlat) {
+    /* latitude in wrong orders... reset everything */
+    minlat  = 0;
+    maxlat  = 1799;
+    minlong = 0;
+    maxlong = 3600;
+    zerocrossed = 0;
+  }
+
+  if (minlong > maxlong) {
+    zerocrossed = 1;
+  }
+
   /* to make the compiler happy */
   prev_y =0;
   prev_longitude = prev_latitude = 0.0;
-
+  
   memset(segnum, 0, 3601*1800*sizeof(int));
-    
+  
   coastfile = fopen(global_vlmc_context.gshhs_filename, "r");
   if (coastfile == NULL) {
-    printf("Fatal error trying to read %s\n", global_vlmc_context.gshhs_filename);
+    printf("Fatal error trying to read %s\n", 
+	   global_vlmc_context.gshhs_filename);
     exit(2);
   }
   /* we read the file twice: once for finding the number of segments per
@@ -77,8 +136,9 @@ void init_coastline() {
     }
     level = h.flag & 0xff;
     greenwich = (h.flag >>16) & 0xff;
-    if (level > MAX_DETAILS) { /* keep only land ?, not lake, island in lake, 
-				  pond in island in lake => take everything now */
+    if (level > GSHHS_MAX_DETAILS) { 
+      /* keep only land ?, not lake, island in lake, 
+	 pond in island in lake => take everything now */
       for (i=0; i<h.n; i++) {
 	if (fread ((void *)&p, (size_t)sizeof(struct POINT), 
 		   (size_t)1, coastfile) != 1) {
@@ -136,19 +196,40 @@ void init_coastline() {
   fclose (coastfile);
 
   /* now allocate the structures */
-  for (x=0; x<=3600; x++) {
-    for (y=0; y<1800; y++) {
-      global_vlmc_context.shoreline[x][y].nb_segments = segnum[x][y];
-      global_vlmc_context.shoreline[x][y].seg_array = calloc(segnum[x][y], sizeof(struct coast_seg_str));
+  memset(global_vlmc_context.shoreline, 0, 3601*1800*sizeof(coast_zone));
+
+#define _allocate_coast_entry(a,b)					       \
+  global_vlmc_context.shoreline[a][b].nb_segments = segnum[a][b];	       \
+  if (segnum[a][b]) {							       \
+    global_vlmc_context.shoreline[a][b].seg_array = calloc(segnum[a][b],       \
+					        sizeof(struct coast_seg_str)); \
+  }
+
+  /* now allocate the structures */
+  if (zerocrossed) {
+    for (y=minlong; y<=maxlat; y++) {
+      for (x=minlong; x<3601; x++) {
+	_allocate_coast_entry(x,y);
+      }
+      for (x=0; x<=maxlong; x++) {
+	_allocate_coast_entry(x,y);
+      }
+    }
+  } else {
+    for (x=minlong; x<=maxlong; x++) {
+      for (y=minlong; y<=maxlat; y++) {
+	_allocate_coast_entry(x,y);
+      }
     }
   }
 
   coastfile = fopen(global_vlmc_context.gshhs_filename, "r");
   if (coastfile == NULL) {
-    printf("Fatal error trying to read %s\n", global_vlmc_context.gshhs_filename);
+    printf("Fatal error trying to read %s\n", 
+	   global_vlmc_context.gshhs_filename);
     exit(2);
   }
-    
+  
   nb_read = fread ((void *)&h, (size_t)sizeof (struct GSHHS), 
 		   (size_t)1, coastfile);
     
@@ -165,8 +246,9 @@ void init_coastline() {
     }
     level = h.flag & 0xff;
     greenwich = (h.flag >>16) & 0xff;
-    if (level > MAX_DETAILS) { /* keep only land ?, not lake, island in lake, 
-				  pond in island in lake => take everything now */
+    if (level > GSHHS_MAX_DETAILS) {
+      /* keep only land ?, not lake, island in lake, 
+	 pond in island in lake => take everything now */
       for (i=0; i<h.n; i++) {
 	if (fread ((void *)&p, (size_t)sizeof(struct POINT), 
 		   (size_t)1, coastfile) != 1) {
@@ -201,12 +283,15 @@ void init_coastline() {
 	  continue;
 	}
 
-#define _add_segment(a,b) k = --segnum[a][b];		\
-	segment = &global_vlmc_context.shoreline[a][b].seg_array[k];	\
-	segment->longitude_a = prev_longitude;		\
-	segment->longitude_b = longitude;		\
-	segment->latitude_a = prev_latitude;		\
-	segment->latitude_b = latitude
+#define _add_segment(a,b)                                               \
+	if (global_vlmc_context.shoreline[a][b].nb_segments) {          \
+          k = --segnum[a][b];		                                \
+	  segment = &global_vlmc_context.shoreline[a][b].seg_array[k];	\
+	  segment->longitude_a = prev_longitude;			\
+	  segment->longitude_b = longitude;				\
+	  segment->latitude_a = prev_latitude;				\
+	  segment->latitude_b = latitude;				\
+	}
 
 
 	if (prev_x == x) {

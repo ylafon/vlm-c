@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.h,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: gshhs.h,v 1.2 2008/05/26 19:53:41 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -23,5 +23,11 @@
 #include "types.h"
 
 void init_coastline();
+/**
+ * min latitude, min longitude, max latitude, max longitude 
+ * all in radians, in min latitude > max latitude, it selects the whole
+ * world
+ */
+void init_partial_coastline PARAM4(double, double, double, double);
 
 #endif /* _GSHHS_H_ */
