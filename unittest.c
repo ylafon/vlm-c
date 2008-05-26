@@ -1,5 +1,5 @@
 /**
- * $Id: unittest.c,v 1.11 2008/05/25 10:21:57 ylafon Exp $
+ * $Id: unittest.c,v 1.12 2008/05/26 19:53:14 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -148,10 +148,41 @@ int main (int argc, char **argv) {
 			     degToRad(40.3), degToRad(-49),
 			     current_time,
 			     &fake_waypoint, &crossing_time)) {
-    printf("First waypoint crossed at %ld (%ld) -> %s", crossing_time, 
+    printf("Second waypoint crossed at %ld (%ld) -> %s", crossing_time, 
 	   crossing_time - current_time + 1000, ctime(&crossing_time));
   } else {
-    printf("Edge case 2 failed\n");
+    printf("Middle case 2 failed\n");
+  }
+  if (check_waypoint_crossed(degToRad(39.8), degToRad(-50), 
+			     (time_t)(current_time - 1000),
+			     degToRad(40.15), degToRad(-50),
+			     current_time,
+			     &fake_waypoint, &crossing_time)) {
+    printf("Third waypoint crossed at %ld (%ld) -> %s", crossing_time, 
+	   crossing_time - current_time + 1000, ctime(&crossing_time));
+  } else {
+    printf("Edge case 3 failed\n");
+  }
+  if (check_waypoint_crossed(degToRad(39.8), degToRad(-50.1), 
+			     (time_t)(current_time - 1000),
+			     degToRad(40.15), degToRad(-50.1),
+			     current_time,
+			     &fake_waypoint, &crossing_time)) {
+    printf("Fourth waypoint crossed (FAILED!) at %ld (%ld) -> %s", 
+	   crossing_time, 
+	   crossing_time - current_time + 1000, ctime(&crossing_time));
+  } else {
+    printf("Edge case 4 succeeded\n");
+  }
+  if (check_waypoint_crossed(degToRad(39.5), degToRad(-49.5), 
+			     (time_t)(current_time - 1000),
+			     degToRad(40.5), degToRad(-50.5),
+			     current_time,
+			     &fake_waypoint, &crossing_time)) {
+    printf("Fifth waypoint crossed at %ld (%ld) -> %s", crossing_time, 
+	   crossing_time - current_time + 1000, ctime(&crossing_time));
+  } else {
+    printf("Edge case 5 failed\n");
   }
   return 0;
 }
