@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.6 2008/05/24 14:21:21 ylafon Exp $
+ * $Id: defs.h,v 1.7 2008/05/27 20:58:39 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -50,6 +50,9 @@
 # endif /* GRIB_TIME_OFFSET */
 # define GRIB_RESOLUTION_0_5
 #endif
+
+/* 1 land, 2 lake, 3 island_in_lake, 4 pond_in_island_in_lake */
+#define GSHHS_MAX_DETAILS 3
 
 /**
  * Strict check will check intersection only between 0 and 1 (inclusive)
