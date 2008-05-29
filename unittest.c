@@ -1,5 +1,5 @@
 /**
- * $Id: unittest.c,v 1.12 2008/05/26 19:53:14 ylafon Exp $
+ * $Id: unittest.c,v 1.13 2008/05/29 13:46:23 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -102,30 +102,68 @@ int main (int argc, char **argv) {
   set_grib_filename("../datas/latest.grb");
   init_grib();
   purge_gribs();
-  set_grib_filename("../datas/latest24.grb");
-  merge_gribs(1);
-  printf("init grib done, doing interp+merge24\n");
-  interpolate_and_merge_grib();
-  printf("done\n");
-  previ_time = get_max_prevision_time();
-  printf("Max prevision time: %s", ctime(&previ_time));
-  previ_time = get_min_prevision_time();
-  printf("Min prevision time: %s", ctime(&previ_time));
+
   time(&current_time);
   lat_boat     = degToRad(39.812);
   long_boat    = degToRad(8.43);
   for (i=0; i<4; i++) {
     printf("Date: %s", ctime(&current_time));
     /* each 15mn */
-    get_wind_info_latlong_UV(lat_boat, long_boat, current_time, &wind_boat);
+    get_wind_info_latlong_UV(lat_boat, long_boat, 
+			     current_time + 15*60*i,
+			     &wind_boat);
     printf("UV   Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
 	   radToDeg(lat_boat), radToDeg(long_boat),
 	   wind_boat.speed, radToDeg(wind_boat.angle));
-    get_wind_info_latlong_TWSA(lat_boat, long_boat, current_time, &wind_boat);
+    get_wind_info_latlong_TWSA(lat_boat, long_boat, 
+			       current_time+ 15*60*i,
+			       &wind_boat);
     printf("TWSA Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
 	   radToDeg(lat_boat), radToDeg(long_boat),
 	   wind_boat.speed, radToDeg(wind_boat.angle));
-    current_time += (15 * 60);
+  }
+  printf("\nmerging with latest24\n");
+  set_grib_filename("../datas/latest24.grb");
+  merge_gribs(1);
+  for (i=0; i<4; i++) {
+    printf("Date: %s", ctime(&current_time));
+    /* each 15mn */
+    get_wind_info_latlong_UV(lat_boat, long_boat, 
+			     current_time + 15*60*i,
+			     &wind_boat);
+    printf("UV   Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
+	   radToDeg(lat_boat), radToDeg(long_boat),
+	   wind_boat.speed, radToDeg(wind_boat.angle));
+    get_wind_info_latlong_TWSA(lat_boat, long_boat, 
+			       current_time+ 15*60*i,
+			       &wind_boat);
+    printf("TWSA Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
+	   radToDeg(lat_boat), radToDeg(long_boat),
+	   wind_boat.speed, radToDeg(wind_boat.angle));
+  }  
+  printf("init grib done, doing interp in UV_mode + merge24\n");
+  interpolate_and_merge_grib();
+  printf("done\n");
+  previ_time = get_max_prevision_time();
+  printf("Max prevision time: %s", ctime(&previ_time));
+  previ_time = get_min_prevision_time();
+  printf("Min prevision time: %s", ctime(&previ_time));
+
+  for (i=0; i<4; i++) {
+    printf("Date: %s", ctime(&current_time));
+    /* each 15mn */
+    get_wind_info_latlong_UV(lat_boat, long_boat, 
+			     current_time + 15*60*i,
+			     &wind_boat);
+    printf("UV   Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
+	   radToDeg(lat_boat), radToDeg(long_boat),
+	   wind_boat.speed, radToDeg(wind_boat.angle));
+    get_wind_info_latlong_TWSA(lat_boat, long_boat, 
+			       current_time+ 15*60*i,
+			       &wind_boat);
+    printf("TWSA Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
+	   radToDeg(lat_boat), radToDeg(long_boat),
+	   wind_boat.speed, radToDeg(wind_boat.angle));
   }
   printf("\nWaypoint crossing:\n");
   fake_waypoint.latitude1  = degToRad(40);
@@ -183,6 +221,21 @@ int main (int argc, char **argv) {
 	   crossing_time - current_time + 1000, ctime(&crossing_time));
   } else {
     printf("Edge case 5 failed\n");
+  }
+  fake_waypoint.latitude1  = degToRad(41);
+  fake_waypoint.longitude1 = degToRad(-50);
+  fake_waypoint.latitude2  = degToRad(40);
+  fake_waypoint.longitude2 = degToRad(-50);
+  fake_waypoint.type = 0;
+  if (check_waypoint_crossed(degToRad(39.5), degToRad(-49.5), 
+			     (time_t)(current_time - 1000),
+			     degToRad(40.5), degToRad(-50.5),
+			     current_time,
+			     &fake_waypoint, &crossing_time)) {
+    printf("Sixth waypoint crossed at %ld (%ld) -> %s", crossing_time, 
+	   crossing_time - current_time + 1000, ctime(&crossing_time));
+  } else {
+    printf("Edge case 6 failed\n");
   }
   return 0;
 }
