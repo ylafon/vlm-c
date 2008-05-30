@@ -1,5 +1,5 @@
 /**
- * $Id: ortho.h,v 1.1 2008/04/20 12:30:37 ylafon Exp $
+ * $Id: ortho.h,v 1.2 2008/05/30 16:08:29 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -25,5 +25,6 @@
 void set_heading_ortho PARAM1(boat *);
 void set_heading_ortho_nowind PARAM1(boat *);
 double ortho_distance PARAM4(double, double, double, double);
+double ortho_initial_angle PARAM4(double, double, double, double);
 
 #endif /* _ORTHO_H_ */
