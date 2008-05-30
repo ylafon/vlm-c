@@ -54,6 +54,7 @@ typedef long time_t;
 %include "waypoint.h"
 
 %pointer_class(double, doublep)
+%pointer_class(long, longp)
 
 extern vlmc_context global_vlmc_context;
 
