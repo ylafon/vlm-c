@@ -1,5 +1,5 @@
 /**
- * $Id: ortho.c,v 1.4 2008/05/30 16:08:42 ylafon Exp $
+ * $Id: ortho.c,v 1.5 2008/05/31 12:55:49 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -29,7 +29,7 @@
 void set_heading_ortho_nowind(boat *aboat) {
   double g,d, den;
   
-  g = aboat->wp_longitude - aboat->longitude;
+  g = fmod(aboat->wp_longitude - aboat->longitude, TWO_PI);
   if (fabs(g) < 0.0000001) { /* close enough to vertical, clamp to vertical*/
     den = aboat->wp_latitude - aboat->latitude;
     aboat->wp_distance = 60.0 * radToDeg(fabs(den));
@@ -82,7 +82,7 @@ double ortho_initial_angle(double latitude, double longitude,
 		      double wp_latitude, double wp_longitude) {
   double g,d, den;
   
-  g = fmod(wp_longitude, TWO_PI) - fmod(longitude, TWO_PI);
+  g = fmod(wp_longitude - longitude, TWO_PI);
   if (fabs(g) < 0.0000001) { /* close enough to vertical, clamp to vertical*/
     den = wp_latitude - latitude;
     return (den>0) ? 0: PI;
