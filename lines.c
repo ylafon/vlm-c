@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.13 2008/05/25 10:21:41 ylafon Exp $
+ * $Id: lines.c,v 1.14 2008/06/04 16:03:18 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -58,7 +58,7 @@ double intersects(double latitude, double longitude,
     seg_b_longitude += TWO_PI;
   }
 #ifdef DEBUG
-  printf("Checking intersection between %.4fx%.4f->%.4fx%.4f and %.4fx%.4f->%.4fx%.4f\n",
+  printf("Checking intersection between %.10fx%.10f->%.10fx%.10f and %.10fx%.10f->%.10fx%.10f\n",
 	 latitude, longitude, new_latitude, new_longitude,
 	 seg_a_latitude, seg_a_longitude, seg_b_latitude,seg_b_longitude);
 #endif /* DEBUG */
@@ -73,11 +73,16 @@ double intersects(double latitude, double longitude,
    */
   
   d = ((seg_b_latitude - seg_a_latitude)*x1 - x2 * (new_latitude - latitude));
+  
+  if (d == 0.0) {
+    return -1;
+  }
+
   t = (x2*y - (seg_b_latitude - seg_a_latitude)*x) / d;
   t_seg = (x1*y - (new_latitude - latitude)*x) / d;
   
 #ifdef DEBUG
-  printf("segment ratio: %.4f and %.4f\n", t_seg, t);
+  printf("segment ratio: %.20f %.4f and %.4f\n", d, t_seg, t);
 #endif /* DEBUG */
   if ((t >= INTER_MIN_LIMIT && t <=INTER_MAX_LIMIT) &&
       (t_seg>=INTER_MIN_LIMIT && t_seg <=INTER_MAX_LIMIT)) {
