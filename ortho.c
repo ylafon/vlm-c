@@ -1,5 +1,5 @@
 /**
- * $Id: ortho.c,v 1.5 2008/05/31 12:55:49 ylafon Exp $
+ * $Id: ortho.c,v 1.6 2008/06/06 16:37:25 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -79,7 +79,7 @@ double ortho_distance(double latitude, double longitude,
 }
 
 double ortho_initial_angle(double latitude, double longitude, 
-		      double wp_latitude, double wp_longitude) {
+			   double wp_latitude, double wp_longitude) {
   double g,d, den;
   
   g = fmod(wp_longitude - longitude, TWO_PI);
@@ -100,5 +100,40 @@ double ortho_initial_angle(double latitude, double longitude,
     return TWO_PI - acos((sin(wp_latitude)-sin(latitude)*cos(d)) / den);
   } else {
     return acos((sin(wp_latitude)-sin(latitude)*cos(d)) / den);
+  }
+}
+
+void ortho_distance_initial_angle(double latitude, double longitude, 
+				  double wp_latitude, double wp_longitude,
+				  double *distance, double *initial_angle) {
+  double g,d, den;
+  
+  g = fmod(wp_longitude - longitude, TWO_PI);
+  if (fabs(g) < 0.0000001) { /* close enough to vertical, clamp to vertical*/
+    den = wp_latitude - latitude;
+    if (den > 0) {
+      *initial_angle = 0;
+      *distance = 60.0 * radToDeg(den);
+    } else {
+      *initial_angle = PI;
+      *distance = -60.0 * radToDeg(den);
+    }
+    return;
+  }
+  if (g <= - PI) {
+    g += TWO_PI;
+  } else if (g > PI) {
+    g -= TWO_PI;
+  }
+  d = acos(sin(wp_latitude)*sin(latitude) +
+	   cos(wp_latitude)*cos(latitude) * cos(g));
+  
+  den = cos(latitude) * sin(d);
+
+  *distance = 60.0 * radToDeg(d);
+  if (g<0) {
+    *initial_angle = TWO_PI-acos((sin(wp_latitude)-sin(latitude)*cos(d)) / den);
+  } else {
+    *initial_angle =  acos((sin(wp_latitude)-sin(latitude)*cos(d)) / den);
   }
 }
