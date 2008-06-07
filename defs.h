@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.8 2008/06/05 13:59:48 ylafon Exp $
+ * $Id: defs.h,v 1.9 2008/06/07 10:29:40 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -32,10 +32,10 @@
 #endif /* 0 */  
 
 
-#define degToRad(angle) ((angle/180.0) * PI)
-#define radToDeg(angle) ((angle*180.0) / PI)
-#define msToKts(speed) (1.9438445*speed)
-#define ktsToMs(speed) (0.51444444*speed)
+#define degToRad(angle) (((angle)/180.0) * PI)
+#define radToDeg(angle) (((angle)*180.0) / PI)
+#define msToKts(speed) (1.9438445*(speed))
+#define ktsToMs(speed) (0.51444444*(speed))
 
 #ifdef VLM_COMPAT
 # define WIND_GRID_LONG   360
