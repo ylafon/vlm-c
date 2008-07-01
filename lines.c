@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.14 2008/06/04 16:03:18 ylafon Exp $
+ * $Id: lines.c,v 1.15 2008/07/01 15:50:27 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -186,7 +186,7 @@ double check_coast(double latitude, double longitude,
 	c_zone=&global_vlmc_context.shoreline[i][j];
 	_check_intersection_with_array;
       }
-      for (i=i_min; i<=0; i--) {
+      for (i=i_min; i>=0; i--) {
 	c_zone=&global_vlmc_context.shoreline[i][j];
 	_check_intersection_with_array;
       }
