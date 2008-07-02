@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.15 2008/07/01 15:50:27 ylafon Exp $
+ * $Id: lines.c,v 1.16 2008/07/02 13:31:08 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -45,6 +45,14 @@ double intersects(double latitude, double longitude,
 		  double seg_b_latitude, double seg_b_longitude, 
 		  double *inter_latitude, double *inter_longitude) {
   double x, y, x1, x2, t, t_seg,d;
+
+  /* normalization of longitude */
+  longitude = fmod(longitude, TWO_PI);
+  new_longitude = fmod(new_longitude, TWO_PI);
+  seg_a_longitude = fmod(seg_a_longitude, TWO_PI);
+  seg_b_longitude = fmod(seg_b_longitude, TWO_PI);
+
+  /* then move to 0 -> TWO_PI interval */
   if (longitude <0) {
     longitude += TWO_PI;
   }
@@ -57,6 +65,36 @@ double intersects(double latitude, double longitude,
   if (seg_b_longitude <0) {
     seg_b_longitude += TWO_PI;
   }
+  /* now check if the segments are crossing the '0' line */
+  if (fabs(longitude - new_longitude) > PI) {
+    if (longitude > new_longitude) {
+      longitude -= TWO_PI;
+    } else {
+      new_longitude -= TWO_PI;
+    }
+  }
+  if (fabs(seg_a_longitude - seg_b_longitude) > PI) {
+    if (seg_a_longitude > seg_b_longitude) {
+      seg_a_longitude -= TWO_PI;
+    } else {
+      seg_b_longitude -= TWO_PI;
+    }
+  }
+  /* 
+     and the last check, is one segment on the negative side, but 
+     in the TWO-PI range, while the other one is across the 0 line in the 0
+     range
+  */
+  if (fabs(longitude - seg_a_longitude) > PI) {
+    if (longitude > seg_a_longitude) {
+      longitude -= TWO_PI;
+      new_longitude -= TWO_PI;
+    } else {
+      seg_a_longitude -= TWO_PI;
+      seg_b_longitude -= TWO_PI;
+    }
+  }
+  /* normalization done, perform regular checks */
 #ifdef DEBUG
   printf("Checking intersection between %.10fx%.10f->%.10fx%.10f and %.10fx%.10f->%.10fx%.10f\n",
 	 latitude, longitude, new_latitude, new_longitude,
@@ -66,11 +104,6 @@ double intersects(double latitude, double longitude,
   x1 = (new_longitude - longitude);
   x2 = (seg_b_longitude - seg_a_longitude);
   y = (latitude - seg_a_latitude);
-  
-  /* 
-   *  FIXME we must check when we are reaching the 0/360 line 
-   *  hence the longitude-relater intermediate variables.
-   */
   
   d = ((seg_b_latitude - seg_a_latitude)*x1 - x2 * (new_latitude - latitude));
   
