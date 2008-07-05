@@ -1,5 +1,5 @@
 /**
- * $Id: coast.c,v 1.4 2008/05/07 21:54:08 ylafon Exp $
+ * $Id: coast.c,v 1.5 2008/07/05 21:37:26 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -34,7 +34,7 @@
 #include "context.h"
 #include "optim.h"
 
-vlmc_context global_vlmc_context;
+vlmc_context *global_vlmc_context;
 
 #define min(a,b) ((a<b)?a:b)
 #define max(a,b) ((a<b)?b:a)
@@ -56,6 +56,8 @@ int main(int argc, char **argv) {
   int i,j,k, nb_segments, segnum, color;
   coast_zone *c_zone;
   coast_seg *seg_array;
+  
+  global_vlmc_context = calloc(1, sizeof(vlmc_context));
 
   if (argc < 5) {
     printf("%s usage:\n %s <lat,long> <lat,long>\n", *argv, *argv);
@@ -114,7 +116,7 @@ int main(int argc, char **argv) {
   color = 0;
   for (i=ilong_min; i<=ilong_max; i++) {
     for (j=ilat_min; j<= ilat_max; j++) {
-      c_zone=&global_vlmc_context.shoreline[(i<0)?i+3600:i][j];
+      c_zone=&global_vlmc_context->shoreline[(i<0)?i+3600:i][j];
       nb_segments = c_zone->nb_segments;      
       seg_array = c_zone->seg_array;
       for (k=0; k<nb_segments; k++) {

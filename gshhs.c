@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.4 2008/05/26 19:53:41 ylafon Exp $
+ * $Id: gshhs.c,v 1.5 2008/07/05 21:37:26 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -26,7 +26,8 @@
 #include "types.h"
 #include "dist_gshhs.h"
 
-extern vlmc_context global_vlmc_context;
+extern vlmc_context *global_vlmc_context;
+
 void internal_init_partial_coastline PARAM4(int, int, int ,int);
 
 /* this one goes here as otherwise the structure is not allocated */
@@ -108,10 +109,10 @@ void internal_init_partial_coastline(int minlat, int minlong,
   
   memset(segnum, 0, 3601*1800*sizeof(int));
   
-  coastfile = fopen(global_vlmc_context.gshhs_filename, "r");
+  coastfile = fopen(global_vlmc_context->gshhs_filename, "r");
   if (coastfile == NULL) {
     printf("Fatal error trying to read %s\n", 
-	   global_vlmc_context.gshhs_filename);
+	   global_vlmc_context->gshhs_filename);
     exit(2);
   }
   /* we read the file twice: once for finding the number of segments per
@@ -143,7 +144,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	if (fread ((void *)&p, (size_t)sizeof(struct POINT), 
 		   (size_t)1, coastfile) != 1) {
 	  printf ("Fatal error reading Error reading file %s\n",
-		  global_vlmc_context.gshhs_filename);
+		  global_vlmc_context->gshhs_filename);
 	  exit(2);
 	}
       }
@@ -153,7 +154,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	if (fread ((void *)&p, (size_t)sizeof(struct POINT), 
 		   (size_t)1, coastfile) != 1) {
 	  printf ("Fatal error reading Error reading file %s\n",
-		  global_vlmc_context.gshhs_filename);
+		  global_vlmc_context->gshhs_filename);
 	  exit(2);
 	}
 	if (flip) {
@@ -196,13 +197,13 @@ void internal_init_partial_coastline(int minlat, int minlong,
   fclose (coastfile);
 
   /* now allocate the structures */
-  memset(global_vlmc_context.shoreline, 0, 3601*1800*sizeof(coast_zone));
+  memset(global_vlmc_context->shoreline, 0, 3601*1800*sizeof(coast_zone));
 
-#define _allocate_coast_entry(a,b)					       \
-  global_vlmc_context.shoreline[a][b].nb_segments = segnum[a][b];	       \
-  if (segnum[a][b]) {							       \
-    global_vlmc_context.shoreline[a][b].seg_array = calloc(segnum[a][b],       \
-					        sizeof(struct coast_seg_str)); \
+#define _allocate_coast_entry(a,b)					\
+  global_vlmc_context->shoreline[a][b].nb_segments = segnum[a][b];	\
+  if (segnum[a][b]) {							\
+    global_vlmc_context->shoreline[a][b].seg_array = calloc(segnum[a][b], \
+					    sizeof(struct coast_seg_str)); \
   }
 
   /* now allocate the structures */
@@ -223,10 +224,10 @@ void internal_init_partial_coastline(int minlat, int minlong,
     }
   }
 
-  coastfile = fopen(global_vlmc_context.gshhs_filename, "r");
+  coastfile = fopen(global_vlmc_context->gshhs_filename, "r");
   if (coastfile == NULL) {
     printf("Fatal error trying to read %s\n", 
-	   global_vlmc_context.gshhs_filename);
+	   global_vlmc_context->gshhs_filename);
     exit(2);
   }
   
@@ -253,7 +254,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	if (fread ((void *)&p, (size_t)sizeof(struct POINT), 
 		   (size_t)1, coastfile) != 1) {
 	  printf ("Fatal error reading Error reading file %s\n",
-		  global_vlmc_context.gshhs_filename);
+		  global_vlmc_context->gshhs_filename);
 	  exit(2);
 	}
       }
@@ -263,7 +264,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	if (fread ((void *)&p, (size_t)sizeof(struct POINT), 
 		   (size_t)1, coastfile) != 1) {
 	  printf ("Fatal error reading Error reading file %s\n",
-		  global_vlmc_context.gshhs_filename);
+		  global_vlmc_context->gshhs_filename);
 	  exit(2);
 	}
 	if (flip) {
@@ -284,9 +285,9 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	}
 
 #define _add_segment(a,b)                                               \
-	if (global_vlmc_context.shoreline[a][b].nb_segments) {          \
+	if (global_vlmc_context->shoreline[a][b].nb_segments) {		\
           k = --segnum[a][b];		                                \
-	  segment = &global_vlmc_context.shoreline[a][b].seg_array[k];	\
+	  segment = &global_vlmc_context->shoreline[a][b].seg_array[k];	\
 	  segment->longitude_a = prev_longitude;			\
 	  segment->longitude_b = longitude;				\
 	  segment->latitude_a = prev_latitude;				\

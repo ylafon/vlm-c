@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.14 2008/05/08 09:57:12 ylafon Exp $
+ * $Id: winds.c,v 1.15 2008/07/05 21:37:26 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -29,7 +29,7 @@
 #include "types.h"
 #include "winds.h"
 
-extern vlmc_context global_vlmc_context;
+extern vlmc_context *global_vlmc_context;
 
 void get_wind_info(boat *aboat, wind_info *wind) {
   time_t vac_time;
@@ -79,7 +79,7 @@ wind_info *get_wind_info_latlong_UV(double latitude, double longitude,
   char buff[64];
 #endif /* DEBUG */
   
-  windtable = &global_vlmc_context.windtable;
+  windtable = &global_vlmc_context->windtable;
   /* if the windtable is not there, return NULL */
   if (windtable->wind == NULL) {
     wind->speed = 0.0;
@@ -286,7 +286,7 @@ wind_info *get_wind_info_latlong_TWSA(double latitude, double longitude,
   char buff[64];
 #endif /* DEBUG */
 
-  windtable = &global_vlmc_context.windtable;
+  windtable = &global_vlmc_context->windtable;
   /* if the windtable is not there, return NULL */
   if (windtable->wind == NULL) {
     wind->speed = 0.0;
@@ -497,7 +497,7 @@ wind_info *get_wind_info_latlong_TWSA(double latitude, double longitude,
 time_t get_max_prevision_time() {
   winds_prev *windtable;
 
-  windtable = &global_vlmc_context.windtable;
+  windtable = &global_vlmc_context->windtable;
   if (windtable->wind == NULL) {
     return 0;
   }
@@ -507,7 +507,7 @@ time_t get_max_prevision_time() {
 time_t get_min_prevision_time() {
   winds_prev *windtable;
 
-  windtable = &global_vlmc_context.windtable;
+  windtable = &global_vlmc_context->windtable;
   if (windtable->wind == NULL) {
     return 0;
   }

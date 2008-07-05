@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.22 2008/05/15 14:30:35 ylafon Exp $
+ * $Id: grib.c,v 1.23 2008/07/05 21:37:26 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -37,7 +37,7 @@
 #include "wgrib/gds.h"
 #include "wgrib/pds4.h"
 
-extern vlmc_context global_vlmc_context;
+extern vlmc_context *global_vlmc_context;
 
 /* local definition */
 winds **read_gribs PARAM1(int *);
@@ -46,11 +46,11 @@ winds **read_gribs PARAM1(int *);
 #define BUFF_ALLOC0  1048576
 
 void set_grib_offset(long time_offset) {
-  global_vlmc_context.windtable.time_offset = time_offset;
+  global_vlmc_context->windtable.time_offset = time_offset;
 }
 
 long get_grib_offset() {
-  return global_vlmc_context.windtable.time_offset;
+  return global_vlmc_context->windtable.time_offset;
 }
 
 void init_grib() {
@@ -64,11 +64,11 @@ void init_grib_offset(long time_offset) {
   w = read_gribs(&nb_prevs);
   /* no error, cleanup old data */
   if (w) {
-    oldcount = global_vlmc_context.windtable.nb_prevs;
-    oldw = global_vlmc_context.windtable.wind;
-    global_vlmc_context.windtable.nb_prevs    = nb_prevs; 
-    global_vlmc_context.windtable.wind        = w;
-    global_vlmc_context.windtable.time_offset = time_offset;
+    oldcount = global_vlmc_context->windtable.nb_prevs;
+    oldw = global_vlmc_context->windtable.wind;
+    global_vlmc_context->windtable.nb_prevs    = nb_prevs; 
+    global_vlmc_context->windtable.wind        = w;
+    global_vlmc_context->windtable.time_offset = time_offset;
     if (oldw != NULL) {
       for (i=0; i<oldcount; i++) {
 	free(oldw[i]);
@@ -87,7 +87,7 @@ void purge_gribs() {
   winds_prev *windtable;
   winds **w, **oldw;
 
-  windtable = &global_vlmc_context.windtable;
+  windtable = &global_vlmc_context->windtable;
   if (!windtable) {
     return;
   }
@@ -142,8 +142,8 @@ void merge_gribs(int purge) {
     return;
   }
   
-  oldcount = global_vlmc_context.windtable.nb_prevs;
-  oldw = global_vlmc_context.windtable.wind;
+  oldcount = global_vlmc_context->windtable.nb_prevs;
+  oldw = global_vlmc_context->windtable.wind;
   
   /* compute the size of the merged grib */
   totalcount = oldcount;
@@ -196,8 +196,8 @@ void merge_gribs(int purge) {
       }
     }
   }
-  global_vlmc_context.windtable.nb_prevs    = totalcount; 
-  global_vlmc_context.windtable.wind        = neww;
+  global_vlmc_context->windtable.nb_prevs    = totalcount; 
+  global_vlmc_context->windtable.wind        = neww;
   /* we freed the old gribs, but not the containing structure, do it now */
   free(oldw);
   free(w);
@@ -239,14 +239,14 @@ winds **read_gribs(int *nb_prevs) {
    * alloc memory for structures
    * then reread the file to fill them
    */
-  if (!global_vlmc_context.grib_filename) {
+  if (!global_vlmc_context->grib_filename) {
     printf("FATAL: global_vlmc_context not initialized\n");
     return NULL;
   }
   
-  gribfile = fopen(global_vlmc_context.grib_filename, "r");
+  gribfile = fopen(global_vlmc_context->grib_filename, "r");
   if (gribfile == NULL) {
-    printf("FATAL: unable to open \"%s\"\n", global_vlmc_context.grib_filename);
+    printf("FATAL: unable to open \"%s\"\n",global_vlmc_context->grib_filename);
     return NULL;
   }
 
@@ -506,7 +506,7 @@ winds *generate_interim_grib_UV(time_t grib_time) {
   time_t corrected_time;
   int i;
 
-  windtable = &global_vlmc_context.windtable;
+  windtable = &global_vlmc_context->windtable;
   if (windtable->wind == NULL) {
     return NULL;
   }
@@ -564,7 +564,7 @@ winds *generate_interim_grib_TWSA(time_t grib_time) {
   time_t corrected_time;
   int i;
 
-  windtable = &global_vlmc_context.windtable;
+  windtable = &global_vlmc_context->windtable;
   if (windtable->wind == NULL) {
     return NULL;
   }
@@ -647,7 +647,7 @@ void interpolate_and_merge_grib() {
   time_t now;
   winds_prev *windtable;
 
-  windtable = &global_vlmc_context.windtable;
+  windtable = &global_vlmc_context->windtable;
   if (windtable->wind == NULL) {
     init_grib();
     return;

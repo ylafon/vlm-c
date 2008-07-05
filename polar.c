@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.9 2008/05/14 15:30:31 ylafon Exp $
+ * $Id: polar.c,v 1.10 2008/07/05 21:37:26 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -26,7 +26,7 @@
 #include "types.h"
 #include "polar.h"
 
-extern vlmc_context global_vlmc_context;
+extern vlmc_context *global_vlmc_context;
 
 #define INITIAL_BUFFER_SIZE 65536; /* 64k */
 
@@ -72,7 +72,7 @@ void add_polar(char *pname, char *fname) {
   }
   fclose (pfile);
 
-  plist = &global_vlmc_context.polar_list;
+  plist = &global_vlmc_context->polar_list;
   if (plist->polars == NULL) {
     plist->nb_polars = 1;
     plist->polars = malloc(sizeof (boat_polar *));
@@ -95,7 +95,7 @@ boat_polar *get_polar_by_name(char *pname) {
   boat_polar_list *plist;
   int i, nb_polars;
 
-  plist =  &global_vlmc_context.polar_list;
+  plist =  &global_vlmc_context->polar_list;
   if ((pname == NULL) || (plist->polars == NULL)) {
     return NULL;
   }
@@ -123,17 +123,17 @@ void read_polars() {
   int a;
 
   /* if we don't have a global context... bail out */
-  if (!global_vlmc_context.polar_definition_filename) {
+  if (!global_vlmc_context->polar_definition_filename) {
     printf("FATAL: unable to read polar, no definition name given\n");
     return;
   }
   buffer_size       = INITIAL_BUFFER_SIZE;
   remaining_size    = buffer_size;
   buffer            = calloc(buffer_size, sizeof(char)); 
-  polar_definitions = fopen(global_vlmc_context.polar_definition_filename, "r");
+  polar_definitions = fopen(global_vlmc_context->polar_definition_filename,"r");
   if (polar_definitions == NULL) {
     printf("FATAL: unable to open \"%s\"\n", 
-	   global_vlmc_context.polar_definition_filename);
+	   global_vlmc_context->polar_definition_filename);
     return;
   }
   t = buffer;
@@ -148,7 +148,7 @@ void read_polars() {
       buffer = realloc((void *)buffer, (size_t)(buffer_size+a)*sizeof(char));
       if (buffer == NULL) {
 	printf("FATAL: unable to allocate memory while processing \"%s\"\n", 
-	       global_vlmc_context.polar_definition_filename);
+	       global_vlmc_context->polar_definition_filename);
 	return;
       }
       buffer_size    += a;

@@ -1,5 +1,5 @@
 /**
- * $Id: context.c,v 1.5 2008/05/20 20:33:07 ylafon Exp $
+ * $Id: context.c,v 1.6 2008/07/05 21:37:26 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -27,7 +27,7 @@
  * returns a boolean, true if in vlm mode
  * false otherwise
  */
-extern vlmc_context global_vlmc_context;
+extern vlmc_context *global_vlmc_context;
 
 void context_set PARAM2(char **, char *);
 
@@ -51,23 +51,24 @@ void context_set(char **structelem, char *fname) {
 }
 
 void set_grib_filename(char *fname) {
-  context_set(&global_vlmc_context.grib_filename, fname);
+  context_set(&global_vlmc_context->grib_filename, fname);
 }
 
 void set_gshhs_filename(char *fname) {
-  context_set(&global_vlmc_context.gshhs_filename, fname);
+  context_set(&global_vlmc_context->gshhs_filename, fname);
 }
 
 void set_polar_definition_filename(char *fname) {
-  context_set(&global_vlmc_context.polar_definition_filename, fname);
+  context_set(&global_vlmc_context->polar_definition_filename, fname);
 }
 
 void init_context() {
-  global_vlmc_context.windtable.wind       = NULL;
-  global_vlmc_context.windtable.nb_prevs   = 0;
-  global_vlmc_context.polar_list.polars    = NULL;
-  global_vlmc_context.polar_list.nb_polars = 0;
-  memset(global_vlmc_context.shoreline, 0, 3601*1800*sizeof(coast_zone));
+  global_vlmc_context->windtable.wind       = NULL;
+  global_vlmc_context->windtable.nb_prevs   = 0;
+  global_vlmc_context->polar_list.polars    = NULL;
+  global_vlmc_context->polar_list.nb_polars = 0;
+  global_vlmc_context->init_value           = 0;
+  memset(global_vlmc_context->shoreline, 0, 3601*1800*sizeof(coast_zone));
 }
 
 void init_context_default() {
@@ -81,8 +82,8 @@ void init_context_default() {
 int is_init_done() {
   /* we test only wind and polars, it is not mandatory
      to have the coastline filled */
-  if ((global_vlmc_context.windtable.wind == NULL) ||
-      (global_vlmc_context.polar_list.polars == NULL)) {
+  if ((global_vlmc_context->windtable.wind == NULL) ||
+      (global_vlmc_context->polar_list.polars == NULL)) {
     return 0;
   }
   return 1;

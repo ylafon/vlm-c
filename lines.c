@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.16 2008/07/02 13:31:08 ylafon Exp $
+ * $Id: lines.c,v 1.17 2008/07/05 21:37:26 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -31,7 +31,7 @@
  * longitude and latitude coordinates of the two points of each segment
  * in radians, this is a global variable 
  */
-extern vlmc_context global_vlmc_context;
+extern vlmc_context *global_vlmc_context;
 
 /**
  * input: longitude/latitude of old position -> new position
@@ -203,24 +203,24 @@ double check_coast(double latitude, double longitude,
 
 #if DEBUG
   printf("Checking segments: [%d][%d] -> %d\n", i_long, i_lat, 
-	 global_vlmc_context.shoreline[i_long][i_lat].nb_segments); 
+	 global_vlmc_context->shoreline[i_long][i_lat].nb_segments); 
 #endif /* DEBUG */
 
   if ((i_max - i_min) < 1800) {
     for (i=i_min; i<=i_max; i++) {
       for (j=j_min; j<=j_max; j++) {
-	c_zone=&global_vlmc_context.shoreline[i][j];
+	c_zone=&global_vlmc_context->shoreline[i][j];
 	_check_intersection_with_array;
       }
     }
   } else {
     for (j=j_min; j<=j_max; j++) {
       for (i=i_max; i<3601; i++) {
-	c_zone=&global_vlmc_context.shoreline[i][j];
+	c_zone=&global_vlmc_context->shoreline[i][j];
 	_check_intersection_with_array;
       }
       for (i=i_min; i>=0; i--) {
-	c_zone=&global_vlmc_context.shoreline[i][j];
+	c_zone=&global_vlmc_context->shoreline[i][j];
 	_check_intersection_with_array;
       }
     }

@@ -1,5 +1,5 @@
 /**
- * $Id: unittest.c,v 1.13 2008/05/29 13:46:23 ylafon Exp $
+ * $Id: unittest.c,v 1.14 2008/07/05 21:37:26 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -31,8 +31,9 @@
 #include "context.h"
 #include "polar.h"
 #include "waypoint.h"
+#include "gshhs.h"
 
-vlmc_context global_vlmc_context;
+vlmc_context *global_vlmc_context;
 
 int main (int argc, char **argv) {
   double lat1,long1, lat2, long2, lat3, long3;
@@ -44,7 +45,29 @@ int main (int argc, char **argv) {
   wind_info wind_boat;
   waypoint fake_waypoint;
 
+  global_vlmc_context = calloc(1, sizeof(vlmc_context));
   init_context_default();
+
+  lat1 = degToRad(54.793253356367);
+  long1 = degToRad(-163.35368070813);
+  lat2 = degToRad(54.789622936359);
+  long2 = degToRad(-163.36603822435);
+
+  init_coastline();
+  latb = check_coast(lat1, long1, lat2, long2, &lata, &longa);
+  if (latb >= INTER_MIN_LIMIT && latb <= INTER_MAX_LIMIT) {
+	printf("Coast crossed %.4f, %.4f\n", radToDeg(lata), radToDeg(longa));
+  } else {
+	printf("Coast avoided\n");
+  }
+  latb = intersects(lat1, long1, lat2, long2, degToRad(54.8089), degToRad(-163.381), degToRad(54.7696), degToRad(-163.348), &lata, &longa);
+  if (latb >= INTER_MIN_LIMIT && latb <= INTER_MAX_LIMIT) {
+        printf("Intersection %.4f, %.4f\n", radToDeg(lata), radToDeg(longa));
+  } else {
+        printf("No intersection\n");
+  }
+
+ 	
 
   lat1  = degToRad(10);
   long1 = degToRad(10);
@@ -106,41 +129,43 @@ int main (int argc, char **argv) {
   time(&current_time);
   lat_boat     = degToRad(39.812);
   long_boat    = degToRad(8.43);
-  for (i=0; i<4; i++) {
+  for (i=0; i<4; current_time += 15*60, i++) {
     printf("Date: %s", ctime(&current_time));
     /* each 15mn */
     get_wind_info_latlong_UV(lat_boat, long_boat, 
-			     current_time + 15*60*i,
+			     current_time,
 			     &wind_boat);
     printf("UV   Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
 	   radToDeg(lat_boat), radToDeg(long_boat),
 	   wind_boat.speed, radToDeg(wind_boat.angle));
     get_wind_info_latlong_TWSA(lat_boat, long_boat, 
-			       current_time+ 15*60*i,
+			       current_time,
 			       &wind_boat);
     printf("TWSA Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
 	   radToDeg(lat_boat), radToDeg(long_boat),
 	   wind_boat.speed, radToDeg(wind_boat.angle));
   }
+  current_time -= i*15*60;
   printf("\nmerging with latest24\n");
   set_grib_filename("../datas/latest24.grb");
   merge_gribs(1);
-  for (i=0; i<4; i++) {
+  for (i=0; i<4; current_time += 15*60, i++) {
     printf("Date: %s", ctime(&current_time));
     /* each 15mn */
     get_wind_info_latlong_UV(lat_boat, long_boat, 
-			     current_time + 15*60*i,
+			     current_time,
 			     &wind_boat);
     printf("UV   Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
 	   radToDeg(lat_boat), radToDeg(long_boat),
 	   wind_boat.speed, radToDeg(wind_boat.angle));
     get_wind_info_latlong_TWSA(lat_boat, long_boat, 
-			       current_time+ 15*60*i,
+			       current_time,
 			       &wind_boat);
     printf("TWSA Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
 	   radToDeg(lat_boat), radToDeg(long_boat),
 	   wind_boat.speed, radToDeg(wind_boat.angle));
   }  
+  current_time -= i*15*60;
   printf("init grib done, doing interp in UV_mode + merge24\n");
   interpolate_and_merge_grib();
   printf("done\n");
@@ -149,22 +174,24 @@ int main (int argc, char **argv) {
   previ_time = get_min_prevision_time();
   printf("Min prevision time: %s", ctime(&previ_time));
 
-  for (i=0; i<4; i++) {
+  for (i=0; i<4; current_time += 15*60, i++) {
     printf("Date: %s", ctime(&current_time));
     /* each 15mn */
     get_wind_info_latlong_UV(lat_boat, long_boat, 
-			     current_time + 15*60*i,
+			     current_time,
 			     &wind_boat);
     printf("UV   Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
 	   radToDeg(lat_boat), radToDeg(long_boat),
 	   wind_boat.speed, radToDeg(wind_boat.angle));
     get_wind_info_latlong_TWSA(lat_boat, long_boat, 
-			       current_time+ 15*60*i,
+			       current_time,
 			       &wind_boat);
     printf("TWSA Wind at  lat: %.2f long: %.2f, speed %.1f angle %.1f\n",
 	   radToDeg(lat_boat), radToDeg(long_boat),
 	   wind_boat.speed, radToDeg(wind_boat.angle));
   }
+  current_time -= i*15*60;
+
   printf("\nWaypoint crossing:\n");
   fake_waypoint.latitude1  = degToRad(40);
   fake_waypoint.longitude1 = degToRad(-47);

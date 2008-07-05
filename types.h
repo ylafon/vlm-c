@@ -1,5 +1,5 @@
 /**
- * $Id: types.h,v 1.9 2008/05/24 14:50:15 ylafon Exp $
+ * $Id: types.h,v 1.10 2008/07/05 21:37:26 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -130,6 +130,7 @@ typedef struct vlmc_context_str {
   coast_zone      shoreline[3601][1800];
   winds_prev      windtable;
   boat_polar_list polar_list;
+  int             init_value;
 } vlmc_context;
 
 
