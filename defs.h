@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.9 2008/06/07 10:29:40 ylafon Exp $
+ * $Id: defs.h,v 1.10 2008/07/05 20:39:45 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -61,8 +61,8 @@
  * the boat is not a single pixel, it makes sense :)
  */
 #ifdef SAFE_LINE_CHECK
-#  define INTER_MAX_LIMIT 1.00001
-#  define INTER_MIN_LIMIT -0.00001
+#  define INTER_MAX_LIMIT 1.000000001
+#  define INTER_MIN_LIMIT -0.000000001
 #else
 #  define INTER_MAX_LIMIT 1.0
 #  define INTER_MIN_LIMIT 0.0
