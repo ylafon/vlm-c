@@ -1,5 +1,5 @@
 /**
- * $Id: unittest.c,v 1.14 2008/07/05 21:37:26 ylafon Exp $
+ * $Id: unittest.c,v 1.15 2008/07/08 14:11:11 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -46,7 +46,7 @@ int main (int argc, char **argv) {
   waypoint fake_waypoint;
 
   global_vlmc_context = calloc(1, sizeof(vlmc_context));
-  init_context_default();
+  init_context_default(global_vlmc_context);
 
   lat1 = degToRad(54.793253356367);
   long1 = degToRad(-163.35368070813);
@@ -66,8 +66,6 @@ int main (int argc, char **argv) {
   } else {
         printf("No intersection\n");
   }
-
- 	
 
   lat1  = degToRad(10);
   long1 = degToRad(10);
@@ -122,7 +120,7 @@ int main (int argc, char **argv) {
 
   init_polar();
   printf("\nWind test\n");
-  set_grib_filename("../datas/latest.grb");
+  set_grib_filename(global_vlmc_context, "../datas/latest.grb");
   init_grib();
   purge_gribs();
 
@@ -147,7 +145,7 @@ int main (int argc, char **argv) {
   }
   current_time -= i*15*60;
   printf("\nmerging with latest24\n");
-  set_grib_filename("../datas/latest24.grb");
+  set_grib_filename(global_vlmc_context, "../datas/latest24.grb");
   merge_gribs(1);
   for (i=0; i<4; current_time += 15*60, i++) {
     printf("Date: %s", ctime(&current_time));
