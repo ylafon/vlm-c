@@ -1,5 +1,5 @@
 /**
- * $Id: context.h,v 1.2 2008/05/20 17:30:04 ylafon Exp $
+ * $Id: context.h,v 1.3 2008/07/08 14:12:01 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -22,17 +22,17 @@
 #include "defs.h"
 #include "types.h"
 
-void init_context_default();
-void set_grib_filename PARAM1(char *);
-void set_gshhs_filename PARAM1(char *);
-void set_polar_definition_filename PARAM1(char *);
-void init_context();
+void init_context_default PARAM1(vlmc_context *);
+void set_grib_filename PARAM2(vlmc_context *, char *);
+void set_gshhs_filename PARAM2(vlmc_context *, char *);
+void set_polar_definition_filename PARAM2(vlmc_context *, char *);
+void init_context PARAM1(vlmc_context *);
 
 /**
  * check if all the relevant structures (gribs and polar) are
  * filled
  * @return a boolean, true if everything is ready
  */
-int is_init_done();
+int is_init_done PARAM1(vlmc_context *);
 
 #endif /* _CONTEXT_H_ */
