@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.7 2008/07/13 10:50:44 ylafon Exp $
+ * $Id: gshhs.c,v 1.8 2008/07/13 15:51:45 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -215,7 +215,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
 
   /* now allocate the structures */
   if (zerocrossed) {
-    for (y=minlong; y<=maxlat; y++) {
+    for (y=minlat; y<=maxlat; y++) {
       for (x=minlong; x<3601; x++) {
 	_allocate_coast_entry(x,y);
       }
@@ -225,7 +225,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
     }
   } else {
     for (x=minlong; x<=maxlong; x++) {
-      for (y=minlong; y<=maxlat; y++) {
+      for (y=minlat; y<=maxlat; y++) {
 	_allocate_coast_entry(x,y);
       }
     }
