@@ -1,5 +1,5 @@
 /**
- * $Id: coast.c,v 1.5 2008/07/05 21:37:26 ylafon Exp $
+ * $Id: coast.c,v 1.6 2008/07/13 13:03:13 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
     printf("%s usage:\n %s <lat,long> <lat,long>\n", *argv, *argv);
     exit(2);
   }
-  init_context_default();
+  init_context_default(global_vlmc_context);
   init_coastline();
   lat_a  = fmod(atof(argv[1]), 180.0);
   long_a = fmod(atof(argv[2]), 360.0);

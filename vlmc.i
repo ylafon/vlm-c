@@ -30,7 +30,7 @@
     #include "move.h"
     #include "waypoint.h"
     #include "front.h"
-    vlmc_context global_vlmc_context;
+    vlmc_context *global_vlmc_context;
 %}
 
 /* les inclusions pour générer le wrapper python */
@@ -58,5 +58,5 @@ typedef long time_t;
 %pointer_class(double, doublep)
 %pointer_class(long, longp)
 
-extern vlmc_context global_vlmc_context;
+extern vlmc_context *global_vlmc_context;
 
