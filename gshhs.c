@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.5 2008/07/05 21:37:26 ylafon Exp $
+ * $Id: gshhs.c,v 1.6 2008/07/13 10:48:57 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -39,7 +39,7 @@ void init_coastline() {
 }
 
 /* it is important to get the order right when calling, as rounding will
-   take place */
+   take place parameters in radians */
 void init_partial_coastline(double minlat, double minlong, 
 			    double maxlat, double maxlong) {
   int iminlat, imaxlat, iminlong, imaxlong;
@@ -52,10 +52,10 @@ void init_partial_coastline(double minlat, double minlong,
   if (maxlong < 0) {
     maxlong += TWO_PI;
   }
-  iminlat  = (int)floor(10.0*minlat) + 900;
-  imaxlat  = (int)ceil(10.0*maxlat) + 900;
-  iminlong = (int)floor(10.0*minlong);
-  imaxlong = (int)ceil(10.0*maxlong);
+  iminlat  = (int)floor(10.0*radToDeg(minlat)) + 900;
+  imaxlat  = (int)ceil(10.0*radToDeg(maxlat)) + 900;
+  iminlong = (int)floor(10.0*radToDeg(minlong));
+  imaxlong = (int)ceil(10.0*radToDeg(maxlong));
   internal_init_partial_coastline(iminlat, iminlong, imaxlat, imaxlong);
 }
 			    
