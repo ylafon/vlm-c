@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.6 2008/07/13 10:48:57 ylafon Exp $
+ * $Id: gshhs.c,v 1.7 2008/07/13 10:50:44 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -56,6 +56,13 @@ void init_partial_coastline(double minlat, double minlong,
   imaxlat  = (int)ceil(10.0*radToDeg(maxlat)) + 900;
   iminlong = (int)floor(10.0*radToDeg(minlong));
   imaxlong = (int)ceil(10.0*radToDeg(maxlong));
+  /* extra sanity checks */
+  if (imaxlat>1799) {
+    imaxlat = 1799;
+  }
+  if (imaxlong>3600) {
+    imaxlong = 3600;
+  }
   internal_init_partial_coastline(iminlat, iminlong, imaxlat, imaxlong);
 }
 			    
