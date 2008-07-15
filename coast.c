@@ -1,5 +1,5 @@
 /**
- * $Id: coast.c,v 1.6 2008/07/13 13:03:13 ylafon Exp $
+ * $Id: coast.c,v 1.7 2008/07/15 12:23:02 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -63,8 +63,6 @@ int main(int argc, char **argv) {
     printf("%s usage:\n %s <lat,long> <lat,long>\n", *argv, *argv);
     exit(2);
   }
-  init_context_default(global_vlmc_context);
-  init_coastline();
   lat_a  = fmod(atof(argv[1]), 180.0);
   long_a = fmod(atof(argv[2]), 360.0);
   lat_b  = fmod(atof(argv[3]), 180.0);
@@ -90,6 +88,10 @@ int main(int argc, char **argv) {
   ilat_max  = max((int)ceil(lat_a*10.0), (int)ceil(lat_b*10.0)) + 900;
   ilong_min = min((int)floor(long_a*10.0), (int)floor(long_b*10.0));
   ilong_max = max((int)ceil(long_a*10.0), (int)ceil(long_b*10.0));
+
+  init_context_default(global_vlmc_context);
+  init_partial_coastline(degToRad((float)ilat_min/10.0 - 90.),degToRad((float)ilong_min/10.0),degToRad((float)ilat_max/10.0-90.),degToRad((float)ilong_max/10.0));
+//  init_partial_coastline(degToRad(48.), degToRad(-65.), degToRad(49.), degToRad(-66));
 
   printf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <kml xmlns=\"http://earth.google.com/kml/2.2\">\n\
