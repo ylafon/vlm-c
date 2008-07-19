@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.17 2008/07/05 21:37:26 ylafon Exp $
+ * $Id: lines.c,v 1.18 2008/07/19 10:02:28 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -46,11 +46,13 @@ double intersects(double latitude, double longitude,
 		  double *inter_latitude, double *inter_longitude) {
   double x, y, x1, x2, t, t_seg,d;
 
+#if 0
   /* normalization of longitude */
   longitude = fmod(longitude, TWO_PI);
   new_longitude = fmod(new_longitude, TWO_PI);
   seg_a_longitude = fmod(seg_a_longitude, TWO_PI);
   seg_b_longitude = fmod(seg_b_longitude, TWO_PI);
+#endif /* 0 */
 
   /* then move to 0 -> TWO_PI interval */
   if (longitude <0) {
@@ -100,25 +102,30 @@ double intersects(double latitude, double longitude,
 	 latitude, longitude, new_latitude, new_longitude,
 	 seg_a_latitude, seg_a_longitude, seg_b_latitude,seg_b_longitude);
 #endif /* DEBUG */
-  x = (longitude - seg_a_longitude);
+
   x1 = (new_longitude - longitude);
   x2 = (seg_b_longitude - seg_a_longitude);
-  y = (latitude - seg_a_latitude);
   
   d = ((seg_b_latitude - seg_a_latitude)*x1 - x2 * (new_latitude - latitude));
   
   if (d == 0.0) {
     return -1;
   }
+  x = (longitude - seg_a_longitude);
+  y = (latitude - seg_a_latitude);
 
   t = (x2*y - (seg_b_latitude - seg_a_latitude)*x) / d;
+  /* out of the first segment... return ASAP */
+  if (t < INTER_MIN_LIMIT || t > INTER_MAX_LIMIT) {
+    return -1;
+  }
+
   t_seg = (x1*y - (new_latitude - latitude)*x) / d;
   
 #ifdef DEBUG
   printf("segment ratio: %.20f %.4f and %.4f\n", d, t_seg, t);
 #endif /* DEBUG */
-  if ((t >= INTER_MIN_LIMIT && t <=INTER_MAX_LIMIT) &&
-      (t_seg>=INTER_MIN_LIMIT && t_seg <=INTER_MAX_LIMIT)) {
+  if (t_seg>=INTER_MIN_LIMIT && t_seg <=INTER_MAX_LIMIT) {
     *inter_longitude = longitude + t*(new_longitude - longitude);
     *inter_latitude = latitude + t*(new_latitude - latitude);
 #ifdef DEBUG
