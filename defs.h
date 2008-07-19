@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.10 2008/07/05 20:39:45 ylafon Exp $
+ * $Id: defs.h,v 1.11 2008/07/19 14:14:53 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -67,6 +67,8 @@
 #  define INTER_MAX_LIMIT 1.0
 #  define INTER_MIN_LIMIT 0.0
 # endif /* SAFE_LINE_CHECK */
+
+#define WP_ARRIVAL_DISTANCE 0.001
 
 #ifdef PARAM1
 #  undef PARAM1
