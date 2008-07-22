@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.19 2008/07/22 20:29:48 ylafon Exp $
+ * $Id: lines.c,v 1.20 2008/07/22 20:53:57 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -253,7 +253,7 @@ double check_coast(double latitude, double longitude,
 				seg_array->longitude_b,			\
 				&t_lat, &t_long);			\
     seg_array++;							\
-    if (inter>=INTER_MIN_LIMIT && inter<=INTER_MAX_LIMIT) {		\
+    if (inter>=COAST_INTER_MIN_LIMIT && inter<=COAST_INTER_MAX_LIMIT) {	\
       if (inter < min_val) {						\
 	min_val = inter;						\
 	min_long = t_long;						\
@@ -341,7 +341,11 @@ double check_coast(double latitude, double longitude,
       }
     }
   }
+#ifdef PARANOID_COAST_CHECK
+  if (min_val<=COAST_INTER_MAX_LIMIT) {
+#else
   if (min_val<=INTER_MAX_LIMIT) {
+#endif /* PARANOID_COAST_CHECK */
     *inter_latitude = min_lat;
     *inter_longitude = min_long;
     return min_val;
