@@ -1,5 +1,5 @@
 /**
- * $Id: loxo.c,v 1.10 2008/07/22 20:57:10 ylafon Exp $
+ * $Id: loxo.c,v 1.11 2008/07/22 21:01:31 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -52,7 +52,11 @@ void move_boat_loxo(boat *aboat) {
     
   d = check_coast(aboat->latitude, aboat->longitude, latitude, longitude,
 		  &t_lat, &speed);
-  if (d > -0.5) {
+#ifdef PARANOID_COAST_CHECK
+  if (d>=COAST_INTER_MIN_LIMIT && d <=COAST_INTER_MAX_LIMIT) {
+#else
+  if (d>=INTER_MIN_LIMIT && d <=INTER_MAX_LIMIT) {
+#endif /* PARANOID_COAST_CHECK */
     /* move right before the coast */
     vac_l = vac_l * 0.99 * d;
     d = degToRad(vac_l/60.0);
@@ -125,7 +129,11 @@ int estimate_boat_loxo_coast(boat *aboat, int vac_duration, double heading,
   vac_l = check_coast(aboat->latitude, aboat->longitude,
 		      *new_latitude, *new_longitude,
 		      &t_lat, &speed);
-  return (vac_l > -0.5);
+#ifdef PARANOID_COAST_CHECK
+  return(vac_l>=COAST_INTER_MIN_LIMIT && vac_l<=COAST_INTER_MAX_LIMIT);
+#else
+  return(vac_l>=INTER_MIN_LIMIT && vac_l <=INTER_MAX_LIMIT);
+#endif /* PARANOID_COAST_CHECK */
 }
 
 void set_heading_loxo(boat *aboat) {
