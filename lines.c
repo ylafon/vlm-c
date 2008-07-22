@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.18 2008/07/19 10:02:28 ylafon Exp $
+ * $Id: lines.c,v 1.19 2008/07/22 20:29:48 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -136,6 +136,91 @@ double intersects(double latitude, double longitude,
   return -1;
 }
 
+#ifdef PARANOID_COAST_CHECK
+/**
+ * input: longitude/latitude of old position -> new position
+ * longitude/latitude of wpa->wpb or coast segment
+ * return a double is intersects, with inter_longitude/latitude filled
+ * -1 otherwise */
+double paranoid_intersects(double latitude, double longitude,
+			   double new_latitude, double new_longitude,
+			   double seg_a_latitude, double seg_a_longitude,
+			   double seg_b_latitude, double seg_b_longitude, 
+			   double *inter_latitude, double *inter_longitude) {
+  double x, y, x1, x2, t, t_seg,d;
+
+  /* then move to 0 -> TWO_PI interval */
+  if (longitude <0) {
+    longitude += TWO_PI;
+  }
+  if (new_longitude <0) {
+    new_longitude += TWO_PI;
+  }
+  if (seg_a_longitude <0) {
+    seg_a_longitude += TWO_PI;
+  }
+  if (seg_b_longitude <0) {
+    seg_b_longitude += TWO_PI;
+  }
+  /* now check if the segments are crossing the '0' line */
+  if (fabs(longitude - new_longitude) > PI) {
+    if (longitude > new_longitude) {
+      longitude -= TWO_PI;
+    } else {
+      new_longitude -= TWO_PI;
+    }
+  }
+  if (fabs(seg_a_longitude - seg_b_longitude) > PI) {
+    if (seg_a_longitude > seg_b_longitude) {
+      seg_a_longitude -= TWO_PI;
+    } else {
+      seg_b_longitude -= TWO_PI;
+    }
+  }
+  /* 
+     and the last check, is one segment on the negative side, but 
+     in the TWO-PI range, while the other one is across the 0 line in the 0
+     range
+  */
+  if (fabs(longitude - seg_a_longitude) > PI) {
+    if (longitude > seg_a_longitude) {
+      longitude -= TWO_PI;
+      new_longitude -= TWO_PI;
+    } else {
+      seg_a_longitude -= TWO_PI;
+      seg_b_longitude -= TWO_PI;
+    }
+  }
+  /* normalization done, perform regular checks */
+
+  x1 = (new_longitude - longitude);
+  x2 = (seg_b_longitude - seg_a_longitude);
+  
+  d = ((seg_b_latitude - seg_a_latitude)*x1 - x2 * (new_latitude - latitude));
+  
+  if (d == 0.0) {
+    return -1;
+  }
+  x = (longitude - seg_a_longitude);
+  y = (latitude - seg_a_latitude);
+
+  t = (x2*y - (seg_b_latitude - seg_a_latitude)*x) / d;
+  /* out of the first segment... return ASAP */
+  if (t < COAST_INTER_MIN_LIMIT || t > COAST_INTER_MAX_LIMIT) {
+    return -1;
+  }
+
+  t_seg = (x1*y - (new_latitude - latitude)*x) / d;
+  
+  if (t_seg>=COAST_INTER_MIN_LIMIT && t_seg <=COAST_INTER_MAX_LIMIT) {
+    *inter_longitude = longitude + t*(new_longitude - longitude);
+    *inter_latitude = latitude + t*(new_latitude - latitude);
+    return t;
+  }
+  return -1;
+}
+#endif /* PARANOID_COAST_CHECK */
+
 /**
  * input: longitude/latitude of boat's old and new position
  * return a double is intersects, with inter_longitude/latitude filled
@@ -154,24 +239,48 @@ double check_coast(double latitude, double longitude,
   double min_lat, min_long;
 
   /* FIXME, must do sanity check on boundaries accross 0 for line tests */
-  
-#define _check_intersection_with_array	 				 \
-  nb_segments = c_zone->nb_segments;					 \
-  seg_array = c_zone->seg_array;					 \
-  for (k=0; k<nb_segments; k++) {					 \
-    inter = intersects(latitude, longitude, new_latitude, new_longitude, \
-		       seg_array->latitude_a, seg_array->longitude_a,	 \
-		       seg_array->latitude_b, seg_array->longitude_b,	 \
-		       &t_lat, &t_long);				 \
-    seg_array++;							 \
-    if (inter>=INTER_MIN_LIMIT && inter<=INTER_MAX_LIMIT) {		 \
-      if (inter < min_val) {						 \
-	min_val = inter;						 \
-	min_long = t_long;						 \
-	min_lat = t_lat;						 \
-      }									 \
-    }									 \
+
+#ifdef PARANOID_COAST_CHECK  
+#  define _check_intersection_with_array				\
+  nb_segments = c_zone->nb_segments;					\
+  seg_array = c_zone->seg_array;					\
+  for (k=0; k<nb_segments; k++) {					\
+    inter = paranoid_intersects(latitude, longitude,			\
+				new_latitude, new_longitude,		\
+				seg_array->latitude_a,			\
+				seg_array->longitude_a,			\
+				seg_array->latitude_b,			\
+				seg_array->longitude_b,			\
+				&t_lat, &t_long);			\
+    seg_array++;							\
+    if (inter>=INTER_MIN_LIMIT && inter<=INTER_MAX_LIMIT) {		\
+      if (inter < min_val) {						\
+	min_val = inter;						\
+	min_long = t_long;						\
+	min_lat = t_lat;						\
+      }									\
+    }									\
   }
+#else
+#  define _check_intersection_with_array				\
+  nb_segments = c_zone->nb_segments;					\
+  seg_array = c_zone->seg_array;					\
+  for (k=0; k<nb_segments; k++) {					\
+    inter = intersects(latitude, longitude,				\
+		       new_latitude, new_longitude,			\
+		       seg_array->latitude_a, seg_array->longitude_a,	\
+		       seg_array->latitude_b, seg_array->longitude_b,	\
+		       &t_lat, &t_long);				\
+    seg_array++;							\
+    if (inter>=INTER_MIN_LIMIT && inter<=INTER_MAX_LIMIT) {		\
+      if (inter < min_val) {						\
+	min_val = inter;						\
+	min_long = t_long;						\
+	min_lat = t_lat;						\
+      }									\
+    }									\
+  }
+#endif /* PARANOID_COAST_CHECK */
 
   /* to keep the compiler happy */
   t_lat=t_long=min_lat=min_long=0.0;

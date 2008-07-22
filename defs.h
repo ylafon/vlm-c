@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.11 2008/07/19 14:14:53 ylafon Exp $
+ * $Id: defs.h,v 1.12 2008/07/22 20:30:11 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -67,6 +67,15 @@
 #  define INTER_MAX_LIMIT 1.0
 #  define INTER_MIN_LIMIT 0.0
 # endif /* SAFE_LINE_CHECK */
+
+/** 
+ * if Paranoid mode is enabled, get something higher than
+ * PHP's default rounding
+ */
+#ifdef PARANOID_COAST_CHECK
+#  define COAST_INTER_MAX_LIMIT  1.001
+#  define COAST_INTER_MIN_LIMIT -0.001
+#endif /* PARANOID_COAST_CHECK */
 
 #define WP_ARRIVAL_DISTANCE 0.001
 
