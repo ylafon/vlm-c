@@ -1,5 +1,5 @@
 /**
- * $Id: loxo.c,v 1.9 2008/06/04 14:08:25 ylafon Exp $
+ * $Id: loxo.c,v 1.10 2008/07/22 20:57:10 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -52,13 +52,12 @@ void move_boat_loxo(boat *aboat) {
     
   d = check_coast(aboat->latitude, aboat->longitude, latitude, longitude,
 		  &t_lat, &speed);
-  /* FIXME, usr SAFE_LINE_CHECK , move things from lines.c */
-  if (d>=INTER_MIN_LIMIT && d<=INTER_MAX_LIMIT) {
+  if (d > -0.5) {
     /* move right before the coast */
     vac_l = vac_l * 0.99 * d;
     d = degToRad(vac_l/60.0);
     latitude = aboat->latitude + d*cos(aboat->heading);
-	
+    
     t_lat = (latitude + aboat->latitude) / 2;
     longitude = aboat->longitude + (d*sin(aboat->heading))/cos(t_lat);
     aboat->landed = 1;
@@ -126,7 +125,7 @@ int estimate_boat_loxo_coast(boat *aboat, int vac_duration, double heading,
   vac_l = check_coast(aboat->latitude, aboat->longitude,
 		      *new_latitude, *new_longitude,
 		      &t_lat, &speed);
-  return ((vac_l<INTER_MIN_LIMIT) || (vac_l>INTER_MAX_LIMIT));
+  return (vac_l > -0.5);
 }
 
 void set_heading_loxo(boat *aboat) {
