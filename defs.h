@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.12 2008/07/22 20:30:11 ylafon Exp $
+ * $Id: defs.h,v 1.13 2008/07/24 15:46:04 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -40,7 +40,7 @@
 #ifdef VLM_COMPAT
 # define WIND_GRID_LONG   360
 # define WIND_GRID_LAT    181
-# define GRIB_TIME_OFFSET 2310 /* 38mn30 offset */
+# define GRIB_TIME_OFFSET 0 /* VLM used to have 37/38mn offset, now 0 */
 # define GRIB_RESOLUTION_1
 #else
 # define WIND_GRID_LONG   720
