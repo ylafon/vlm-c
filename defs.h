@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.13 2008/07/24 15:46:04 ylafon Exp $
+ * $Id: defs.h,v 1.14 2008/07/26 16:06:32 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -77,7 +77,7 @@
 #  define COAST_INTER_MIN_LIMIT -0.001
 #endif /* PARANOID_COAST_CHECK */
 
-#define WP_ARRIVAL_DISTANCE 0.001
+#define WP_ARRIVAL_DISTANCE 0.01
 
 #ifdef PARAM1
 #  undef PARAM1
