@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.2 2008/07/29 20:57:44 ylafon Exp $
+ * $Id: shmem.c,v 1.3 2008/07/29 21:31:48 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -79,7 +79,7 @@ int create_semaphore() {
  * the default  DEFAULT_NB_SHARED_GRIB_ENTRIES is used
  * @return an int, the shmid of the segment
  */
-int create_grib_shmem(winds_prev *windtable) {
+int create_grib_shmid(winds_prev *windtable) {
   long needed_bytes;
   int shmid;
 
@@ -103,7 +103,22 @@ int create_grib_shmem(winds_prev *windtable) {
   }
   return shmid;
 }
-    
+
+
+void *get_grib_shmem(int shmid, int readonly) {
+  void *addr;
+  
+  if (readonly) {
+    addr = shmat(shmid, (void *) 0, SHM_RDONLY);
+  } else {
+    addr = shmat(shmid, (void *) 0, 0) ;
+  }
+  if (addr == (void *) -1) {
+    return NULL;
+  }
+  return addr;
+}
+
 void copy_grib_array_to_shmem(winds_prev *windtable, void *memseg) {
   long nb_bytes;
   int *intarray, i, nb_prevs;
@@ -125,12 +140,12 @@ void copy_grib_array_to_shmem(winds_prev *windtable, void *memseg) {
     used_bytes = (((used_bytes >> 2) + 1) << 2);
   }
 
-  tarray = (time_t *) (memseg + used_bytes);
+  tarray = (time_t *) (((char *)memseg) + used_bytes);
   *tarray = windtable->time_offset; /* might be changed to interpolation date */
   used_bytes += sizeof(time_t);
 
   /* now copy the relevant stuff */
-  windarray = (winds *) (memseg + used_bytes);
+  windarray = (winds *) (((char *)memseg) + used_bytes);
   for (i=0; i<nb_prevs; i++) {
     memcpy(windarray++, windtable->wind[i], sizeof(winds));
   }
@@ -153,17 +168,17 @@ void construct_grib_array_from_shmem(winds_prev *windtable, void *memseg) {
     used_bytes = (((used_bytes >> 2) + 1) << 2);
   }
 
-  tarray = (time_t *) (memseg + used_bytes);
+  tarray = (time_t *) (((char *)memseg) + used_bytes);
   windtable->time_offset = *tarray; /* might be changed to interpolation date */
   used_bytes += sizeof(time_t);
 
-  windarray = (winds *) (memseg + used_bytes);
-  if (windtable->winds != NULL) {
-    free(windtable->winds);
-    windtable->winds = calloc(nb_prevs, sizeof(winds *));
+  windarray = (winds *) (((char *)memseg) + used_bytes);
+  if (windtable->wind != NULL) {
+    free(windtable->wind);
+    windtable->wind = calloc(nb_prevs, sizeof(winds *));
   }
   for (i=0; i<nb_prevs; i++) {
-    windtable->winds[i] = windarray++;
+    windtable->wind[i] = windarray++;
   }
 }
   
