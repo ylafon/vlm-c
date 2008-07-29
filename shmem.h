@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.h,v 1.1 2008/07/29 20:36:33 ylafon Exp $
+ * $Id: shmem.h,v 1.2 2008/07/29 20:57:57 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -53,6 +53,7 @@ int create_semaphore ();
  */
 int create_grib_shmem PARAM1(winds_prev *);
 
-void copy_grib_array_to_shmem PARAM1(winds_prev *);
+void copy_grib_array_to_shmem PARAM1(winds_prev *, void *);
+void construct_grib_array_from_shmem PARAM1(winds_prev *, void *);
 
 #endif /* _SHMEM_H_ */

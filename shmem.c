@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.1 2008/07/29 20:36:05 ylafon Exp $
+ * $Id: shmem.c,v 1.2 2008/07/29 20:57:44 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -104,7 +104,7 @@ int create_grib_shmem(winds_prev *windtable) {
   return shmid;
 }
     
-void copy_grib_array_to_shmem(winds_prev *windtable, char *memseg) {
+void copy_grib_array_to_shmem(winds_prev *windtable, void *memseg) {
   long nb_bytes;
   int *intarray, i, nb_prevs;
   time_t *tarray;
@@ -136,7 +136,7 @@ void copy_grib_array_to_shmem(winds_prev *windtable, char *memseg) {
   }
 }
   
-void construct_grib_array_from_shmem(winds_prev *windtable, char *memseg) {
+void construct_grib_array_from_shmem(winds_prev *windtable, void *memseg) {
   /* NOTE the previous winds array is freed if not NULL */
   /* NOTE this is not a _copy_ we need to keep the segment and NEVER free
      something in it */
