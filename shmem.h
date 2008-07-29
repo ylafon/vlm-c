@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.h,v 1.2 2008/07/29 20:57:57 ylafon Exp $
+ * $Id: shmem.h,v 1.3 2008/07/29 21:31:29 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -51,9 +51,11 @@ int create_semaphore ();
  * the default  DEFAULT_NB_SHARED_GRIB_ENTRIES is used
  * @return an int, the shmid of the segment
  */
-int create_grib_shmem PARAM1(winds_prev *);
+int create_grib_shmid PARAM1(winds_prev *);
 
-void copy_grib_array_to_shmem PARAM1(winds_prev *, void *);
-void construct_grib_array_from_shmem PARAM1(winds_prev *, void *);
+void *get_grib_shmem PARAM2(int, int);
+
+void copy_grib_array_to_shmem PARAM2(winds_prev *, void *);
+void construct_grib_array_from_shmem PARAM2(winds_prev *, void *);
 
 #endif /* _SHMEM_H_ */
