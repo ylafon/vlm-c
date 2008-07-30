@@ -1,5 +1,5 @@
 /**
- * $Id: windserver.c,v 1.2 2008/07/30 15:00:59 ylafon Exp $
+ * $Id: windserver.c,v 1.3 2008/07/30 19:18:07 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 
   segmaddr = get_grib_shmem(shmid, 0);
   /* FIXME check the available size */
-  copy_grib_array_to_shmem(&global_vlmc_context->windtable, segmaddr);
+  copy_grib_array_to_shmem(shmid, &global_vlmc_context->windtable, segmaddr);
   shmdt(segmaddr);
   
   sem_op[0].sem_num = 0;
