@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.4 2008/07/30 12:16:05 ylafon Exp $
+ * $Id: shmem.c,v 1.5 2008/07/30 15:01:26 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -31,7 +31,7 @@
 // see http://www.cs.uml.edu/~fredm/courses/91.308-spr05/files/lecture-11.txt
 
 int create_semaphore() {
-  int shmid, semvalset;
+  int shmid, semvalset, semid;
   int *semarray;
   union semun semunion;
 
@@ -58,7 +58,7 @@ int create_semaphore() {
     exit(1);
   }
 
-  semunion.val = -1;
+  semunion.val = 0;
   semvalset = semctl(*semarray, 0, SETVAL, semunion);
   if (semvalset == -1) {
     fprintf(stderr, "Unable to set semaphore 0 value\n");
@@ -69,8 +69,31 @@ int create_semaphore() {
     fprintf(stderr, "Unable to set semaphore 1 value\n");
     exit(1);
   }  
-  return *semarray;
+
+  semid = *semarray;
+  shmdt(semarray);
+  return semid;
 }
+
+int get_semaphore_id() {
+  int shmid;
+  int *semarray, semid;
+
+  /* create the shared memory segment int for the semaphore */
+  shmid = shmget(VLM_SEMAPHORE_MEM_KEY, sizeof(int), 0666);
+  if (shmid == -1) {
+    return -1;
+  }
+  /* attach the segment */
+  semarray = (int *) shmat(shmid, NULL, 0);
+  if (semarray  == (int *) -1 ) {
+    return -1;
+  }
+  semid = *semarray;
+  shmdt(semarray);
+  return semid;
+}
+  
 
 /**
  * create the shared memory entry in order to store a grib array
