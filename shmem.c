@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.3 2008/07/29 21:31:48 ylafon Exp $
+ * $Id: shmem.c,v 1.4 2008/07/30 12:16:05 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -104,6 +104,18 @@ int create_grib_shmid(winds_prev *windtable) {
   return shmid;
 }
 
+/**
+ * get the shared memory entry in order to store or read a grib array
+ * @return an int, the shmid of the segment
+ */
+int get_grib_shmid() {
+  int shmid;
+  /* FIXME do we need to read the size, then redo the shmget ? I guess not 
+     but it is possible... */
+  shmid = shmget(VLM_GRIB_MEM_KEY, 0, 0666);
+  return shmid;
+}
+
 
 void *get_grib_shmem(int shmid, int readonly) {
   void *addr;
@@ -126,6 +138,8 @@ void copy_grib_array_to_shmem(winds_prev *windtable, void *memseg) {
   long used_bytes;
   winds *windarray;
 
+  /* FIXME, ensure that the size of the segment is enough to hold the complete
+     structure (using shmctl to get the size) */
   nb_prevs = windtable->nb_prevs;
   /* be sure to lock the semaphore before using this function */
   nb_bytes = nb_prevs * sizeof(winds);
@@ -175,11 +189,13 @@ void construct_grib_array_from_shmem(winds_prev *windtable, void *memseg) {
   windarray = (winds *) (((char *)memseg) + used_bytes);
   if (windtable->wind != NULL) {
     free(windtable->wind);
-    windtable->wind = calloc(nb_prevs, sizeof(winds *));
+    windtable->wind = NULL;
   }
+  windtable->wind = calloc(nb_prevs, sizeof(winds *));
   for (i=0; i<nb_prevs; i++) {
     windtable->wind[i] = windarray++;
   }
+  windtable->nb_prevs = nb_prevs;
 }
   
 
