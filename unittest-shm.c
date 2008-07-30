@@ -1,5 +1,5 @@
 /**
- * $Id: unittest-shm.c,v 1.1 2008/07/30 12:15:57 ylafon Exp $
+ * $Id: unittest-shm.c,v 1.2 2008/07/30 15:01:12 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -22,6 +22,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/shm.h>
+#include <sys/sem.h>
 
 #include "defs.h"
 #include "types.h"
@@ -46,8 +47,9 @@ int main (int argc, char **argv) {
   int i;
   wind_info wind_boat;
   waypoint fake_waypoint;
-  int shmid;
+  int shmid, semid;
   void *segmaddr;
+  struct sembuf sem_op[2];
 
   global_vlmc_context = calloc(1, sizeof(vlmc_context));
   init_context_default(global_vlmc_context);
@@ -125,13 +127,29 @@ int main (int argc, char **argv) {
   init_polar();
   printf("\nWind test\n");
   
+  semid = get_semaphore_id();
+  if (semid == -1) {
+    fprintf(stderr, "Unable to get the semaphore\n");
+    exit(1);
+  }
+  sem_op[0].sem_num = 0;
+  sem_op[0].sem_op  = 0;
+  sem_op[0].sem_flg = SEM_UNDO;
+  sem_op[1].sem_num = 0;
+  sem_op[1].sem_op  = 1;
+  sem_op[1].sem_flg = SEM_UNDO|IPC_NOWAIT;
+  if (semop(semid, sem_op, 2) == -1) {
+    fprintf(stderr, "Fail to lock the semaphore\n");
+    exit(1);
+  }
+
   shmid =  get_grib_shmid();
   if (shmid == -1) {
     /* not there, we create it */
     fprintf(stderr, "Cannot find GRIB shared segment\n");
     exit(1);
   }
-  /* FIXME use semaphore */
+
   segmaddr = get_grib_shmem(shmid, 1);
   construct_grib_array_from_shmem(&global_vlmc_context->windtable, segmaddr);
 
@@ -154,9 +172,16 @@ int main (int argc, char **argv) {
 	   radToDeg(lat_boat), radToDeg(long_boat),
 	   wind_boat.speed, radToDeg(wind_boat.angle));
   }
-  /* FIXME use semaphore */
-  shmdt(segmaddr);
 
+  shmdt(segmaddr);
+  /* and release the semaphore */
+  sem_op[0].sem_num = 0;
+  sem_op[0].sem_op  = -1;
+  sem_op[0].sem_flg = SEM_UNDO|IPC_NOWAIT;
+  if (semop(semid, sem_op, 1) == -1) {
+    fprintf(stderr, "Fail to unlock the semaphore\n");
+    exit(1);
+  }
 
   printf("\nWaypoint crossing:\n");
   fake_waypoint.latitude1  = degToRad(40);
