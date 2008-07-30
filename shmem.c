@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.6 2008/07/30 17:04:36 ylafon Exp $
+ * $Id: shmem.c,v 1.7 2008/07/30 17:04:46 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -36,8 +36,6 @@ union semun {
   struct seminfo *__buf; 
 };
 #endif /* __linux */
-
-// see http://www.cs.uml.edu/~fredm/courses/91.308-spr05/files/lecture-11.txt
 
 int create_semaphore() {
   int shmid, semvalset, semid;
