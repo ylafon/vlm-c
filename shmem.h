@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.h,v 1.3 2008/07/29 21:31:29 ylafon Exp $
+ * $Id: shmem.h,v 1.4 2008/07/30 12:16:25 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -52,6 +52,7 @@ int create_semaphore ();
  * @return an int, the shmid of the segment
  */
 int create_grib_shmid PARAM1(winds_prev *);
+int get_grib_shmid ();
 
 void *get_grib_shmem PARAM2(int, int);
 
