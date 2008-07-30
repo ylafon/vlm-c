@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.h,v 1.5 2008/07/30 15:01:40 ylafon Exp $
+ * $Id: shmem.h,v 1.6 2008/07/30 19:07:59 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -56,8 +56,17 @@ int get_grib_shmid ();
 int get_semaphore_id ();
 
 void *get_grib_shmem PARAM2(int, int);
-
-void copy_grib_array_to_shmem PARAM2(winds_prev *, void *);
+/**
+ * Copy the wind previsions (in windtable) in the shared memory segment
+ * If the segment is too small, it may be resized 
+ * @param shmid an int, the id of the shared memory segment
+ * @param windtable a pointer to a <code>winds_prev</code> structure
+ * @param memseg a generic (void *) pointer representing the segment
+ * @return an int, the shmid. If it changed, the user must check that
+ * the memseg pointer is still valid
+ */
+int copy_grib_array_to_shmem PARAM3(int, winds_prev *, void *);
 void construct_grib_array_from_shmem PARAM2(winds_prev *, void *);
+void allocate_grib_array_from_shmem PARAM2(winds_prev *, void *);
 
 #endif /* _SHMEM_H_ */
