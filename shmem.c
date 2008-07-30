@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.5 2008/07/30 15:01:26 ylafon Exp $
+ * $Id: shmem.c,v 1.6 2008/07/30 17:04:36 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -27,6 +27,15 @@
 #include "defs.h"
 #include "types.h"
 #include "shmem.h"
+
+#ifdef __linux__
+union semun {
+  int val;
+  struct semid_ds *buf; 
+  unsigned short *array; 
+  struct seminfo *__buf; 
+};
+#endif /* __linux */
 
 // see http://www.cs.uml.edu/~fredm/courses/91.308-spr05/files/lecture-11.txt
 
