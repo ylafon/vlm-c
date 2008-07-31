@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.8 2008/07/30 19:07:34 ylafon Exp $
+ * $Id: shmem.c,v 1.9 2008/07/31 13:09:47 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -196,6 +196,7 @@ int copy_grib_array_to_shmem(int shmid, winds_prev *windtable, void *memseg) {
     /* we need to reallocate... here, we should own the semaphore, so it is 
        safe to destroy everything and restart */
     shmdt(memseg);
+    memseg = NULL;
     if (shmctl(shmid, IPC_RMID, &shminfo) == -1) {
       fprintf(stderr, "Unable to resize GRIB segment\n");
       maxprev = shminfo.shm_segsz / sizeof(winds);
@@ -213,7 +214,7 @@ int copy_grib_array_to_shmem(int shmid, winds_prev *windtable, void *memseg) {
 	return shmid;
       }
       /* don't forget to reattach the new memory */
-      memseg = shmat(shmid, memseg, 0);
+      memseg = shmat(shmid, (void *) 0, 0);
     }
   }
   /* if we are in danger of an overflow... limit the amount copied */
