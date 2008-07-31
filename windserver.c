@@ -1,5 +1,5 @@
 /**
- * $Id: windserver.c,v 1.3 2008/07/30 19:18:07 ylafon Exp $
+ * $Id: windserver.c,v 1.4 2008/07/31 12:57:55 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
 
@@ -30,21 +31,78 @@
 
 vlmc_context *global_vlmc_context;
 
+
+void usage(char *argv0) {
+  printf("Usage: %s [-merge] [-purge] <grib filename>\n", argv0);
+  exit(1);
+}
+
 int main(int argc, char **argv) {
+  int merge, interp, purge, i, gotfile;
   int shmid, semid;
   void *segmaddr;
   struct sembuf sem_op[2];
   
-  /* TODO add options like -merge -interpolate -replace */
+  /* TODO add options like -merge -interp -replace */
   global_vlmc_context = calloc(1, sizeof(vlmc_context));
   init_context_default(global_vlmc_context);
 
-  if (argc > 1) {
-    set_grib_filename(global_vlmc_context, argv[1]);
+  if (argc == 1) {
+    usage(*argv);
+  }
+  
+  gotfile = merge = interp = purge = 0;
+  for (i=1; i<argc; i++) {
+    if (!strncmp(argv[i], "-merge", 7)) {
+      merge = 1;
+      continue;
+    }
+    if (!strncmp(argv[i], "-purge", 7)) {
+      purge = 1;
+      continue;
+    }
+    /* FIXME, should we consume another token (time_t) to ensure replication
+       on different servers? UNUSED FOR NOW */
+    if (!strncmp(argv[i], "-interp", 8)) {
+      interp = 1;
+      continue;
+    }
+    /* unknown option */
+    if (*argv[i] == '-') {
+      usage(argv[0]);
+    }
+    set_grib_filename(global_vlmc_context, argv[i]);
+    break;
   }
 
+  segmaddr = NULL;
   /* first we read the grib before locking things */
-  init_grib();
+  if (merge) {
+    /* first we need to read the grib from the segment */
+    /* no need to lock as we are the one to lock it when doing the update */
+    shmid = get_grib_shmid();
+    if (shmid == -1) {
+      fprintf(stderr, "Can't attach segment, impossible to merge data\n");
+      init_grib();
+      if (purge) {
+	purge_gribs();
+      }     
+    } else {
+      segmaddr = get_grib_shmem(shmid, 0);
+      allocate_grib_array_from_shmem(&global_vlmc_context->windtable, segmaddr);
+      merge_gribs(purge);
+    }
+  } else {
+    init_grib();
+    if (purge) {
+      purge_gribs();
+    }
+  }
+
+  if (!global_vlmc_context->windtable.nb_prevs) {
+    fprintf(stderr, "Invalid GRIB entry\n");
+    exit(1);
+  }
 
   semid = get_semaphore_id();
   if (semid == -1) {
@@ -75,11 +133,11 @@ int main(int argc, char **argv) {
     }
   }
 
+  /* copy the grib */
   segmaddr = get_grib_shmem(shmid, 0);
-  /* FIXME check the available size */
   copy_grib_array_to_shmem(shmid, &global_vlmc_context->windtable, segmaddr);
   shmdt(segmaddr);
-  
+
   sem_op[0].sem_num = 0;
   sem_op[0].sem_op  = -1;
   sem_op[0].sem_flg = SEM_UNDO|IPC_NOWAIT;
