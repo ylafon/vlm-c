@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.8 2008/07/13 15:51:45 ylafon Exp $
+ * $Id: gshhs.c,v 1.9 2008/07/31 19:59:33 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -330,4 +330,20 @@ void internal_init_partial_coastline(int minlat, int minlong,
 		    coastfile);
   }
   fclose (coastfile);
+}
+
+void free_gshhs() {
+  int i,j;
+  coast_seg *cs;
+
+  /* free the allocated arrays of coast_seg, then set everything to 0 */
+  for (i=0; i<3601; i++) {
+    for (j=0; j<1800; j++) {
+      cs = global_vlmc_context->shoreline[i][j].seg_array;
+      if (cs) {
+	free(cs);
+      }
+    }
+  }
+  memset(global_vlmc_context->shoreline, 0, 3601*1800*sizeof(coast_zone));
 }
