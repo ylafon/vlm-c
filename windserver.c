@@ -1,5 +1,5 @@
 /**
- * $Id: windserver.c,v 1.5 2008/07/31 13:10:00 ylafon Exp $
+ * $Id: windserver.c,v 1.6 2008/07/31 16:52:54 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -145,6 +145,6 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Fail to unlock the semaphore\n");
     exit(1);
   }
-  
+  printf("Grib segment successfully updated\n");
   return 0;
 }
