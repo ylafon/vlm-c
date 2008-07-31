@@ -1,5 +1,5 @@
 /**
- * $Id: unittest-shm.c,v 1.2 2008/07/30 15:01:12 ylafon Exp $
+ * $Id: unittest-shm.c,v 1.3 2008/07/31 12:29:49 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -43,7 +43,7 @@ int main (int argc, char **argv) {
   double lata, longa, latb, longb;
   
   double lat_boat, long_boat;
-  time_t current_time, previ_time, crossing_time;
+  time_t current_time, crossing_time;
   int i;
   wind_info wind_boat;
   waypoint fake_waypoint;
@@ -134,11 +134,16 @@ int main (int argc, char **argv) {
   }
   sem_op[0].sem_num = 0;
   sem_op[0].sem_op  = 0;
+#ifdef SAFE_SHM_READ
   sem_op[0].sem_flg = SEM_UNDO;
   sem_op[1].sem_num = 0;
   sem_op[1].sem_op  = 1;
   sem_op[1].sem_flg = SEM_UNDO|IPC_NOWAIT;
   if (semop(semid, sem_op, 2) == -1) {
+#else
+  sem_op[0].sem_flg = 0;
+  if (semop(semid, sem_op, 1) == -1) {
+#endif /* SAFE_SHM_READ */
     fprintf(stderr, "Fail to lock the semaphore\n");
     exit(1);
   }
@@ -174,6 +179,7 @@ int main (int argc, char **argv) {
   }
 
   shmdt(segmaddr);
+#ifdef SAFE_SHM_READ
   /* and release the semaphore */
   sem_op[0].sem_num = 0;
   sem_op[0].sem_op  = -1;
@@ -182,7 +188,7 @@ int main (int argc, char **argv) {
     fprintf(stderr, "Fail to unlock the semaphore\n");
     exit(1);
   }
-
+#endif /* SAFE_SHM_READ */
   printf("\nWaypoint crossing:\n");
   fake_waypoint.latitude1  = degToRad(40);
   fake_waypoint.longitude1 = degToRad(-47);
