@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.h,v 1.2 2008/05/26 19:53:41 ylafon Exp $
+ * $Id: gshhs.h,v 1.3 2008/07/31 19:59:42 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -29,5 +29,8 @@ void init_coastline();
  * world
  */
 void init_partial_coastline PARAM4(double, double, double, double);
+
+/* free the allocated arrays of coast_seg, then set everything to 0 */
+void free_gshhs();
 
 #endif /* _GSHHS_H_ */
