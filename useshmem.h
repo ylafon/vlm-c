@@ -1,5 +1,5 @@
 /**
- * $Id: useshmem.h,v 1.2 2008/08/03 20:14:19 ylafon Exp $
+ * $Id: useshmem.h,v 1.3 2008/08/03 20:21:33 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -30,6 +30,8 @@
 
 void shm_safe_get_wind_info_lat_long PARAM4(double, double, time_t, 
 					    wind_info *);
+
+void shm_get_wind_info_lat_long PARAM4(double, double, time_t, wind_info *);
 
 void shm_lock_sem_construct_grib PARAM1(int);
 void shm_unlock_sem_destroy_grib PARAM1(int);
