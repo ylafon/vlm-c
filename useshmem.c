@@ -1,5 +1,5 @@
 /**
- * $Id: useshmem.c,v 1.2 2008/08/03 20:14:06 ylafon Exp $
+ * $Id: useshmem.c,v 1.3 2008/08/03 20:21:18 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -39,6 +39,12 @@ void shm_safe_get_wind_info_lat_long(double latitude, double longitude,
   shm_unlock_sem_destroy_grib(1);
 }
 
+void shm_get_wind_info_lat_long(double latitude, double longitude, 
+				time_t when, wind_info *windinfos) {
+  shm_lock_sem_construct_grib(0);
+  get_wind_info_latlong(latitude, longitude, when, windinfos);
+  shm_unlock_sem_destroy_grib(0);
+}
 
 void shm_lock_sem_construct_grib(int do_construct) {
   int shmid, nbops;
