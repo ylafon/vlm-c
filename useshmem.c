@@ -1,5 +1,5 @@
 /**
- * $Id: useshmem.c,v 1.1 2008/08/03 19:53:29 ylafon Exp $
+ * $Id: useshmem.c,v 1.2 2008/08/03 20:14:06 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -34,20 +34,22 @@ extern vlmc_context *global_vlmc_context;
 
 void shm_safe_get_wind_info_lat_long(double latitude, double longitude, 
 				     time_t when, wind_info *windinfos) {
-  int semid;
-  void *segmaddr;
-  
-  shm_lock_sem_construct_grib(&segmaddr, &semid);
+  shm_lock_sem_construct_grib(1);
   get_wind_info_latlong(latitude, longitude, when, windinfos);
-  shm_unlock_sem_destroy_grib(segmaddr, semid);
+  shm_unlock_sem_destroy_grib(1);
 }
 
 
-void shm_lock_sem_construct_grib(void **segmaddr, int *semid) {
+void shm_lock_sem_construct_grib(int do_construct) {
   int shmid, nbops;
+  int *semid;
+  void **segmaddr;
   struct sembuf sem_op[2];
 
-  *semid = get_semaphore_id();
+  semid    = &global_vlmc_context->semid;
+  segmaddr = &global_vlmc_context->segmaddr;
+
+  *semid   = get_semaphore_id();
   if (*semid == -1) {
     fprintf(stderr, "Unable to get the semaphore\n");
     exit(1);
@@ -69,31 +71,40 @@ void shm_lock_sem_construct_grib(void **segmaddr, int *semid) {
     exit(1);
   }
 
-  shmid =  get_grib_shmid();
-  if (shmid == -1) {
-    /* not there, we create it */
-    fprintf(stderr, "Cannot find GRIB shared segment\n");
-    exit(1);
-  }
-  
-  *segmaddr = get_grib_shmem(shmid, 1);
-  if (*segmaddr) {
-    construct_grib_array_from_shmem(&global_vlmc_context->windtable, *segmaddr);
+  if (do_construct) {
+    shmid =  get_grib_shmid();
+    if (shmid == -1) {
+      /* not there, we create it */
+      fprintf(stderr, "Cannot find GRIB shared segment\n");
+      exit(1);
+    }
+    
+    *segmaddr = get_grib_shmem(shmid, 1);
+    if (*segmaddr) {
+      construct_grib_array_from_shmem(&global_vlmc_context->windtable,
+				      *segmaddr);
+    }
   }
 }
 
-void shm_unlock_sem_destroy_grib(void *segmaddr, int semid) {
+void shm_unlock_sem_destroy_grib(int do_destroy) {
 #ifdef SAFE_SHM_READ
   struct sembuf sem_op[2];
+  int semid;
 #endif /* SAFE_SHM_READ */
   winds_prev *windtable;
-  
-  windtable = &global_vlmc_context->windtable;
-  free(windtable->wind);
-  windtable->wind = NULL;
+  void *segmaddr;
 
-  shmdt(segmaddr);
+  if (do_destroy) {
+    windtable = &global_vlmc_context->windtable;
+    free(windtable->wind);
+    windtable->wind = NULL;
+    
+    segmaddr = global_vlmc_context->segmaddr;
+    shmdt(segmaddr);
+  }
 #ifdef SAFE_SHM_READ
+  semid    = global_vlmc_context->semid;
   /* and release the semaphore */
   sem_op[0].sem_num = 0;
   sem_op[0].sem_op  = -1;
