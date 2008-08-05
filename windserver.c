@@ -1,5 +1,5 @@
 /**
- * $Id: windserver.c,v 1.7 2008/08/05 09:28:14 ylafon Exp $
+ * $Id: windserver.c,v 1.8 2008/08/05 14:51:33 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -75,6 +75,7 @@ int main(int argc, char **argv) {
     break;
   }
 
+  shmid = -1;
   segmaddr = NULL;
   /* first we read the grib before locking things */
   if (merge) {
@@ -121,7 +122,9 @@ int main(int argc, char **argv) {
     exit(1);
   }
   
-  shmid = get_grib_shmid(0);
+  if (shmid == -1) { /* uninitialized ? (we might have got it already) */
+    shmid = get_grib_shmid(0);
+  }
   if (shmid == -1) {
     /* not there, we create it */
     shmid = create_grib_shmid(&global_vlmc_context->windtable);
