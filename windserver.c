@@ -1,5 +1,5 @@
 /**
- * $Id: windserver.c,v 1.6 2008/07/31 16:52:54 ylafon Exp $
+ * $Id: windserver.c,v 1.7 2008/08/05 09:28:14 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
   if (merge) {
     /* first we need to read the grib from the segment */
     /* no need to lock as we are the one to lock it when doing the update */
-    shmid = get_grib_shmid();
+    shmid = get_grib_shmid(0);
     if (shmid == -1) {
       fprintf(stderr, "Can't attach segment, impossible to merge data\n");
     } else {
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
     exit(1);
   }
   
-  shmid = get_grib_shmid();
+  shmid = get_grib_shmid(0);
   if (shmid == -1) {
     /* not there, we create it */
     shmid = create_grib_shmid(&global_vlmc_context->windtable);
