@@ -1,5 +1,5 @@
 /**
- * $Id: useshmem.c,v 1.3 2008/08/03 20:21:18 ylafon Exp $
+ * $Id: useshmem.c,v 1.4 2008/08/05 09:27:55 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -78,7 +78,7 @@ void shm_lock_sem_construct_grib(int do_construct) {
   }
 
   if (do_construct) {
-    shmid =  get_grib_shmid();
+    shmid =  get_grib_shmid(1);
     if (shmid == -1) {
       /* not there, we create it */
       fprintf(stderr, "Cannot find GRIB shared segment\n");
