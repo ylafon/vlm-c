@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.h,v 1.6 2008/07/30 19:07:59 ylafon Exp $
+ * $Id: shmem.h,v 1.7 2008/08/05 09:27:19 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -42,7 +42,17 @@
 
 #define DEFAULT_NB_SHARED_GRIB_ENTRIES 61
 
+/**
+ * create the semaphore, and associated shared memory segment to store it
+ * @return an int, the id of the semaphore 
+ */
 int create_semaphore ();
+
+/**
+ * get the semaphore id (from the shared memory segment used to store it)
+ * @return an int, the id of the semaphore 
+ */
+int get_semaphore_id ();
 
 /**
  * create the shared memory entry in order to store a grib array
@@ -52,10 +62,24 @@ int create_semaphore ();
  * @return an int, the shmid of the segment
  */
 int create_grib_shmid PARAM1(winds_prev *);
-int get_grib_shmid ();
-int get_semaphore_id ();
 
+/**
+ * get the grib memory segment id 
+ * @param readonly, an int, if 1, the segment is searched using read-only
+ * permissions, otherwise, rw for user read for others
+ * @return an int, the shmid of the segment
+ */
+int get_grib_shmid PARAM1(int);
+
+/**
+ * get the attached memory address of the grib segment
+ * @param shmid, an int, the segment id of the grib segment (see get_grib_shmid)
+ * @param readonly, an int, if 1, the segment is attached using read-only
+ * 0 if read-write.
+ * @return a void *, the address of the attached segment
+ */
 void *get_grib_shmem PARAM2(int, int);
+
 /**
  * Copy the wind previsions (in windtable) in the shared memory segment
  * If the segment is too small, it may be resized 
@@ -66,7 +90,34 @@ void *get_grib_shmem PARAM2(int, int);
  * the memseg pointer is still valid
  */
 int copy_grib_array_to_shmem PARAM3(int, winds_prev *, void *);
+
+/**
+ * Construct a local grib array (in the global context) based on
+ * what is in the memory segment.
+ * Only references are used to make it faster so:
+ * The segment should be used read-only
+ * You should not use grib_merge/purge/free with it
+ * @param windtable, a <code>winds_prev *</code> pointer, where the associated 
+ * data will be stored.
+ * @param shmaddr, a <code>void *</code> pointer, the address of the attached
+ * shared memory segment
+ */
 void construct_grib_array_from_shmem PARAM2(winds_prev *, void *);
+
+/**
+ * Construct a local grib array (in the global context) based on
+ * what is in the memory segment.
+ * It copies entirely the data locally
+ * The segment should be used read-only or read-write
+ * You may use grib_merge/purge/free with it
+ * (Typically, you can use this to do modification to the shared grib and 
+ * save it back, or if you want a local copy and will work only on that
+ * without risking an interference with an update)
+ * @param windtable, a <code>winds_prev *</code> pointer, where the associated 
+ * data will be stored.
+ * @param shmaddr, a <code>void *</code> pointer, the address of the attached
+ * shared memory segment
+ */
 void allocate_grib_array_from_shmem PARAM2(winds_prev *, void *);
 
 #endif /* _SHMEM_H_ */
