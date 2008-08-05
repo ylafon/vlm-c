@@ -1,5 +1,5 @@
 /**
- * $Id: unittest-shm.c,v 1.3 2008/07/31 12:29:49 ylafon Exp $
+ * $Id: unittest-shm.c,v 1.4 2008/08/05 09:03:39 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -148,7 +148,7 @@ int main (int argc, char **argv) {
     exit(1);
   }
 
-  shmid =  get_grib_shmid();
+  shmid =  get_grib_shmid(1);
   if (shmid == -1) {
     /* not there, we create it */
     fprintf(stderr, "Cannot find GRIB shared segment\n");
