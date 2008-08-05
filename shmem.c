@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.9 2008/07/31 13:09:47 ylafon Exp $
+ * $Id: shmem.c,v 1.10 2008/08/05 09:27:29 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -138,11 +138,15 @@ int create_grib_shmid(winds_prev *windtable) {
  * get the shared memory entry in order to store or read a grib array
  * @return an int, the shmid of the segment
  */
-int get_grib_shmid() {
+int get_grib_shmid(int readonly) {
   int shmid;
   /* FIXME do we need to read the size, then redo the shmget ? I guess not 
      but it is possible... */
-  shmid = shmget(VLM_GRIB_MEM_KEY, 0, 0644);
+  if (readonly) {
+    shmid = shmget(VLM_GRIB_MEM_KEY, 0, 0444);
+  } else {
+    shmid = shmget(VLM_GRIB_MEM_KEY, 0, 0644);
+  }
   return shmid;
 }
 
