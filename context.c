@@ -1,5 +1,5 @@
 /**
- * $Id: context.c,v 1.7 2008/07/08 14:12:01 ylafon Exp $
+ * $Id: context.c,v 1.8 2008/08/06 09:50:05 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -62,7 +62,6 @@ void init_context(vlmc_context *global_vlmc_context) {
   global_vlmc_context->polar_list.polars    = NULL;
   global_vlmc_context->polar_list.nb_polars = 0;
   global_vlmc_context->init_value           = 0;
-  memset(global_vlmc_context->shoreline, 0, 3601*1800*sizeof(coast_zone));
 }
 
 void init_context_default(vlmc_context *global_vlmc_context) {

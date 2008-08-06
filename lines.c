@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.20 2008/07/22 20:53:57 ylafon Exp $
+ * $Id: lines.c,v 1.21 2008/08/06 09:50:06 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -231,13 +231,17 @@ double check_coast(double latitude, double longitude,
 		   double *inter_latitude, double *inter_longitude) {
   double min_val = 1000.0;
   double inter;
-  int i_lat, i_long, i_new_lat, i_new_long;
+  int i_lat, i_long, i_new_lat, i_new_long, idx, x_nb, y_nb;
   int i, j, k, i_min, i_max, j_min, j_max, nb_segments;
+  coast *wholecoast;
   coast_zone *c_zone;
   coast_seg *seg_array;
   double t_lat, t_long;
   double min_lat, min_long;
 
+  wholecoast = global_vlmc_context->shoreline;
+  x_nb = wholecoast->nb_grid_x;
+  y_nb = wholecoast->nb_grid_y;
   /* FIXME, must do sanity check on boundaries accross 0 for line tests */
 
 #ifdef PARANOID_COAST_CHECK  
@@ -325,18 +329,21 @@ double check_coast(double latitude, double longitude,
   if ((i_max - i_min) < 1800) {
     for (i=i_min; i<=i_max; i++) {
       for (j=j_min; j<=j_max; j++) {
-	c_zone=&global_vlmc_context->shoreline[i][j];
+	idx = i*y_nb+j;
+	c_zone=&wholecoast->zone_array[idx];
 	_check_intersection_with_array;
       }
     }
   } else {
     for (j=j_min; j<=j_max; j++) {
       for (i=i_max; i<3601; i++) {
-	c_zone=&global_vlmc_context->shoreline[i][j];
+	idx = i*y_nb+j;
+	c_zone=&wholecoast->zone_array[idx];
 	_check_intersection_with_array;
       }
       for (i=i_min; i>=0; i--) {
-	c_zone=&global_vlmc_context->shoreline[i][j];
+	idx = i*y_nb+j;
+	c_zone=&wholecoast->zone_array[idx];
 	_check_intersection_with_array;
       }
     }

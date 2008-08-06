@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.9 2008/07/31 19:59:33 ylafon Exp $
+ * $Id: gshhs.c,v 1.10 2008/08/06 09:50:05 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -30,10 +30,6 @@ extern vlmc_context *global_vlmc_context;
 
 void internal_init_partial_coastline PARAM4(int, int, int ,int);
 
-/* this one goes here as otherwise the structure is not allocated */
-int segnum[3601][1800]; 
-
-
 void init_coastline() {
   internal_init_partial_coastline(0,0,1799,3600);
 }
@@ -43,7 +39,7 @@ void init_coastline() {
 void init_partial_coastline(double minlat, double minlong, 
 			    double maxlat, double maxlong) {
   int iminlat, imaxlat, iminlong, imaxlong;
-  
+
   minlong = fmod(minlong, TWO_PI);
   maxlong = fmod(maxlong, TWO_PI);
   if (minlong < 0) {
@@ -71,15 +67,19 @@ void internal_init_partial_coastline(int minlat, int minlong,
   FILE *coastfile;
   struct GSHHS h;
   struct POINT p;
-  int nb_read, level, greenwich,i,k;
+  int *segnum;
+  int nb_read, level, greenwich,i,k, nb_seg, idx;
   int x,y, prev_x, prev_y;
   double longitude, latitude, prev_longitude, prev_latitude;
   coast_seg *segment;
+  coast *wholecoast;
   int flip, zerocrossed;
   double min_longitude, max_longitude;
   min_longitude = 100000.0;
   max_longitude = -100000.0;
 
+  segnum = calloc(3601*1800, sizeof(int)); /* FIXME resolution + min/max lat */
+  
   zerocrossed = 0;
   /* sanity check on given values */
   if (minlat < 0) {
@@ -111,10 +111,8 @@ void internal_init_partial_coastline(int minlat, int minlong,
   }
 
   /* to make the compiler happy */
-  prev_y =0;
+  prev_y = 0;
   prev_longitude = prev_latitude = 0.0;
-  
-  memset(segnum, 0, 3601*1800*sizeof(int));
   
   coastfile = fopen(global_vlmc_context->gshhs_filename, "r");
   if (coastfile == NULL) {
@@ -178,20 +176,20 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	}
 	if (prev_x == x) {
 	  if (prev_y == y) {
-	    segnum[x][y]++;
+	    segnum[x*1800+y]++;
 	  } else {
-	    segnum[x][y]++;
-	    segnum[x][prev_y]++;
+	    segnum[x*1800+y]++;
+	    segnum[x*1800+prev_y]++;
 	  } 
 	} else {
 	  if (prev_y == y) {
-	    segnum[x][y]++;
-	    segnum[prev_x][y]++;
+	    segnum[x*1800+y]++;
+	    segnum[prev_x*1800+y]++;
 	  } else {
-	    segnum[x][y]++;
-	    segnum[x][prev_y]++;
-	    segnum[prev_x][y]++;
-	    segnum[prev_x][prev_y]++;
+	    segnum[x*1800+y]++;
+	    segnum[x*1800+prev_y]++;
+	    segnum[prev_x*1800+y]++;
+	    segnum[prev_x*1800+prev_y]++;
 	  }
 	}
 	prev_x = x;
@@ -204,13 +202,26 @@ void internal_init_partial_coastline(int minlat, int minlong,
   fclose (coastfile);
 
   /* now allocate the structures */
-  memset(global_vlmc_context->shoreline, 0, 3601*1800*sizeof(coast_zone));
+  if (!global_vlmc_context->shoreline) {
+    wholecoast = calloc(1, sizeof(coast));
+    wholecoast->nb_grid_x  = 3601; /* FIXME use resolution (+min/max?) */
+    wholecoast->nb_grid_y  = 1800;
+    wholecoast->zone_array = calloc(wholecoast->nb_grid_x*wholecoast->nb_grid_y,
+				    sizeof(coast_zone));
+    global_vlmc_context->shoreline = wholecoast;
+  } else {
+    wholecoast = global_vlmc_context->shoreline;
+    memset(wholecoast->zone_array, 0, 
+	   wholecoast->nb_grid_x*wholecoast->nb_grid_y*sizeof(coast_zone));
+  }
 
 #define _allocate_coast_entry(a,b)					\
-  global_vlmc_context->shoreline[a][b].nb_segments = segnum[a][b];	\
-  if (segnum[a][b]) {							\
-    global_vlmc_context->shoreline[a][b].seg_array = calloc(segnum[a][b], \
-					    sizeof(struct coast_seg_str)); \
+  idx = a*wholecoast->nb_grid_y+b;					\
+  nb_seg =  *(segnum+idx);						\
+  if (nb_seg) {								\
+    wholecoast->zone_array[idx].nb_segments = nb_seg;			\
+    wholecoast->zone_array[idx].seg_array   =				\
+                        calloc(nb_seg, sizeof(struct coast_seg_str));  	\
   }
 
   /* now allocate the structures */
@@ -292,15 +303,15 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	}
 
 #define _add_segment(a,b)                                               \
-	if (global_vlmc_context->shoreline[a][b].nb_segments) {		\
-          k = --segnum[a][b];		                                \
-	  segment = &global_vlmc_context->shoreline[a][b].seg_array[k];	\
+	idx = a*wholecoast->nb_grid_y+b;				\
+	if (wholecoast->zone_array[idx].nb_segments) {			\
+          k = --*(segnum+idx);						\
+	  segment = &wholecoast->zone_array[idx].seg_array[k];		\
 	  segment->longitude_a = prev_longitude;			\
 	  segment->longitude_b = longitude;				\
 	  segment->latitude_a = prev_latitude;				\
 	  segment->latitude_b = latitude;				\
 	}
-
 
 	if (prev_x == x) {
 	  if (prev_y == y) {
@@ -329,21 +340,28 @@ void internal_init_partial_coastline(int minlat, int minlong,
     nb_read = fread((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, 
 		    coastfile);
   }
+  free(segnum);
   fclose (coastfile);
 }
 
 void free_gshhs() {
-  int i,j;
+  int i,j, maxi,maxj, idx;
   coast_seg *cs;
+  coast *wholecoast;
 
+  wholecoast = global_vlmc_context->shoreline;
+  maxi = wholecoast->nb_grid_x;
+  maxj = wholecoast->nb_grid_y;
   /* free the allocated arrays of coast_seg, then set everything to 0 */
-  for (i=0; i<3601; i++) {
-    for (j=0; j<1800; j++) {
-      cs = global_vlmc_context->shoreline[i][j].seg_array;
+  for (i=0; i<maxi; i++) {
+    for (j=0; j<maxj; j++) {
+      idx = i*maxj+j;
+      cs = wholecoast->zone_array[idx].seg_array;
       if (cs) {
 	free(cs);
       }
     }
   }
-  memset(global_vlmc_context->shoreline, 0, 3601*1800*sizeof(coast_zone));
+  free(wholecoast->zone_array);
+  wholecoast->zone_array = NULL;
 }

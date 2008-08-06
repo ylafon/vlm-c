@@ -1,5 +1,5 @@
 /**
- * $Id: coast.c,v 1.7 2008/07/15 12:23:02 ylafon Exp $
+ * $Id: coast.c,v 1.8 2008/08/06 09:50:06 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -53,12 +53,13 @@ void print_position_ge(double latitude, double longitude) {
 int main(int argc, char **argv) {
   double lat_a, lat_b, long_a, long_b;
   int ilat_min, ilat_max, ilong_min, ilong_max;
-  int i,j,k, nb_segments, segnum, color;
+  int i,j,k, nb_segments, segnum, color, idx;
+  coast *wholecoast;
   coast_zone *c_zone;
   coast_seg *seg_array;
   
   global_vlmc_context = calloc(1, sizeof(vlmc_context));
-
+  
   if (argc < 5) {
     printf("%s usage:\n %s <lat,long> <lat,long>\n", *argv, *argv);
     exit(2);
@@ -116,9 +117,11 @@ int main(int argc, char **argv) {
 ");
   segnum = 0;
   color = 0;
+  wholecoast = global_vlmc_context->shoreline;
   for (i=ilong_min; i<=ilong_max; i++) {
     for (j=ilat_min; j<= ilat_max; j++) {
-      c_zone=&global_vlmc_context->shoreline[(i<0)?i+3600:i][j];
+      idx = ((i<0)?i+3600:i)*wholecoast->nb_grid_y+j;
+      c_zone=&wholecoast->zone_array[idx];
       nb_segments = c_zone->nb_segments;      
       seg_array = c_zone->seg_array;
       for (k=0; k<nb_segments; k++) {

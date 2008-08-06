@@ -1,5 +1,5 @@
 /**
- * $Id: types.h,v 1.11 2008/08/03 21:16:10 ylafon Exp $
+ * $Id: types.h,v 1.12 2008/08/06 09:50:06 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -34,6 +34,13 @@ typedef struct coast_zone_str {
   int                   nb_segments;
   struct coast_seg_str *seg_array;
 } coast_zone;
+
+typedef struct coast_str {
+  int  nb_grid_x;
+  int  nb_grid_y;
+  /* FIXME add resolution, min_lat, max_lat, min_long, max_long */
+  struct coast_zone_str *zone_array;
+} coast;
 
 typedef struct boat_polar_str {
   char *polar_name;
@@ -127,7 +134,7 @@ typedef struct vlmc_context_str {
   char            *polar_definition_filename;
   char            *gshhs_filename;
   char            *grib_filename;
-  coast_zone      shoreline[3601][1800];
+  coast           *shoreline;
   winds_prev      windtable;
   boat_polar_list polar_list;
   int             init_value;
