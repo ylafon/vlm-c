@@ -1,5 +1,5 @@
 /**
- * $Id: coast.c,v 1.8 2008/08/06 09:50:06 ylafon Exp $
+ * $Id: coast.c,v 1.9 2008/08/06 09:50:48 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -33,6 +33,7 @@
 #include "grib.h"
 #include "context.h"
 #include "optim.h"
+#include "gshhs.h"
 
 vlmc_context *global_vlmc_context;
 
