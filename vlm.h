@@ -1,5 +1,5 @@
 /**
- * $Id: vlm.h,v 1.4 2008/08/08 07:54:00 ylafon Exp $
+ * $Id: vlm.h,v 1.5 2008/08/08 08:00:32 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -34,7 +34,7 @@ void set_vlm_pilot_mode PARAM2(boat *, int);
  * @param longitude, a <code>double</code>, in <em>degrees</em>
  * @param vac_time, a <code>time_t</code>, in seconds since epoch
  * @param wind, a <code>wind_info *</code>, a pointer to a wind_info structure
- * that will be filled with speed in kts, and angle in degrees
+ * that will be filled with speed in <em>kts</em>, and angle in <em>degrees</em>
  */
 wind_info *get_wind_info_latlong_deg      PARAM4(double, double, 
 						 time_t, wind_info *);
@@ -45,7 +45,7 @@ wind_info *get_wind_info_latlong_deg      PARAM4(double, double,
  * @param longitude, a <code>double</code>, in <em>degrees</em>
  * @param vac_time, a <code>time_t</code>, in seconds since epoch
  * @param wind, a <code>wind_info *</code>, a pointer to a wind_info structure
- * that will be filled with speed in kts, and angle in degrees
+ * that will be filled with speed in <em>kts</em>, and angle in <em>degrees</em>
  */
 wind_info *get_wind_info_latlong_deg_UV   PARAM4(double, double, 
 						 time_t, wind_info *);
@@ -56,7 +56,7 @@ wind_info *get_wind_info_latlong_deg_UV   PARAM4(double, double,
  * @param longitude, a <code>double</code>, in <em>degrees</em>
  * @param vac_time, a <code>time_t</code>, in seconds since epoch
  * @param wind, a <code>wind_info *</code>, a pointer to a wind_info structure
- * that will be filled with speed in kts, and angle in degrees
+ * that will be filled with speed in <em>kts</em>, and angle in <em>degrees</em>
  */
 wind_info *get_wind_info_latlong_deg_TWSA PARAM4(double, double, 
 						 time_t, wind_info *);
@@ -69,7 +69,7 @@ wind_info *get_wind_info_latlong_deg_TWSA PARAM4(double, double,
  * @param longitude, a <code>double</code>, in <em>milli-degrees</em>
  * @param vac_time, a <code>time_t</code>, in seconds since epoch
  * @param wind, a <code>wind_info *</code>, a pointer to a wind_info structure
- * that will be filled with speed in kts, and angle in degrees
+ * that will be filled with speed in <em>kts</em>, and angle in <em>degrees</em>
  */
 wind_info *get_wind_info_latlong_millideg      PARAM4(double, double, 
 						      time_t, wind_info *);
@@ -80,7 +80,7 @@ wind_info *get_wind_info_latlong_millideg      PARAM4(double, double,
  * @param longitude, a <code>double</code>, in <em>milli-degrees</em>
  * @param vac_time, a <code>time_t</code>, in seconds since epoch
  * @param wind, a <code>wind_info *</code>, a pointer to a wind_info structure
- * that will be filled with speed in kts, and angle in degrees
+ * that will be filled with speed in <em>kts</em>, and angle in <em>degrees</em>
  */
 wind_info *get_wind_info_latlong_millideg_UV   PARAM4(double, double, 
 						      time_t, wind_info *);
@@ -91,7 +91,7 @@ wind_info *get_wind_info_latlong_millideg_UV   PARAM4(double, double,
  * @param longitude, a <code>double</code>, in <em>milli-degrees</em>
  * @param vac_time, a <code>time_t</code>, in seconds since epoch
  * @param wind, a <code>wind_info *</code>, a pointer to a wind_info structure
- * that will be filled with speed in kts, and angle in degrees
+ * that will be filled with speed in <em>kts</em>, and angle in <em>degrees</em>
  */
 wind_info *get_wind_info_latlong_millideg_TWSA PARAM4(double, double, 
 						      time_t, wind_info *);
