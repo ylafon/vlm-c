@@ -1,5 +1,5 @@
 /**
- * $Id: vlm.c,v 1.5 2008/08/08 07:53:49 ylafon Exp $
+ * $Id: vlm.c,v 1.6 2008/08/08 08:24:45 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -20,6 +20,7 @@
 #include "loxo.h"
 #include "vmg.h"
 #include "ortho.h"
+#include "winds.h"
 
 /**
  * using VLM's PIM definition, set the heading function of the boat
