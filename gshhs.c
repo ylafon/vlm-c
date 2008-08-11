@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.10 2008/08/06 09:50:05 ylafon Exp $
+ * $Id: gshhs.c,v 1.11 2008/08/11 12:56:07 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -25,6 +25,8 @@
 #include "defs.h"
 #include "types.h"
 #include "dist_gshhs.h"
+#include "gshhs.h"
+
 
 extern vlmc_context *global_vlmc_context;
 
@@ -364,4 +366,29 @@ void free_gshhs() {
   }
   free(wholecoast->zone_array);
   wholecoast->zone_array = NULL;
+}
+
+/* Helper for the bindings
+   Return a coast_zone struct for a given square
+   */
+coast_zone *get_coastzone(int i, int j) {
+  coast *wholecoast;
+  coast_zone *cz;
+  int maxj, idx;
+
+  wholecoast = global_vlmc_context->shoreline;
+  //maxi = wholecoast->nb_grid_x;
+  maxj = wholecoast->nb_grid_y;
+  idx = i*maxj+j;
+  cz = &(wholecoast->zone_array[idx]);
+  return cz;
+}
+
+/* Helper for the bindings
+   return a segment struct for a given coast_zone and index 
+   */
+coast_seg *get_coastseg(coast_zone *cz, int idx) {
+    coast_seg *cs;
+    cs = &(cz->seg_array[idx]);
+    return cs;
 }
