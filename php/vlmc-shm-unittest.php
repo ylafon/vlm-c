@@ -1,6 +1,6 @@
 <?php
 
-# $Id: vlmc-shm-unittest.php,v 1.2 2008/08/11 15:33:56 ylafon Exp $
+# $Id: vlmc-shm-unittest.php,v 1.3 2008/08/11 15:39:32 ylafon Exp $
 #
 # (c) 2008 by Yves Lafon
 #      See COPYING file for copying and redistribution conditions.
@@ -120,7 +120,8 @@ shm_lock_sem_construct_grib(1);
 
 for($i =0; $i < 40 ; $i++ ) {
     
-    printf("<dt>Date: %s GMT</dt>\n", gmdate("Y-m-d:G:i:s", $current_time));
+    printf("<dt>Date: %s GMT</dt>\n", gmdate("Y-m-d:G:i:s", 
+		                     $current_time + (5 * 60 * $i)));
     # each 15mn
     get_wind_info_latlong_deg_UV($lat_boat, $long_boat, 
                                      $current_time + (5 * 60 * $i), $wind_boat);
