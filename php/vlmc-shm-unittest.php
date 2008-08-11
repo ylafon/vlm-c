@@ -1,6 +1,6 @@
 <?php
 
-# $Id: vlmc-shm-unittest.php,v 1.3 2008/08/11 15:39:32 ylafon Exp $
+# $Id: vlmc-shm-unittest.php,v 1.4 2008/08/11 15:47:24 ylafon Exp $
 #
 # (c) 2008 by Yves Lafon
 #      See COPYING file for copying and redistribution conditions.
@@ -37,7 +37,7 @@ $latb  = deg2rad(11.1);
 $longb = deg2rad(10);
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
-                      "http://www.w3.org/TR/REC-html40/loose.dtd">
+                      http://www.w3.org/TR/1998/REC-html40-19980424/loose.dtd">
 <html>
   <head>
     <title>VLM-C unittest for GRIB using shared memory</title>
