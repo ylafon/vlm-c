@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.11 2008/08/11 12:56:07 ylafon Exp $
+ * $Id: gshhs.c,v 1.12 2008/08/11 12:59:33 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -373,15 +373,9 @@ void free_gshhs() {
    */
 coast_zone *get_coastzone(int i, int j) {
   coast *wholecoast;
-  coast_zone *cz;
-  int maxj, idx;
 
   wholecoast = global_vlmc_context->shoreline;
-  //maxi = wholecoast->nb_grid_x;
-  maxj = wholecoast->nb_grid_y;
-  idx = i*maxj+j;
-  cz = &(wholecoast->zone_array[idx]);
-  return cz;
+  return &(wholecoast->zone_array[i*wholecoast->nb_grid_y+j]);
 }
 
 /* Helper for the bindings
