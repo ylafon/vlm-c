@@ -1,6 +1,6 @@
 <?php
 
-# $Id: vlmc-shm-unittest.php,v 1.5 2008/08/11 16:44:59 ylafon Exp $
+# $Id: vlmc-shm-unittest.php,v 1.6 2008/11/22 09:57:03 ylafon Exp $
 #
 # (c) 2008 by Yves Lafon
 #      See COPYING file for copying and redistribution conditions.
@@ -120,7 +120,7 @@ shm_lock_sem_construct_grib(1);
 
 for($i =0; $i < 40 ; $i++ ) {
     
-    printf("<dt>Date: %s GMT</dt>\n", gmdate("Y-m-d:G:i:s", 
+    printf("<dt>Date: %s GMT</dt>\n", gmdate("Y-m-d:H:i:s", 
 		                     $current_time + (5 * 60 * $i)));
     # each 15mn
     get_wind_info_latlong_deg_UV($lat_boat, $long_boat, 
@@ -153,7 +153,7 @@ if ( check_waypoint_crossed( deg2rad(39.8), deg2rad(-47), $current_time - 1000,
     printf("First waypoint crossed at %ld (%ld) -> %s\n",
            longp_value($crossing_time), 
            longp_value($crossing_time) - $current_time + 1000, 
-           gmdate("Y-m-d:G:i:s", longp_value($crossing_time)));
+           gmdate("Y-m-d:H:i:s", longp_value($crossing_time)));
 } else {
   printf("Edge case 1 failed\n");
 }
@@ -164,7 +164,7 @@ if ( check_waypoint_crossed( deg2rad(39.8), deg2rad(-49), $current_time - 1000,
     printf("Second waypoint crossed at %ld (%ld) -> %s\n", 
            longp_value($crossing_time), 
            longp_value($crossing_time) - $current_time + 1000, 
-           gmdate("Y-m-d:G:i:s", longp_value($crossing_time)));
+           gmdate("Y-m-d:H:i:s", longp_value($crossing_time)));
 } else {
     printf("Middle case 2 failed\n");
 }
@@ -175,7 +175,7 @@ if ( check_waypoint_crossed( deg2rad(39.8), deg2rad(-50), $current_time - 1000,
     printf("Third waypoint crossed at %ld (%ld) -> %s\n", 
            longp_value($crossing_time), 
            longp_value($crossing_time) - $current_time + 1000, 
-           gmdate("Y-m-d:G:i:s", longp_value($crossing_time)));
+           gmdate("Y-m-d:H:i:s", longp_value($crossing_time)));
 } else {
   printf("Edge case 3 failed\n");
 }
@@ -186,7 +186,7 @@ if ( check_waypoint_crossed( deg2rad(39.8), deg2rad(-50.1), $current_time -1000,
     printf("Fourth waypoint crossed (FAILED) at %ld (%ld) -> %s\n", 
            longp_value($crossing_time), 
            longp_value($crossing_time) - $current_time + 1000, 
-           gmdate("Y-m-d:G:i:s", longp_value($crossing_time)));
+           gmdate("Y-m-d:H:i:s", longp_value($crossing_time)));
 } else {
     printf("Edge case 4 succeeded\n");
 }
@@ -197,7 +197,7 @@ if ( check_waypoint_crossed( deg2rad(39.5), deg2rad(-49.5), $current_time -1000,
     printf("Fifth waypoint crossed at %ld (%ld) -> %s\n", 
            longp_value($crossing_time), 
            longp_value($crossing_time) - $current_time + 1000, 
-           gmdate("Y-m-d:G:i:s", longp_value($crossing_time)));
+           gmdate("Y-m-d:H:i:s", longp_value($crossing_time)));
 } else {
     printf("Edge case 5 failed\n");
 }
@@ -213,7 +213,7 @@ if ( check_waypoint_crossed( deg2rad(39.5), deg2rad(-49.5), $current_time -1000,
      printf("Sixth waypoint crossed at %ld (%ld) -> %s\n", 
             longp_value($crossing_time), 
             longp_value($crossing_time) - $current_time + 1000, 
-            gmdate("Y-m-d:G:i:s", longp_value($crossing_time)));
+            gmdate("Y-m-d:H:i:s", longp_value($crossing_time)));
 } else {
     printf("Edge case 6 failed\n");
 }
