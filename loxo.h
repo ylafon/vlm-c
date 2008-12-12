@@ -1,5 +1,5 @@
 /**
- * $Id: loxo.h,v 1.6 2008/12/12 10:33:35 ylafon Exp $
+ * $Id: loxo.h,v 1.7 2008/12/12 16:27:06 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -34,7 +34,9 @@ void set_heading_direct             PARAM2(boat *, double);
 void set_heading_constant           PARAM1(boat *);
 void set_heading_wind_angle         PARAM1(boat *);
 void get_loxo_coord_from_dist_angle PARAM6(double, double, double, double,
-					   double * double *);
+					   double *, double *);
 
+void loxo_distance_angle            PARAM6(double, double, double, double,
+					   double *, double *);
 
 #endif /* _LOXO_H_ */
