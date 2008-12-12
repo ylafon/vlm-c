@@ -1,5 +1,5 @@
 /**
- * $Id: loxo.c,v 1.11 2008/07/22 21:01:31 ylafon Exp $
+ * $Id: loxo.c,v 1.12 2008/12/12 10:33:35 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -161,4 +161,23 @@ void set_heading_wind_angle(boat *aboat) {
     angle += TWO_PI;
   }
   set_heading_direct(aboat, angle);
+}
+ 
+/**
+ * compute coordinate from one point with one angle and distance 
+ * @param latitude, the latitude or the starting point, in radians
+ * @param longitude, the longitude of the starting point, in radians
+ * @param distance, the distance in nautic miles
+ * @param angle, the followed heading, in radians
+ * @param target_lat, a pointer to the latitude at the arrival, in radians
+ * @param target_long, a pointer to the longitude at the arrival, in radians
+  */
+void get_loxo_coord_from_dist_angle(double latitude, double longitude,
+				    double distance, double angle,
+				    double *target_lat, double *target_long) {
+  double ld, la;
+  *target_lat = latitude + degToRad( (cos(angle)*distance)/60.0 );
+  ld = log(tan(M_PI_4 + (latitude/2.0)));
+  la = log(tan(M_PI_4 + (*target_lat/2.0)));
+  *target_long = longitude + (ld-la)*tan(angle);
 }
