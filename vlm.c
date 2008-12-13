@@ -1,5 +1,5 @@
 /**
- * $Id: vlm.c,v 1.11 2008/12/13 08:25:28 ylafon Exp $
+ * $Id: vlm.c,v 1.12 2008/12/13 08:26:28 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -263,7 +263,7 @@ void VLM_get_loxo_coord_from_dist_angle(double latitude, double longitude,
 					double distance, double heading,
 					double *target_lat, 
 					double *target_long) {
-  long new_lat, new_long, ratio;
+  double new_lat, new_long, ratio;
   /* first, sanitize everything */
   latitude = degToRad(latitude/1000.0);
   longitude = fmod(degToRad(longitude/1000.0), TWO_PI);
