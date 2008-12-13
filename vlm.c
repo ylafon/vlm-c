@@ -1,5 +1,5 @@
 /**
- * $Id: vlm.c,v 1.9 2008/12/13 08:23:59 ylafon Exp $
+ * $Id: vlm.c,v 1.10 2008/12/13 08:25:01 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -274,7 +274,7 @@ void VLM_get_loxo_coord_from_dist_angle(double latitude, double longitude,
   if (fabs(new_lat) > degToRad(80.0)) {
     ratio = (degToRad(80.0)-fabs(latitude)) / (fabs(new_lat)-fabs(latitude));
     distance *= ratio;
-    get_loxo_coord_form_dist_angle(latitude, longitude, distance, heading,
+    get_loxo_coord_from_dist_angle(latitude, longitude, distance, heading,
 				   &new_lat, &new_long);
   }
   if (new_long > PI) {
