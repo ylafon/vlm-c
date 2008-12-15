@@ -11,7 +11,7 @@
 %module vlmc
 %feature("autodoc", "1");
 
-/* Le code C concerné */
+/* Le code C concerne */
 %{
     #include "defs.h"
     #include "types.h"
@@ -36,7 +36,7 @@
     vlmc_context *global_vlmc_context;
 %}
 
-/* les inclusions pour générer le wrapper python */
+/* les inclusions pour generer le wrapper python */
 typedef long time_t;
 
 %include "cpointer.i"
