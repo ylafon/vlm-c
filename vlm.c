@@ -1,5 +1,5 @@
 /**
- * $Id: vlm.c,v 1.16 2008/12/15 14:35:03 ylafon Exp $
+ * $Id: vlm.c,v 1.17 2008/12/16 15:48:02 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -349,11 +349,6 @@ int VLM_check_cross_WP(double latitude, double longitude,
 		       double *xing_lat, double *xing_long,
 		       double *ratio) {
 
-
-  /*
-  double loxoheading, loxodist, c_ratio, r_lat, r_long;
-  double t_dist, t1_lat, t1_long, t2_lat, t2_long;
-  */
   double c_ratio, r_lat, r_long;
 
   latitude  = latToY(degToRad(latitude/1000.0));
