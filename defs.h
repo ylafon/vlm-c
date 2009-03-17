@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.19 2009/01/29 11:06:03 ylafon Exp $
+ * $Id: defs.h,v 1.20 2009/03/17 12:40:52 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -54,7 +54,7 @@
 #endif /* VLM_MAJOR_VERSION */
 
 #ifndef VLM_MINOR_VERSION
-# define VLM_MINOR_VERSION 8
+# define VLM_MINOR_VERSION 9
 #endif /* VLM_MINOR_VERSION */
 
 #if VLM_MAJOR_VERSION == 0
@@ -68,11 +68,9 @@
 #  define ROUND_WIND_ANGLE_IN_POLAR
 # elif  VLM_MINOR_VERSION == 9
 #  define GRIB_RESOLUTION_0_5
-#  define DEFAULT_INTERPOLATION_UV
 #  define ROUND_WIND_ANGLE_IN_POLAR
 # else /* default */
 #  define GRIB_RESOLUTION_0_5
-#  define DEFAULT_INTERPOLATION_UV
 #  define ROUND_WIND_ANGLE_IN_POLAR
 # endif /* VLM_MINOR_VERSION */
 #endif /* VLM_MAJOR_VERSION */
