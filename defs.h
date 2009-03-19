@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.20 2009/03/17 12:40:52 ylafon Exp $
+ * $Id: defs.h,v 1.21 2009/03/19 22:28:00 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -88,6 +88,8 @@
 
 /* 1 land, 2 lake, 3 island_in_lake, 4 pond_in_island_in_lake */
 #define GSHHS_MAX_DETAILS 3
+
+#define MAX_LAT_GSHHS 88 /* in degrees */
 
 /**
  * Strict check will check intersection only between 0 and 1 (inclusive)
