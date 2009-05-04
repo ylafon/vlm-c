@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.6 2009/05/02 16:56:44 ylafon Exp $
+ * $Id: vmg.c,v 1.7 2009/05/04 16:18:51 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -267,7 +267,11 @@ double get_best_angle_close_hauled(boat *aboat, double speed) {
   maxangle = 0.0;
 
   for (i=0; i<900; i++) {
+#ifdef ROUND_WIND_ANGLE_IN_POLAR
+    t_angle =  degToRad(((double)i+0.001)/10.0);
+#else
     t_angle =  degToRad(((double)i)/10.0);
+#endif /* ROUND_WIND_ANGLE_IN_POLAR */ 
     t_speed = find_speed(aboat, speed, t_angle);
     t = t_speed * cos(t_angle);
     if (t > t_max) {
@@ -294,7 +298,11 @@ double get_best_angle_broad_reach(boat *aboat, double speed) {
   maxangle = M_PI;
 
   for (i=1800; i>900; i--) {
+#ifdef ROUND_WIND_ANGLE_IN_POLAR
+    t_angle =  degToRad(((double)i+0.444)/10.0);
+#else
     t_angle =  degToRad(((double)i)/10.0);
+#endif /* ROUND_WIND_ANGLE_IN_POLAR */ 
     t_speed = find_speed(aboat, speed, t_angle);
     t = t_speed * cos(M_PI - t_angle);
     if (t > t_max) {
