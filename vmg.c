@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.7 2009/05/04 16:18:51 ylafon Exp $
+ * $Id: vmg.c,v 1.8 2009/05/05 07:46:10 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -24,19 +24,35 @@
 #include "loxo.h"
 #include "polar.h"
 #include "ortho.h"
+#include "vmg.h"
 #include "winds.h"
 
 #define REACH_WP_LIMIT 1.0 /* in nm */
 
-/* the algorith used is to maximize the speed vector projection
-   on the orthodromic vector */
-void set_heading_bvmg(boat *aboat) {
+/**
+ * get the heading according to the BVMG.
+ * The boat structure needs to have its WP filled
+ * @param aboat, a pointer to a <code>boat</code> structure
+ * @param mode, an int, >0 for 0.1 degree precision, 0 for 1 degree precision
+ * @return a double, the heading between 0 and 2*PI in radians
+ */
+double get_heading_bvmg(boat *aboat, int mode) {
+  int imax;
+  double anglediv;
   double speed, maxspeed;
   double angle, maxangle, t, t_max, t_max2;
   double wanted_heading;
   double w_speed, w_angle;
   int i;
-  
+
+  if (mode) {
+    imax = 900;
+    anglediv = 10.0;
+  } else {
+    imax = 90;
+    anglediv = 1.0;
+  }
+
   get_wind_info(aboat, &aboat->wind);
   set_heading_ortho_nowind(aboat);
 
@@ -52,8 +68,8 @@ void set_heading_bvmg(boat *aboat) {
   t_max2 = -100;
 
   /* -90 to +90 form desired diretion */
-  for (i=0; i<900; i++) {
-    angle = wanted_heading + degToRad(((double)i)/10.0);
+  for (i=0; i<imax; i++) {
+    angle = wanted_heading + degToRad(((double)i)/anglediv);
     speed = find_speed(aboat, w_speed, w_angle - angle);
     t = speed * cos(wanted_heading - angle);
     if (t > t_max) {
@@ -65,8 +81,8 @@ void set_heading_bvmg(boat *aboat) {
     }
   }
 
-  for (i=0; i<900; i++) {
-    angle = wanted_heading - degToRad(((double)i)/10.0);
+  for (i=0; i<imax; i++) {
+    angle = wanted_heading - degToRad(((double)i)/anglediv);
     speed = find_speed(aboat, w_speed, w_angle - angle);
     t = speed * cos(wanted_heading - angle);
     if (t > t_max2) {
@@ -85,6 +101,15 @@ void set_heading_bvmg(boat *aboat) {
   if (angle < 0) {
     angle += TWO_PI;
   }
+  return angle;
+}
+
+/* the algorith used is to maximize the speed vector projection
+   on the orthodromic vector */
+void set_heading_bvmg(boat *aboat) {
+  double angle;
+
+  angle = get_heading_bvmg(aboat, 1);
   set_heading_direct(aboat, angle);
 }
 
@@ -314,3 +339,4 @@ double get_best_angle_broad_reach(boat *aboat, double speed) {
   }
   return maxangle;
 }
+
