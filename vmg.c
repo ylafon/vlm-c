@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.9 2009/05/05 07:51:00 ylafon Exp $
+ * $Id: vmg.c,v 1.10 2009/05/05 07:59:49 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -223,21 +223,34 @@ void set_heading_bvmg2_coast(boat *aboat) {
  * get the best angle in close hauled mode (allure de pres)
  * @return a wind angle in radians
  */
-double get_best_angle_close_hauled(boat *aboat, double speed) {
+double get_best_angle_close_hauled(boat *aboat, double speed, int mode) {
   double t, t_max;
   double maxangle;
   double t_speed, t_angle;
   int i;
-  
+  int istart, iend;
+  double anglediv, comp;
+
+  if (mode) {
+    istart = 0;
+    iend   = 900;
+    anglediv = 10.0;
+#ifdef ROUND_WIND_ANGLE_IN_POLAR
+    comp = 0.001;
+#else
+    comp = 0.0;
+#endif /* ROUND_WIND_ANGLE_IN_POLAR */
+  } else {
+    istart = 0;
+    iend = 90;
+    anglediv = 1.0;
+    comp = 0.0;
+  }
   t_max = -100.0;
   maxangle = 0.0;
 
-  for (i=0; i<900; i++) {
-#ifdef ROUND_WIND_ANGLE_IN_POLAR
-    t_angle =  degToRad(((double)i+0.001)/10.0);
-#else
-    t_angle =  degToRad(((double)i)/10.0);
-#endif /* ROUND_WIND_ANGLE_IN_POLAR */ 
+  for (i=0; i<iend; i++) {
+    t_angle =  degToRad(((double)i+comp)/anglediv);
     t_speed = find_speed(aboat, speed, t_angle);
     t = t_speed * cos(t_angle);
     if (t > t_max) {
@@ -254,21 +267,35 @@ double get_best_angle_close_hauled(boat *aboat, double speed) {
  * get the best angle in close hauled mode (grand largue)
  * @return a wind angle in radians
  */
-double get_best_angle_broad_reach(boat *aboat, double speed) {
+double get_best_angle_broad_reach(boat *aboat, double speed, int mode) {
   double t, t_max;
   double maxangle;
   double t_speed, t_angle;
   int i;
-  
+  int istart, iend;
+  double anglediv, comp;
+
+  if (mode) {
+    istart = 1800;
+    iend   = 900;
+    anglediv = 10.0;
+#ifdef ROUND_WIND_ANGLE_IN_POLAR
+    comp = 0.444;
+#else
+    comp = 0.0;
+#endif /* ROUND_WIND_ANGLE_IN_POLAR */
+  } else {
+    istart = 180;
+    iend = 90;
+    anglediv = 1.0;
+    comp = 0.0;
+  }
+
   t_max = -100.0;
   maxangle = M_PI;
 
-  for (i=1800; i>900; i--) {
-#ifdef ROUND_WIND_ANGLE_IN_POLAR
-    t_angle =  degToRad(((double)i+0.444)/10.0);
-#else
-    t_angle =  degToRad(((double)i)/10.0);
-#endif /* ROUND_WIND_ANGLE_IN_POLAR */ 
+  for (i=istart; i>iend; i--) {
+    t_angle =  degToRad(((double)i+comp)/anglediv);
     t_speed = find_speed(aboat, speed, t_angle);
     t = t_speed * cos(M_PI - t_angle);
     if (t > t_max) {
