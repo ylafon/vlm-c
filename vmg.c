@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.8 2009/05/05 07:46:10 ylafon Exp $
+ * $Id: vmg.c,v 1.9 2009/05/05 07:51:00 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -218,66 +218,7 @@ void set_heading_bvmg2_coast(boat *aboat) {
   }
   set_heading_direct(aboat, angle);
 }
-
-/**
- * the algorithm here is just to select between BVMG and ortho
- * based on the total time to destination
- */
-void automatic_selection_heading(boat *aboat) {
-  boat boatcopy;
-  int orthovacs, bvmgvacs;
-  double orthodist, bvmgdist;
-
-  bvmgdist = 999999999.0;
-  boatcopy = *aboat;
-  boatcopy.set_heading_func=&set_heading_bvmg2_coast;
-  bvmgvacs = 0;
-  orthodist = 999999999.0; /* to cope with one weird case that should never 
-			      happen */
-  while (!boatcopy.landed && (bvmgdist = ortho_distance(boatcopy.latitude, 
-							boatcopy.longitude, 
-							boatcopy.wp_latitude, 
-							boatcopy.wp_longitude)) > REACH_WP_LIMIT ) {
-    move_boat_loxo(&boatcopy);
-    bvmgvacs++;
-  }
-  if (boatcopy.landed) {
-    bvmgvacs = 9999999;
-  }
-  boatcopy = *aboat;
-  boatcopy.set_heading_func=&set_heading_ortho;
-  orthovacs = 0;
-  while (!boatcopy.landed && (orthovacs <= bvmgvacs) && 
-	 (orthodist = ortho_distance(boatcopy.latitude, boatcopy.longitude, 
-				     boatcopy.wp_latitude, 
-				     boatcopy.wp_longitude)) > REACH_WP_LIMIT ) {
-    move_boat_loxo(&boatcopy);
-    orthovacs++;
-  }
-  if (boatcopy.landed) {
-    orthovacs = 9999999;
-  }
-  printf("Ortho: %d vacs, %.2f final distance\n", orthovacs, orthodist);
-  printf("BVMG: %d vacs, %.2f final distance\n", bvmgvacs, bvmgdist);
-  if (orthovacs > bvmgvacs) {
-    printf("Heading set to BVMG\n");
-    set_heading_bvmg2_coast(aboat);
-    return;
-  }
-  if (orthovacs < bvmgvacs) {
-    printf("Heading set to Ortho\n");
-    set_heading_ortho(aboat);
-    return;
-  }
-  if (orthodist > bvmgdist) {
-    printf("Heading set to BVMG\n");
-    set_heading_bvmg2_coast(aboat);
-    return;
-  }
-  printf("Heading set to ortho\n");
-  set_heading_ortho(aboat);
-}
-  
+ 
 /**
  * get the best angle in close hauled mode (allure de pres)
  * @return a wind angle in radians

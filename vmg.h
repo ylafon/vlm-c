@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.h,v 1.4 2009/05/05 07:46:10 ylafon Exp $
+ * $Id: vmg.h,v 1.5 2009/05/05 07:51:00 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -26,7 +26,6 @@ double get_heading_bvmg              PARAM2(boat *, int);
 void   set_heading_bvmg              PARAM1(boat *);
 void   set_heading_bvmg2             PARAM1(boat *);
 void   set_heading_bvmg2_coast       PARAM1(boat *);
-void   automatic_selection_heading   PARAM1(boat *);
 
 double get_best_angle_close_hauled   PARAM2(boat *, double);
 double get_best_angle_broad_reach    PARAM2(boat *, double);
