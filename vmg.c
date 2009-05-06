@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.15 2009/05/06 12:55:05 ylafon Exp $
+ * $Id: vmg.c,v 1.16 2009/05/06 16:55:47 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -348,7 +348,10 @@ void do_vbvmg(boat *aboat, int mode,
   t_min = dist / speed;
   
 #if DEBUG
-  printf("VBVMG Direct road: %.2f %.2f\n", radToDeg(wanted_heading), t_min);
+  printf("VBVMG Direct road: heading %.2f time %.2f\n", 
+	 radToDeg(wanted_heading), t_min);
+  printf("VBVMG Direct road: wind angle %.2f\n", 
+	 radToDeg(w_angle-wanted_heading));
 #endif /* DEBUG */
 
   angle = w_angle - wanted_heading;
@@ -379,14 +382,14 @@ void do_vbvmg(boat *aboat, int mode,
       speed_t1 = find_speed(aboat, w_speed, angle-alpha);
       l1 =  d1 * d1hypotratio;
       t1 = l1 / speed_t1;
-      if ((t1 < 0) || (t1 > t_min)) {
+      if ((t1 < 0.0) || (t1 > t_min)) {
 	continue;
       }
       d2 = dist - d1; 
       speed_t2 = find_speed(aboat, w_speed, angle-beta);
       l2 =  d2 * hypot(1, sin(-beta));
       t2 = l2 / speed_t2;
-      if (t2 < 0) {
+      if (t2 < 0.0) {
 	continue;
       }
       t = t1 + t2;
@@ -415,14 +418,14 @@ void do_vbvmg(boat *aboat, int mode,
 	speed_t1 = find_speed(aboat, w_speed, angle-alpha);
 	l1 =  d1 * d1hypotratio;
 	t1 = l1 / speed_t1;
-	if ((t1 < 0) || (t1 > t_min)) {
+	if ((t1 < 0.0) || (t1 > t_min)) {
 	  continue;
 	}
 	d2 = dist - d1; 
 	speed_t2 = find_speed(aboat, w_speed, angle-beta);
 	l2 =  d2 * hypot(1, sin(-beta));
 	t2 = l2 / speed_t2;
-	if (t2 < 0) {
+	if (t2 < 0.0) {
 	  continue;
 	}
 	t = t1 + t2;
@@ -463,6 +466,8 @@ void do_vbvmg(boat *aboat, int mode,
   *dist1 = b_l1;
   *dist2 = b_l2;
 #if DEBUG
+  printf("VBVMG: wangle1=%.2f, wangle2=%.2f\n", radToDeg(*wangle1),
+	 radToDeg(*wangle2));
   printf("VBVMG: dist=%.2f, l1=%.2f, l2=%.2f, ratio=%.2f\n", dist, b_l1, b_l2,
 	 (b_l1+b_l2)/dist);
   printf("VBVMG: t1 = %.2f, t2=%.2f, total=%.2f\n", b_t1, b_t2, t_min);
