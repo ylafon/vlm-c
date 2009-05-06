@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.13 2009/05/06 12:04:03 ylafon Exp $
+ * $Id: vmg.c,v 1.14 2009/05/06 12:38:54 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -373,13 +373,16 @@ double get_heading_vbvmg(boat *aboat, int mode) {
       speed_t1 = find_speed(aboat, w_speed, angle-alpha);
       l1 =  d1 * d1hypotratio;
       t1 = l1 / speed_t1;
-      if (t1 > t_min) {
+      if ((t1 < 0) || (t1 > t_min)) {
 	continue;
       }
       d2 = dist - d1; 
       speed_t2 = find_speed(aboat, w_speed, angle-beta);
-      l2 =  d2 * hypot(1, sin(beta));
+      l2 =  d2 * hypot(1, sin(-beta));
       t2 = l2 / speed_t2;
+      if (t2 < 0) {
+	continue;
+      }
       t = t1 + t2;
       if (t < t_min) {
 	t_min = t;
@@ -392,15 +395,58 @@ double get_heading_vbvmg(boat *aboat, int mode) {
       }
     }
   }
+  printf("VBVMG: alpha=%.2f, beta=%.2f\n", radToDeg(b_alpha), radToDeg(b_beta));
+  if (mode) {
+    for (i=-9; i<=9; i++) {
+      alpha = b_alpha + degToRad(((double)i)/10.0);
+      sinalpha = sin(alpha);
+      d1hypotratio = hypot(1, sinalpha);
+      for (j=-9; j<=9; j++) {
+	beta = b_beta + degToRad(((double)j)/10.0);
+	d1 = dist * (sin(-beta) / (sinalpha + sin(-beta)));
+	speed_t1 = find_speed(aboat, w_speed, angle-alpha);
+	l1 =  d1 * d1hypotratio;
+	t1 = l1 / speed_t1;
+	if ((t1 < 0) || (t1 > t_min)) {
+	  continue;
+	}
+	d2 = dist - d1; 
+	speed_t2 = find_speed(aboat, w_speed, angle-beta);
+	l2 =  d2 * hypot(1, sin(-beta));
+	t2 = l2 / speed_t2;
+	if (t2 < 0) {
+	  continue;
+	}
+	t = t1 + t2;
+	if (t < t_min) {
+	  t_min = t;
+	  b_alpha = alpha;
+	  b_beta  = beta;
+	  b_l1 = l1;
+	  b_l2 = l2;
+	  b_t1 = t1;
+	  b_t2 = t2;
+	}
+      }    
+    }
+    printf("VBVMG: alpha=%.2f, beta=%.2f\n", radToDeg(b_alpha), radToDeg(b_beta));
+
+  }
   b_heading = fmod(wanted_heading + b_alpha, TWO_PI);
   if (b_heading < 0 ) {
     b_heading += TWO_PI;
   }
 
-  printf("VBVMG: alpha=%.2f, beta=%.2f\n", radToDeg(b_alpha), radToDeg(b_beta));
+  //  printf("VBVMG: alpha=%.2f, beta=%.2f\n", radToDeg(b_alpha), radToDeg(b_beta));
   printf("VBVMG: dist=%.2f, l1=%.2f, l2=%.2f, ratio=%.2f\n", dist, b_l1, b_l2,
 	 (b_l1+b_l2)/dist);
   printf("VBVMG: t1 = %.2f, t2=%.2f, total=%.2f\n", b_t1, b_t2, t_min);
   printf("VBVMG: heading %.2f\n", radToDeg(b_heading));
+  angle = fmod(w_angle - wanted_heading - b_alpha, TWO_PI);
+  if (angle > PI ) {
+    angle -= TWO_PI;
+  }
+  printf("VBVMG: wind angle %.2f\n", radToDeg(angle));
+
   return b_heading;
 }
