@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.16 2009/05/06 16:55:47 ylafon Exp $
+ * $Id: vmg.c,v 1.17 2009/05/06 17:37:25 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -327,6 +327,7 @@ void do_vbvmg(boat *aboat, int mode,
   double w_speed, w_angle;
   double dist, sinalpha, d1hypotratio;
   double b_alpha, b_beta, b_t1, b_t2, b_l1, b_l2;
+  double b1_alpha, b1_beta;
   int i,j, min_i, min_j, max_i, max_j;
   
   b_t1 = b_t2 = b_l1 = b_l2 = b_alpha = b_beta = 0.0;
@@ -408,12 +409,14 @@ void do_vbvmg(boat *aboat, int mode,
   printf("VBVMG: alpha=%.2f, beta=%.2f\n", radToDeg(b_alpha), radToDeg(b_beta));
 #endif /* DEBUG */
   if (mode) {
+    b1_alpha = b_alpha;
+    b1_beta = b_beta;
     for (i=-9; i<=9; i++) {
-      alpha = b_alpha + degToRad(((double)i)/10.0);
+      alpha = b1_alpha + degToRad(((double)i)/10.0);
       sinalpha = sin(alpha);
       d1hypotratio = hypot(1, sinalpha);
       for (j=-9; j<=9; j++) {
-	beta = b_beta + degToRad(((double)j)/10.0);
+	beta = b1_beta + degToRad(((double)j)/10.0);
 	d1 = dist * (sin(-beta) / (sinalpha + sin(-beta)));
 	speed_t1 = find_speed(aboat, w_speed, angle-alpha);
 	l1 =  d1 * d1hypotratio;
