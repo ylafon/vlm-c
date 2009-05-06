@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.10 2009/05/05 07:59:49 ylafon Exp $
+ * $Id: vmg.c,v 1.11 2009/05/06 10:02:01 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -308,3 +308,95 @@ double get_best_angle_broad_reach(boat *aboat, double speed, int mode) {
   return maxangle;
 }
 
+/**
+ * get the heading according to the Phavie's BVMG.
+ * The boat structure needs to have its WP filled
+ * @param aboat, a pointer to a <code>boat</code> structure
+ * @param mode, an int, >0 for 0.1 degree precision, 0 for 1 degree precision
+ * @return a double, the heading between 0 and 2*PI in radians
+ */
+double get_heading_vbvmg(boat *aboat, int mode) {
+  double alpha, beta;
+  double speed, speed_t1, speed_t2, l1, l2, d1, d2;
+  double angle, maxangle, t, t1, t2, t_min;
+  double wanted_heading, b_heading;
+  double w_speed, w_angle;
+  double dist;
+  double b_alpha, b_beta, b_t1, b_t2, b_l1, b_l2;
+  int i,j, min_i, min_j, max_i, max_j;
+  
+  b_t1 = b_t2 = b_l1 = b_l2 = b_alpha = b_beta = 0.0;
+
+  dist = ortho_distance(aboat->latitude, aboat->longitude,
+			aboat->wp_latitude, aboat->wp_longitude);
+
+  get_wind_info(aboat, &aboat->wind);
+  set_heading_ortho_nowind(aboat);
+
+  wanted_heading = aboat->heading;
+  maxangle = wanted_heading;
+  
+  w_speed = aboat->wind.speed;
+  w_angle = aboat->wind.angle;
+  
+  /* first compute the time for the "ortho" heading */
+  speed = find_speed(aboat, w_speed, w_angle);
+  t_min = dist / speed;
+  
+  angle = w_angle - wanted_heading;
+  if (angle < -PI ) {
+    angle += TWO_PI;
+  } else if (angle > PI) {
+    angle -= TWO_PI;
+  }
+  if (angle < 0.0) {
+    min_i = 1;
+    min_j = -89;
+    max_i = 89;
+    max_j = -1;
+  } else {
+    min_i = -89;
+    min_j = 1;
+    max_i = -1;
+    max_j = 89;
+  }
+
+  for (i=min_i; i<max_i; i++) {
+    alpha = degToRad((double)i);
+    for (j=min_j; j<max_j; j++) {
+      beta = degToRad((double)j);
+      d1 = dist * (sin(-beta) / (sin(alpha) + sin(-beta)));
+      speed_t1 = find_speed(aboat, w_speed, angle-alpha);
+      l1 =  d1 * hypot(1, sin(alpha));
+      t1 = l1 / speed_t1;
+      if (t1 > t_min) {
+	continue;
+      }
+      d2 = dist - d1; 
+      speed_t2 = find_speed(aboat, w_speed, angle-beta);
+      l2 =  d2 * hypot(1, sin(beta));
+      t2 = l2 / speed_t2;
+      t = t1 + t2;
+      if (t < t_min) {
+	t_min = t;
+	b_alpha = alpha;
+	b_beta  = beta;
+	b_l1 = l1;
+	b_l2 = l2;
+	b_t1 = t1;
+	b_t2 = t2;
+      }
+    }
+  }
+  b_heading = fmod(wanted_heading + b_alpha, TWO_PI);
+  if (b_heading < 0 ) {
+    b_heading += TWO_PI;
+  }
+
+  printf("VBVMG: alpha=%.2f, beta=%.2f\n", radToDeg(b_alpha), radToDeg(b_beta));
+  printf("VBVMG: dist=%.2f, l1=%.2f, l2=%.2f, ratio=%.2f\n", dist, b_l1, b_l2,
+	 (b_l1+b_l2)/dist);
+  printf("VBVMG: t1 = %.2f, t2=%.2f, total=%.2f\n", b_t1, b_t2, t_min);
+  printf("VBVMG: heading %.2f\n", radToDeg(b_heading));
+  return b_heading;
+}
