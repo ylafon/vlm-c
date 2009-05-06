@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.18 2009/05/06 20:56:12 ylafon Exp $
+ * $Id: vmg.c,v 1.19 2009/05/06 21:28:49 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -361,16 +361,16 @@ void do_vbvmg(boat *aboat, int mode,
   } else if (angle > PI) {
     angle -= TWO_PI;
   }
-  if (angle > 0.0) {
+  if (angle < 0.0) {
     min_i = 1;
     min_j = -89;
-    max_i = 89;
-    max_j = -1;
+    max_i = 90;
+    max_j = 0;
   } else {
     min_i = -89;
     min_j = 1;
-    max_i = -1;
-    max_j = 89;
+    max_i = 0;
+    max_j = 90;
   }
 
   for (i=min_i; i<max_i; i++) {
@@ -448,14 +448,28 @@ void do_vbvmg(boat *aboat, int mode,
 	   radToDeg(b_beta));
 #endif /* DEBUG */
   }
-  *heading1 = fmod(wanted_heading + b_alpha, TWO_PI);
+  if (fabs(alpha) < fabs(beta)) {
+    *heading1 = fmod(wanted_heading + b_alpha, TWO_PI);
+    *heading2 = fmod(wanted_heading + b_beta, TWO_PI);
+    *time1 = b_t1;
+    *time2 = b_t2;
+    *dist1 = b_l1;
+    *dist2 = b_l2;
+  } else {
+    *heading2 = fmod(wanted_heading + b_alpha, TWO_PI);
+    *heading1 = fmod(wanted_heading + b_beta, TWO_PI);
+    *time2 = b_t1;
+    *time1 = b_t2;
+    *dist2 = b_l1;
+    *dist1 = b_l2;
+  }
   if (*heading1 < 0 ) {
     *heading1 += TWO_PI;
   }
-  *heading2 = fmod(wanted_heading + b_beta, TWO_PI);
   if (*heading2 < 0 ) {
     *heading2 += TWO_PI;
   }
+    
   *wangle1 = fmod(*heading1 - w_angle, TWO_PI);
   if (*wangle1 > PI ) {
     *wangle1 -= TWO_PI;
@@ -471,6 +485,8 @@ void do_vbvmg(boat *aboat, int mode,
 #if DEBUG
   printf("VBVMG: wangle1=%.2f, wangle2=%.2f\n", radToDeg(*wangle1),
 	 radToDeg(*wangle2));
+  printf("VBVMG: heading1 %.2f, heading2=%.2f\n", radToDeg(*heading1),
+	 radToDeg(*heading2));
   printf("VBVMG: dist=%.2f, l1=%.2f, l2=%.2f, ratio=%.2f\n", dist, b_l1, b_l2,
 	 (b_l1+b_l2)/dist);
   printf("VBVMG: t1 = %.2f, t2=%.2f, total=%.2f\n", b_t1, b_t2, t_min);
