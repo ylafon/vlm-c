@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.12 2009/05/06 12:02:01 ylafon Exp $
+ * $Id: vmg.c,v 1.13 2009/05/06 12:04:03 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -340,10 +340,10 @@ double get_heading_vbvmg(boat *aboat, int mode) {
   w_angle = aboat->wind.angle;
   
   /* first compute the time for the "ortho" heading */
-  speed = find_speed(aboat, w_speed, w_angle);
+  speed = find_speed(aboat, w_speed, w_angle - wanted_heading);
   t_min = dist / speed;
   
-  printf("VBVMG Direct road: %.2f %.2f\n", wanted_heading, t_min);
+  printf("VBVMG Direct road: %.2f %.2f\n", radToDeg(wanted_heading), t_min);
 
   angle = w_angle - wanted_heading;
   if (angle < -PI ) {
