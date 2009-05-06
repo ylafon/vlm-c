@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.h,v 1.7 2009/05/06 10:01:52 ylafon Exp $
+ * $Id: vmg.h,v 1.8 2009/05/06 12:55:24 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -30,6 +30,12 @@ void   set_heading_bvmg2_coast       PARAM1(boat *);
 double get_best_angle_close_hauled   PARAM3(boat *, double, int);
 double get_best_angle_broad_reach    PARAM3(boat *, double, int);
 
-double get_heading_vbvmg              PARAM2(boat *, int);
+double get_heading_vbvmg             PARAM2(boat *, int);
+double get_wind_angle_vbvmg          PARAM2(boat *, int);
+
+void   do_vbvmg                      PARAM10(boat *, int, double *, double *, 
+					     double *, double *, 
+					     double *, double *, 
+					     double *, double *);
 
 #endif /* _VMG_H_ */
