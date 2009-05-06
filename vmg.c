@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.17 2009/05/06 17:37:25 ylafon Exp $
+ * $Id: vmg.c,v 1.18 2009/05/06 20:56:12 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -325,7 +325,7 @@ void do_vbvmg(boat *aboat, int mode,
   double angle, maxangle, t, t1, t2, t_min;
   double wanted_heading;
   double w_speed, w_angle;
-  double dist, sinalpha, d1hypotratio;
+  double dist, tanalpha, d1hypotratio;
   double b_alpha, b_beta, b_t1, b_t2, b_l1, b_l2;
   double b1_alpha, b1_beta;
   int i,j, min_i, min_j, max_i, max_j;
@@ -361,7 +361,7 @@ void do_vbvmg(boat *aboat, int mode,
   } else if (angle > PI) {
     angle -= TWO_PI;
   }
-  if (angle < 0.0) {
+  if (angle > 0.0) {
     min_i = 1;
     min_j = -89;
     max_i = 89;
@@ -375,11 +375,11 @@ void do_vbvmg(boat *aboat, int mode,
 
   for (i=min_i; i<max_i; i++) {
     alpha = degToRad((double)i);
-    sinalpha = sin(alpha);
-    d1hypotratio = hypot(1, sinalpha);
+    tanalpha = tan(alpha);
+    d1hypotratio = hypot(1, tan(alpha));
     for (j=min_j; j<max_j; j++) {
       beta = degToRad((double)j);
-      d1 = dist * (sin(-beta) / (sinalpha + sin(-beta)));
+      d1 = dist * (tan(-beta) / (tanalpha + tan(-beta)));
       speed_t1 = find_speed(aboat, w_speed, angle-alpha);
       l1 =  d1 * d1hypotratio;
       t1 = l1 / speed_t1;
@@ -388,7 +388,7 @@ void do_vbvmg(boat *aboat, int mode,
       }
       d2 = dist - d1; 
       speed_t2 = find_speed(aboat, w_speed, angle-beta);
-      l2 =  d2 * hypot(1, sin(-beta));
+      l2 =  d2 * hypot(1, tan(-beta));
       t2 = l2 / speed_t2;
       if (t2 < 0.0) {
 	continue;
@@ -413,11 +413,11 @@ void do_vbvmg(boat *aboat, int mode,
     b1_beta = b_beta;
     for (i=-9; i<=9; i++) {
       alpha = b1_alpha + degToRad(((double)i)/10.0);
-      sinalpha = sin(alpha);
-      d1hypotratio = hypot(1, sinalpha);
+      tanalpha = tan(alpha);
+      d1hypotratio = hypot(1, tan(alpha));
       for (j=-9; j<=9; j++) {
 	beta = b1_beta + degToRad(((double)j)/10.0);
-	d1 = dist * (sin(-beta) / (sinalpha + sin(-beta)));
+	d1 = dist * (tan(-beta) / (tanalpha + tan(-beta)));
 	speed_t1 = find_speed(aboat, w_speed, angle-alpha);
 	l1 =  d1 * d1hypotratio;
 	t1 = l1 / speed_t1;
@@ -426,7 +426,7 @@ void do_vbvmg(boat *aboat, int mode,
 	}
 	d2 = dist - d1; 
 	speed_t2 = find_speed(aboat, w_speed, angle-beta);
-	l2 =  d2 * hypot(1, sin(-beta));
+	l2 =  d2 * hypot(1, tan(-beta));
 	t2 = l2 / speed_t2;
 	if (t2 < 0.0) {
 	  continue;
@@ -456,11 +456,11 @@ void do_vbvmg(boat *aboat, int mode,
   if (*heading2 < 0 ) {
     *heading2 += TWO_PI;
   }
-  *wangle1 = fmod(w_angle - wanted_heading - b_alpha, TWO_PI);
+  *wangle1 = fmod(*heading1 - w_angle, TWO_PI);
   if (*wangle1 > PI ) {
     *wangle1 -= TWO_PI;
   }
-  *wangle2 = fmod(w_angle - wanted_heading - b_beta, TWO_PI);
+  *wangle2 = fmod(*heading2 - w_angle, TWO_PI);
   if (*wangle2 > PI ) {
     *wangle2 -= TWO_PI;
   }
