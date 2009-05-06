@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.19 2009/05/06 21:28:49 ylafon Exp $
+ * $Id: vmg.c,v 1.20 2009/05/06 21:35:47 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -478,10 +478,6 @@ void do_vbvmg(boat *aboat, int mode,
   if (*wangle2 > PI ) {
     *wangle2 -= TWO_PI;
   }
-  *time1 = b_t1;
-  *time2 = b_t2;
-  *dist1 = b_l1;
-  *dist2 = b_l2;
 #if DEBUG
   printf("VBVMG: wangle1=%.2f, wangle2=%.2f\n", radToDeg(*wangle1),
 	 radToDeg(*wangle2));
