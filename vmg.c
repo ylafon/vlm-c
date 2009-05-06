@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.11 2009/05/06 10:02:01 ylafon Exp $
+ * $Id: vmg.c,v 1.12 2009/05/06 12:02:01 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -321,7 +321,7 @@ double get_heading_vbvmg(boat *aboat, int mode) {
   double angle, maxangle, t, t1, t2, t_min;
   double wanted_heading, b_heading;
   double w_speed, w_angle;
-  double dist;
+  double dist, sinalpha, d1hypotratio;
   double b_alpha, b_beta, b_t1, b_t2, b_l1, b_l2;
   int i,j, min_i, min_j, max_i, max_j;
   
@@ -343,6 +343,8 @@ double get_heading_vbvmg(boat *aboat, int mode) {
   speed = find_speed(aboat, w_speed, w_angle);
   t_min = dist / speed;
   
+  printf("VBVMG Direct road: %.2f %.2f\n", wanted_heading, t_min);
+
   angle = w_angle - wanted_heading;
   if (angle < -PI ) {
     angle += TWO_PI;
@@ -363,11 +365,13 @@ double get_heading_vbvmg(boat *aboat, int mode) {
 
   for (i=min_i; i<max_i; i++) {
     alpha = degToRad((double)i);
+    sinalpha = sin(alpha);
+    d1hypotratio = hypot(1, sinalpha);
     for (j=min_j; j<max_j; j++) {
       beta = degToRad((double)j);
-      d1 = dist * (sin(-beta) / (sin(alpha) + sin(-beta)));
+      d1 = dist * (sin(-beta) / (sinalpha + sin(-beta)));
       speed_t1 = find_speed(aboat, w_speed, angle-alpha);
-      l1 =  d1 * hypot(1, sin(alpha));
+      l1 =  d1 * d1hypotratio;
       t1 = l1 / speed_t1;
       if (t1 > t_min) {
 	continue;
