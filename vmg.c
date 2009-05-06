@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.14 2009/05/06 12:38:54 ylafon Exp $
+ * $Id: vmg.c,v 1.15 2009/05/06 12:55:05 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -315,11 +315,15 @@ double get_best_angle_broad_reach(boat *aboat, double speed, int mode) {
  * @param mode, an int, >0 for 0.1 degree precision, 0 for 1 degree precision
  * @return a double, the heading between 0 and 2*PI in radians
  */
-double get_heading_vbvmg(boat *aboat, int mode) {
+void do_vbvmg(boat *aboat, int mode, 
+	      double *heading1, double *heading2,
+	      double *wangle1, double *wangle2, 
+	      double *time1, double *time2,
+	      double *dist1, double *dist2) {
   double alpha, beta;
   double speed, speed_t1, speed_t2, l1, l2, d1, d2;
   double angle, maxangle, t, t1, t2, t_min;
-  double wanted_heading, b_heading;
+  double wanted_heading;
   double w_speed, w_angle;
   double dist, sinalpha, d1hypotratio;
   double b_alpha, b_beta, b_t1, b_t2, b_l1, b_l2;
@@ -343,7 +347,9 @@ double get_heading_vbvmg(boat *aboat, int mode) {
   speed = find_speed(aboat, w_speed, w_angle - wanted_heading);
   t_min = dist / speed;
   
+#if DEBUG
   printf("VBVMG Direct road: %.2f %.2f\n", radToDeg(wanted_heading), t_min);
+#endif /* DEBUG */
 
   angle = w_angle - wanted_heading;
   if (angle < -PI ) {
@@ -395,7 +401,9 @@ double get_heading_vbvmg(boat *aboat, int mode) {
       }
     }
   }
+#if DEBUG
   printf("VBVMG: alpha=%.2f, beta=%.2f\n", radToDeg(b_alpha), radToDeg(b_beta));
+#endif /* DEBUG */
   if (mode) {
     for (i=-9; i<=9; i++) {
       alpha = b_alpha + degToRad(((double)i)/10.0);
@@ -429,24 +437,64 @@ double get_heading_vbvmg(boat *aboat, int mode) {
 	}
       }    
     }
-    printf("VBVMG: alpha=%.2f, beta=%.2f\n", radToDeg(b_alpha), radToDeg(b_beta));
-
+#if DEBUG
+    printf("VBVMG: alpha=%.2f, beta=%.2f\n", radToDeg(b_alpha), 
+	   radToDeg(b_beta));
+#endif /* DEBUG */
   }
-  b_heading = fmod(wanted_heading + b_alpha, TWO_PI);
-  if (b_heading < 0 ) {
-    b_heading += TWO_PI;
+  *heading1 = fmod(wanted_heading + b_alpha, TWO_PI);
+  if (*heading1 < 0 ) {
+    *heading1 += TWO_PI;
   }
-
-  //  printf("VBVMG: alpha=%.2f, beta=%.2f\n", radToDeg(b_alpha), radToDeg(b_beta));
+  *heading2 = fmod(wanted_heading + b_beta, TWO_PI);
+  if (*heading2 < 0 ) {
+    *heading2 += TWO_PI;
+  }
+  *wangle1 = fmod(w_angle - wanted_heading - b_alpha, TWO_PI);
+  if (*wangle1 > PI ) {
+    *wangle1 -= TWO_PI;
+  }
+  *wangle2 = fmod(w_angle - wanted_heading - b_beta, TWO_PI);
+  if (*wangle2 > PI ) {
+    *wangle2 -= TWO_PI;
+  }
+  *time1 = b_t1;
+  *time2 = b_t2;
+  *dist1 = b_l1;
+  *dist2 = b_l2;
+#if DEBUG
   printf("VBVMG: dist=%.2f, l1=%.2f, l2=%.2f, ratio=%.2f\n", dist, b_l1, b_l2,
 	 (b_l1+b_l2)/dist);
   printf("VBVMG: t1 = %.2f, t2=%.2f, total=%.2f\n", b_t1, b_t2, t_min);
-  printf("VBVMG: heading %.2f\n", radToDeg(b_heading));
-  angle = fmod(w_angle - wanted_heading - b_alpha, TWO_PI);
-  if (angle > PI ) {
-    angle -= TWO_PI;
-  }
-  printf("VBVMG: wind angle %.2f\n", radToDeg(angle));
+  printf("VBVMG: heading %.2f\n", radToDeg(*heading1));
+  printf("VBVMG: wind angle %.2f\n", radToDeg(*wangle1));
+#endif /* DEBUG */
+}
 
-  return b_heading;
+/**
+ * get the heading according to the Phavie's BVMG.
+ * The boat structure needs to have its WP filled
+ * @param aboat, a pointer to a <code>boat</code> structure
+ * @param mode, an int, >0 for 0.1 degree precision, 0 for 1 degree precision
+ * @return a double, the heading between 0 and 2*PI in radians
+ */
+double get_heading_vbvmg(boat *aboat, int mode) {
+  double heading, heading2, wangle, wangle2, time1, time2, dist1, dist2;
+  do_vbvmg(aboat, mode, &heading, &heading2, 
+	   &wangle, &wangle2, &time1, &time2, &dist1, &dist2);
+  return heading;
+}
+
+/**
+ * get the heading according to the Phavie's BVMG.
+ * The boat structure needs to have its WP filled
+ * @param aboat, a pointer to a <code>boat</code> structure
+ * @param mode, an int, >0 for 0.1 degree precision, 0 for 1 degree precision
+ * @return a double, the heading between 0 and 2*PI in radians
+ */
+double get_wind_angle_vbvmg(boat *aboat, int mode) {
+  double heading, heading2, wangle, wangle2, time1, time2, dist1, dist2;
+  do_vbvmg(aboat, mode, &heading, &heading2, 
+	   &wangle, &wangle2, &time1, &time2, &dist1, &dist2);
+  return wangle;
 }
