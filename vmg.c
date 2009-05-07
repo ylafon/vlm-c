@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.20 2009/05/06 21:35:47 ylafon Exp $
+ * $Id: vmg.c,v 1.21 2009/05/07 07:35:00 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -349,6 +349,7 @@ void do_vbvmg(boat *aboat, int mode,
   t_min = dist / speed;
   
 #if DEBUG
+  printf("VBVMG: Wind %.2fkts %.2f\n", w_speed, radToDeg(w_angle));
   printf("VBVMG Direct road: heading %.2f time %.2f\n", 
 	 radToDeg(wanted_heading), t_min);
   printf("VBVMG Direct road: wind angle %.2f\n", 
