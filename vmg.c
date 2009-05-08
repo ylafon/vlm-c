@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.21 2009/05/07 07:35:00 ylafon Exp $
+ * $Id: vmg.c,v 1.22 2009/05/08 14:37:50 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -330,7 +330,7 @@ void do_vbvmg(boat *aboat, int mode,
   double b1_alpha, b1_beta;
   int i,j, min_i, min_j, max_i, max_j;
   
-  b_t1 = b_t2 = b_l1 = b_l2 = b_alpha = b_beta = 0.0;
+  b_t1 = b_t2 = b_l1 = b_l2 = b_alpha = b_beta = beta = 0.0;
 
   dist = ortho_distance(aboat->latitude, aboat->longitude,
 			aboat->wp_latitude, aboat->wp_longitude);
