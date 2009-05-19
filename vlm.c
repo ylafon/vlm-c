@@ -1,5 +1,5 @@
 /**
- * $Id: vlm.c,v 1.26 2009/05/12 22:21:48 ylafon Exp $
+ * $Id: vlm.c,v 1.27 2009/05/19 15:41:28 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -368,6 +368,11 @@ double VLM_distance_to_line_ratio_xing(double latitude, double longitude,
 				     degToRad(latitude_a),degToRad(longitude_a),
 				     degToRad(latitude_b),degToRad(longitude_b),
 				     &x_lat, &x_long, ratio);
+  if (x_long > PI) {
+    x_long -= TWO_PI;
+  } else if (x_long < -PI) {
+    x_long += TWO_PI;
+  }
   *xing_lat  = 1000.0 * radToDeg(x_lat);
   *xing_long = 1000.0 * radToDeg(x_long);
   return dist;
