@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.23 2009/05/09 16:52:33 ylafon Exp $
+ * $Id: vmg.c,v 1.24 2009/05/19 19:51:51 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -488,9 +488,9 @@ void do_vbvmg(boat *aboat, int mode,
 	 radToDeg(*wangle2));
   printf("VBVMG: heading1 %.2f, heading2=%.2f\n", radToDeg(*heading1),
 	 radToDeg(*heading2));
-  printf("VBVMG: dist=%.2f, l1=%.2f, l2=%.2f, ratio=%.2f\n", dist, b_l1, b_l2,
-	 (b_l1+b_l2)/dist);
-  printf("VBVMG: t1 = %.2f, t2=%.2f, total=%.2f\n", b_t1, b_t2, t_min);
+  printf("VBVMG: dist=%.2f, l1=%.2f, l2=%.2f, ratio=%.2f\n", dist, *dist1,
+	 *dist2, (b_l1+b_l2)/dist);
+  printf("VBVMG: t1 = %.2f, t2=%.2f, total=%.2f\n", *time1, *time2, t_min);
   printf("VBVMG: heading %.2f\n", radToDeg(*heading1));
   printf("VBVMG: wind angle %.2f\n", radToDeg(*wangle1));
 #endif /* DEBUG */
