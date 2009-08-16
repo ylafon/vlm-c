@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.h,v 1.7 2008/08/05 09:27:19 ylafon Exp $
+ * $Id: shmem.h,v 1.8 2009/08/16 22:03:38 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -35,10 +35,13 @@
 #define VLM_SEMAPHORE_MEM_KEY ((22<<25)|(12<<20)|(13<<15)|(11<<10)|(5<<5)|25)
 
 /* The value is VLM GSH (a=1 z=26) encoded by blocks of 5 bits */
-#define VLM_COAST_MEM_KEY ((22<<25)|(12<<20)|(13<<15)|(7<<10)|(19<<5)|19)
+#define VLM_COAST_MEM_KEY ((22<<25)|(12<<20)|(13<<15)|(7<<10)|(19<<5)|8)
 
 /* The value is VLM GRB (a=1 z=26) encoded by blocks of 5 bits */
 #define VLM_GRIB_MEM_KEY ((22<<25)|(12<<20)|(13<<15)|(7<<10)|(18<<5)|2)
+
+/* The value is VLM POL (a=1 z=26) encoded by blocks of 5 bits */
+#define VLM_POLAR_MEM_KEY ((22<<25)|(12<<20)|(13<<15)|(16<<10)|(15<<5)|12)
 
 #define DEFAULT_NB_SHARED_GRIB_ENTRIES 61
 
