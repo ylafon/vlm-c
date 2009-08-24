@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.17 2009/08/24 16:42:20 ylafon Exp $
+ * $Id: polar.c,v 1.18 2009/08/24 19:01:32 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -25,6 +25,10 @@
 #include "defs.h"
 #include "types.h"
 #include "polar.h"
+
+#ifdef USE_SETLOCALE
+#include <locale.h>
+#endif /* USE_SETLOCALE */
 
 extern vlmc_context *global_vlmc_context;
 
@@ -64,6 +68,10 @@ void add_polar(char *pname, char *fname) {
     wspeedidx[i] = -1;
   }
   idx = -1;
+
+#ifdef USE_SETLOCALE
+  setlocale(LC_NUMERIC, "C");
+#endif /* USE_SETLOCALE */
 
   /* copy the name */
   pol->polar_name = calloc(strlen(pname)+1, sizeof(char));
@@ -204,6 +212,9 @@ void add_polar(char *pname, char *fname) {
     plist->polars = p;
     plist->nb_polars++;
   }
+#ifdef USE_SETLOCALE
+  setlocale(LC_NUMERIC, "");
+#endif /* USE_SETLOCALE */
 }
 
 /* get the pointer to the polar entry based on its name */
