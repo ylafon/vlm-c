@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.14 2009/08/24 14:49:45 ylafon Exp $
+ * $Id: polar.c,v 1.15 2009/08/24 14:50:04 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -209,8 +209,6 @@ void new_add_polar(char *pname, char *fname) {
 	p_speed = pol->polar_tab[i*61+p_j];
 	for (interp_idx = j - p_j +1 ; interp_idx < 61 - p_j ; interp_idx++ ) {
 	  pol->polar_tab[i*61+p_j+interp_idx] = p_speed + (speed-p_speed)*((double)interp_idx) / ((double) idx_diff);
-		 p_j, j, interp_idx, p_j+interp_idx, p_speed, speed,
-		 pol->polar_tab[i*61+p_j+interp_idx]);
 	  polar_check_table[i*61+p_j+interp_idx] = 1;
 	}
       }
