@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.13 2009/08/24 14:48:33 ylafon Exp $
+ * $Id: polar.c,v 1.14 2009/08/24 14:49:45 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -136,12 +136,10 @@ void new_add_polar(char *pname, char *fname) {
     }
     if (idx == -1) { /* first line */
       token = strtok(wbuff, ";");
-      printf("\n1ST READ TOKEN [%s]", token);
       idx = 0;
       while (token) {
 	token = strtok(NULL, ";");
 	if (token) {
-	  printf("IDX: %d - ", atoi(token));
 	  wspeedidx[idx++] = atoi(token);
 	}
       }
@@ -156,15 +154,12 @@ void new_add_polar(char *pname, char *fname) {
     }
     *token = 0;
     wangle = atoi(ptoken);
-    printf("Wangle: %d - ", wangle);
     idx = 0;
     while (1) {
       /* get the current speed */
       wspeed = wspeedidx[idx++];
-      printf("sp %d ", wspeed);
       ptoken = ++token;
       if (*token == ';') { /* two ; in a row, it's empty */
-	printf("<none>");
 	continue;
       }
       while (*token && *token!=';') {
@@ -173,7 +168,6 @@ void new_add_polar(char *pname, char *fname) {
       ok = *token;
       *token = 0;
       sscanf(ptoken, "%lf", &speed);
-      printf(" [%.3f]", speed);
       pol->polar_tab[wangle*61+wspeed] = speed;
       polar_check_table[wangle*61+wspeed] = 1;
       if (!ok) {
@@ -203,9 +197,6 @@ void new_add_polar(char *pname, char *fname) {
 	if (idx_diff > 1 ) { /* we have something to interpolate */
 	  for (interp_idx = 1; interp_idx < idx_diff; interp_idx++ ) {
 	    pol->polar_tab[i*61+p_j+interp_idx] = p_speed + (speed-p_speed)*((double)interp_idx) / ((double) idx_diff);
-	    printf("Interpolating [%d] %d -> %d (%d:%d) (%.3f - %.3f) -> %.3f\n", i,
-		   p_j, j, interp_idx, p_j+interp_idx, p_speed, speed,
-		   pol->polar_tab[i*61+p_j+interp_idx]);
 	    polar_check_table[i*61+p_j+interp_idx] = 1;
 	  }
 	}
@@ -218,7 +209,6 @@ void new_add_polar(char *pname, char *fname) {
 	p_speed = pol->polar_tab[i*61+p_j];
 	for (interp_idx = j - p_j +1 ; interp_idx < 61 - p_j ; interp_idx++ ) {
 	  pol->polar_tab[i*61+p_j+interp_idx] = p_speed + (speed-p_speed)*((double)interp_idx) / ((double) idx_diff);
-	  printf("Interpolating [%d] %d -> %d (%d:%d) (%.3f - %.3f) -> %.3f\n", i,
 		 p_j, j, interp_idx, p_j+interp_idx, p_speed, speed,
 		 pol->polar_tab[i*61+p_j+interp_idx]);
 	  polar_check_table[i*61+p_j+interp_idx] = 1;
@@ -226,25 +216,19 @@ void new_add_polar(char *pname, char *fname) {
       }
     }
   }
-	  
 
-
-  /* First, interpolate at all known speed all the angles */
+  /* The fill all the missing values for non-defined angles */
   for (j=0; j<=60; j++) {
     assert (polar_check_table[j] == 1);
     p_i = 0;
     p_speed = pol->polar_tab[j];
     for (i=1; i<=180; i++) {
       if (polar_check_table[i*61+j]) { /* got one value */
-	printf("\nGOT ONE %d\n", i);
 	idx_diff = i-p_i;
 	speed = pol->polar_tab[i*61+j];
 	if ( idx_diff > 1) { /* if we have something to interpolate */
 	  for (interp_idx = 1; interp_idx < idx_diff; interp_idx++ ) {
 	    pol->polar_tab[(p_i+interp_idx)*61+j] = p_speed + (speed-p_speed)*((double)interp_idx) / ((double) idx_diff);
-	    printf("Interpolating [%d] %d -> %d (%d:%d) (%.3f - %.3f) -> %.3f\n", j,
-		   p_i, i, interp_idx, p_i+interp_idx, p_speed, speed, 
-		   pol->polar_tab[(p_i+interp_idx)*61+j]);
 	    polar_check_table[(p_i+interp_idx)*61+j] = 1;
 	  }
 	}
