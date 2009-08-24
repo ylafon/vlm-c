@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.16 2009/08/24 15:42:34 ylafon Exp $
+ * $Id: polar.c,v 1.17 2009/08/24 16:42:20 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -137,7 +137,8 @@ void add_polar(char *pname, char *fname) {
 	speed =  pol->polar_tab[i*61+j];
 	if (idx_diff > 1 ) { /* we have something to interpolate */
 	  for (interp_idx = 1; interp_idx < idx_diff; interp_idx++ ) {
-	    pol->polar_tab[i*61+p_j+interp_idx] = p_speed + (speed-p_speed)*((double)interp_idx) / ((double) idx_diff);
+	    pol->polar_tab[i*61+p_j+interp_idx] = p_speed + 
+	             (speed-p_speed)*((double)interp_idx) / ((double) idx_diff);
 	    polar_check_table[i*61+p_j+interp_idx] = 1;
 	  }
 	}
@@ -149,7 +150,8 @@ void add_polar(char *pname, char *fname) {
 	p_j = wspeedidx[idx-2];
 	p_speed = pol->polar_tab[i*61+p_j];
 	for (interp_idx = j - p_j +1 ; interp_idx < 61 - p_j ; interp_idx++ ) {
-	  pol->polar_tab[i*61+p_j+interp_idx] = p_speed + (speed-p_speed)*((double)interp_idx) / ((double) idx_diff);
+	  pol->polar_tab[i*61+p_j+interp_idx] = p_speed + 
+	         (speed-p_speed)*((double)interp_idx) / ((double) idx_diff);
 	  polar_check_table[i*61+p_j+interp_idx] = 1;
 	}
       }
@@ -167,7 +169,8 @@ void add_polar(char *pname, char *fname) {
 	speed = pol->polar_tab[i*61+j];
 	if ( idx_diff > 1) { /* if we have something to interpolate */
 	  for (interp_idx = 1; interp_idx < idx_diff; interp_idx++ ) {
-	    pol->polar_tab[(p_i+interp_idx)*61+j] = p_speed + (speed-p_speed)*((double)interp_idx) / ((double) idx_diff);
+	    pol->polar_tab[(p_i+interp_idx)*61+j] = p_speed + 
+	             (speed-p_speed)*((double)interp_idx) / ((double) idx_diff);
 	    polar_check_table[(p_i+interp_idx)*61+j] = 1;
 	  }
 	}
@@ -177,7 +180,7 @@ void add_polar(char *pname, char *fname) {
     }
   }
  
-  /* final check */
+  /* final check (might be removed later) */
   for (i=0; i<=180; i++) {
     for (j=0; j<=60; j++) {
       assert( polar_check_table[i*61+j] == 1);
