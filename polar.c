@@ -1,5 +1,5 @@
 /**
- * $Id: polar.c,v 1.15 2009/08/24 14:50:04 ylafon Exp $
+ * $Id: polar.c,v 1.16 2009/08/24 15:42:34 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -31,68 +31,9 @@ extern vlmc_context *global_vlmc_context;
 #define INITIAL_BUFFER_SIZE 65536; /* 64k */
 
 void add_polar PARAM2(char *, char *);
-void new_add_polar PARAM2(char *, char *);
 void read_polars();
-void new_read_polars();
 
 void add_polar(char *pname, char *fname) {
-  boat_polar      *pol;
-  boat_polar_list *plist;
-  boat_polar      **p;
-  FILE            *pfile;
-  int    i,j, wspeed, wangle, ok, nb_polar;
-  double speed;
-
-  /* safety check */
-  if ((pname == NULL) || (fname == NULL)) {
-    return;
-  }
-  /* now check the file name */
-  pfile = fopen(fname, "r");
-  if (pfile == NULL) {
-    printf("FATAL: unable to open \"%s\" for polar \"%s\"\n", fname, pname);
-    return;
-  }
-  /* ok so far, process it */
-  pol = calloc(1, sizeof(pol));
-  pol->polar_tab = calloc(181*61, sizeof(double));
-
-  /* copy the name */
-  pol->polar_name = calloc(strlen(pname)+1, sizeof(char));
-  strcpy(pol->polar_name, pname);
-
-  /* now cycle to read all the values */
-  for (i=0; i<=180; i++) {
-    for (j=0; j<=60; j++) {
-      ok = fscanf(pfile, "%d;%d;%lf", &wangle, &wspeed, &speed);
-      if (!ok) {
-	printf("ERROR while reading the polar file %s\n", fname);
-      }
-      assert((wangle == i) && (wspeed == j));
-      pol->polar_tab[i*61+j] = speed;
-    }
-  }
-  fclose (pfile);
-
-  plist = &global_vlmc_context->polar_list;
-  if (plist->polars == NULL) {
-    plist->nb_polars = 1;
-    plist->polars = malloc(sizeof (boat_polar *));
-    plist->polars[0] = pol;
-  } else {
-    nb_polar = plist->nb_polars;
-    p = calloc(nb_polar+1, sizeof(boat_polar *));
-    for (i=0; i<nb_polar; i++) {
-      p[i] = plist->polars[i];
-    }
-    p[nb_polar] = pol;
-    free(plist->polars);
-    plist->polars = p;
-    plist->nb_polars++;
-  }
-}
-
-void new_add_polar(char *pname, char *fname) {
   boat_polar      *pol;
   boat_polar_list *plist;
   boat_polar      **p;
@@ -242,6 +183,8 @@ void new_add_polar(char *pname, char *fname) {
       assert( polar_check_table[i*61+j] == 1);
     }
   }
+  free(polar_check_table);
+
   plist = &global_vlmc_context->polar_list;
   if (plist->polars == NULL) {
     plist->nb_polars = 1;
