@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.16 2009/08/25 13:38:02 ylafon Exp $
+ * $Id: shmem.c,v 1.17 2009/08/25 14:50:26 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -423,7 +423,7 @@ int copy_polar_array_to_shmem(int shmid, boat_polar_list *polars,
   }
 
   printf("Bytes used: %ld\n", needed_bytes);
-  ok = (shminfo.shm_segsz > needed_bytes);
+  ok = (shminfo.shm_segsz >= needed_bytes);
   printf("Segment size: %ld %s\n",  (long)shminfo.shm_segsz, 
 	 (ok) ? "OK" : "NOT OK");
   
@@ -469,7 +469,7 @@ int copy_polar_array_to_shmem(int shmid, boat_polar_list *polars,
   for (i=0; i<nb_polars;i++) {
     darray = (double *) (((char *)memseg) + used_bytes);
     memcpy(darray, polars->polars[i]->polar_tab, 61*181*sizeof(double));
-    used_bytes += 61*81*sizeof(double);
+    used_bytes += 61*181*sizeof(double);
   }
   /* dump the size+value of polar names */
   for (i=0; i<nb_polars; i++) {
@@ -524,7 +524,7 @@ void construct_polar_array_from_shmem(boat_polar_list *polars, void *memseg) {
   for (i=0; i<nb_polars; i++) {
     darray = (double *) (((char *)memseg) + used_bytes);
     polars->polars[i]->polar_tab = darray;
-    used_bytes += 61*81*sizeof(double);
+    used_bytes += 61*181*sizeof(double);
   }
   /* and same for the polar names */
     for (i=0; i<nb_polars; i++) {
