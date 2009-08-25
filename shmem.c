@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.14 2009/08/25 08:13:00 ylafon Exp $
+ * $Id: shmem.c,v 1.15 2009/08/25 12:25:29 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -150,6 +150,56 @@ int get_grib_shmid(int readonly) {
   return shmid;
 }
 
+/**
+ * create the shared memory entry in order to store a grib array
+ * @param windtable, a pointer to a <code>winds_prev</code> structure
+ * used to get the number of entries in the grib. If this parameter is NULL
+ * the default  DEFAULT_NB_SHARED_GRIB_ENTRIES is used
+ * @return an int, the shmid of the segment
+ */
+int create_polar_shmid(boat_polar_list *polars) {
+  long needed_bytes;
+  int i, shmid;
+
+  needed_bytes = sizeof(int);
+  /* we align to 4 bytes */
+  if (needed_bytes % 4) {
+    needed_bytes = (((needed_bytes >> 2) + 1) << 2);
+  }
+  
+  needed_bytes += 181*61*sizeof(double)*polars->nb_polars;
+  for (i=0; i<polars->nb_polars; i++) {
+    needed_bytes += sizeof(int); /* stirng length */
+    needed_bytes += strlen(polars->polars[i]->polar_name)+1; /* string value */
+    /* we align to 4 bytes */
+    if (needed_bytes % 4) {
+      needed_bytes = (((needed_bytes >> 2) + 1) << 2);
+    }
+  }
+
+  /* create the shared memory segment */
+  shmid = shmget(VLM_POLAR_MEM_KEY, needed_bytes, IPC_CREAT|0644);
+  if (shmid == -1) {
+    /* failed */
+    fprintf(stderr, "Unable to create shared memory segment VLMGRB\n");
+    exit(1);
+  }
+  return shmid;
+}
+
+/**
+ * get the shared memory entry in order to store or read a grib array
+ * @return an int, the shmid of the segment
+ */
+int get_polar_shmid(int readonly) {
+  int shmid;
+  if (readonly) {
+    shmid = shmget(VLM_POLAR_MEM_KEY, 0, 0444);
+  } else {
+    shmid = shmget(VLM_POLAR_MEM_KEY, 0, 0644);
+  }
+  return shmid;
+}
 
 void *get_shmem(int shmid, int readonly) {
   void *addr;
