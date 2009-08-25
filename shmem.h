@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.h,v 1.10 2009/08/25 12:25:46 ylafon Exp $
+ * $Id: shmem.h,v 1.11 2009/08/25 13:38:07 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -138,5 +138,29 @@ void construct_grib_array_from_shmem PARAM2(winds_prev *, void *);
  * shared memory segment
  */
 void allocate_grib_array_from_shmem PARAM2(winds_prev *, void *);
+
+/**
+ * Copy the polar tables to the dedicated shared memory segment
+ * @param shmid an int, the id of the shared memory segment
+ * @param polars a pointer to a <code>boat_polar_list</code> structure
+ * @param memseg a generic (void *) pointer representing the segment
+ * @return an int, the shmid. If it changed, the user must check that
+ * the memseg pointer is still valid
+ */
+int copy_polar_array_to_shmem PARAM3(int, boat_polar_list *, void *);
+
+/**
+ * Construct a local polar array (in the global context) based on
+ * what is in the memory segment.
+ * Only references are used to make it faster so:
+ * The segment should be used read-only
+ * @param polars, a <code>boat_polar_list *</code> pointer, where the 
+ * associated data will be stored.
+ * @param shmaddr, a <code>void *</code> pointer, the address of the attached
+ * shared memory segment
+ * NOTE that it will allocate an array of pointer, which must be freed when
+ * the polar table is no longer needed
+ */
+void construct_polar_array_from_shmem PARAM2(boat_polar_list *, void *);
 
 #endif /* _SHMEM_H_ */
