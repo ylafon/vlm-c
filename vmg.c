@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.25 2009/08/25 19:55:12 ylafon Exp $
+ * $Id: vmg.c,v 1.26 2009/08/25 19:56:21 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -71,6 +71,9 @@ double get_heading_bvmg(boat *aboat, int mode) {
   for (i=0; i<imax; i++) {
     angle = wanted_heading + degToRad(((double)i)/anglediv);
     speed = find_speed(aboat, w_speed, w_angle - angle);
+    if (speed < 0.0) {
+      continue;
+    }
     t = speed * cos(wanted_heading - angle);
     if (t > t_max) {
       t_max = t;
@@ -84,6 +87,9 @@ double get_heading_bvmg(boat *aboat, int mode) {
   for (i=0; i<imax; i++) {
     angle = wanted_heading - degToRad(((double)i)/anglediv);
     speed = find_speed(aboat, w_speed, w_angle - angle);
+    if (speed < 0.0) {
+      continue;
+    }
     t = speed * cos(wanted_heading - angle);
     if (t > t_max2) {
       t_max2 = t;
