@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.h,v 1.8 2009/08/16 22:03:38 ylafon Exp $
+ * $Id: shmem.h,v 1.9 2009/08/25 08:13:01 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -75,13 +75,14 @@ int create_grib_shmid PARAM1(winds_prev *);
 int get_grib_shmid PARAM1(int);
 
 /**
- * get the attached memory address of the grib segment
- * @param shmid, an int, the segment id of the grib segment (see get_grib_shmid)
+ * get the attached memory address of a shmid
+ * @param shmid, an int, the segment id of the segment (see get_grib_shmid 
+ * or others)
  * @param readonly, an int, if 1, the segment is attached using read-only
  * 0 if read-write.
  * @return a void *, the address of the attached segment
  */
-void *get_grib_shmem PARAM2(int, int);
+void *get_shmem PARAM2(int, int);
 
 /**
  * Copy the wind previsions (in windtable) in the shared memory segment

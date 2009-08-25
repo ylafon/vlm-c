@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.13 2009/03/19 22:31:00 ylafon Exp $
+ * $Id: shmem.c,v 1.14 2009/08/25 08:13:00 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -151,7 +151,7 @@ int get_grib_shmid(int readonly) {
 }
 
 
-void *get_grib_shmem(int shmid, int readonly) {
+void *get_shmem(int shmid, int readonly) {
   void *addr;
   
   if (readonly) {
@@ -324,7 +324,7 @@ void allocate_grib_array_from_shmem(winds_prev *windtable, void *memseg) {
   windtable->nb_prevs = nb_prevs;
 }
 
-  
+
 
 
 

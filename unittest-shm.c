@@ -1,5 +1,5 @@
 /**
- * $Id: unittest-shm.c,v 1.4 2008/08/05 09:03:39 ylafon Exp $
+ * $Id: unittest-shm.c,v 1.5 2009/08/25 08:13:01 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -155,7 +155,7 @@ int main (int argc, char **argv) {
     exit(1);
   }
 
-  segmaddr = get_grib_shmem(shmid, 1);
+  segmaddr = get_shmem(shmid, 1);
   construct_grib_array_from_shmem(&global_vlmc_context->windtable, segmaddr);
 
   time(&current_time);

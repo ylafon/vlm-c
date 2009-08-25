@@ -1,5 +1,5 @@
 /**
- * $Id: windserver.c,v 1.8 2008/08/05 14:51:33 ylafon Exp $
+ * $Id: windserver.c,v 1.9 2009/08/25 08:13:01 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
     if (shmid == -1) {
       fprintf(stderr, "Can't attach segment, impossible to merge data\n");
     } else {
-      segmaddr = get_grib_shmem(shmid, 0);
+      segmaddr = get_shmem(shmid, 0);
       allocate_grib_array_from_shmem(&global_vlmc_context->windtable, segmaddr);
       merge_gribs(purge);
     }
@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
 
   /* copy the grib */
   if (!segmaddr) { /* did we got it from a merge ? */
-    segmaddr = get_grib_shmem(shmid, 0);
+    segmaddr = get_shmem(shmid, 0);
   }
   copy_grib_array_to_shmem(shmid, &global_vlmc_context->windtable, segmaddr);
   shmdt(segmaddr);
