@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.h,v 1.9 2009/08/25 08:13:01 ylafon Exp $
+ * $Id: shmem.h,v 1.10 2009/08/25 12:25:46 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -73,6 +73,21 @@ int create_grib_shmid PARAM1(winds_prev *);
  * @return an int, the shmid of the segment
  */
 int get_grib_shmid PARAM1(int);
+
+/**
+ * create the shared memory entry in order to store a polar array
+ * @param polars, a pointer to a <code>boat_polar_list</code> structure
+ * @return an int, the shmid of the segment
+ */
+int create_polar_shmid PARAM1(boat_polar_list *);
+
+/**
+ * get the polar memory segment id 
+ * @param readonly, an int, if 1, the segment is searched using read-only
+ * permissions, otherwise, rw for user read for others
+ * @return an int, the shmid of the segment
+ */
+int get_polar_shmid PARAM1(int);
 
 /**
  * get the attached memory address of a shmid
