@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.h,v 1.8 2009/05/06 12:55:24 ylafon Exp $
+ * $Id: vmg.h,v 1.9 2009/08/31 11:39:28 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -23,6 +23,7 @@
 #include "types.h"
 
 double get_heading_bvmg              PARAM2(boat *, int);
+double get_heading_bvmg_context      PARAM3(vlmc_context *, boat *, int);
 void   set_heading_bvmg              PARAM1(boat *);
 void   set_heading_bvmg2             PARAM1(boat *);
 void   set_heading_bvmg2_coast       PARAM1(boat *);

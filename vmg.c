@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.26 2009/08/25 19:56:21 ylafon Exp $
+ * $Id: vmg.c,v 1.27 2009/08/31 11:39:28 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -29,6 +29,11 @@
 
 #define REACH_WP_LIMIT 1.0 /* in nm */
 
+extern vlmc_context *global_vlmc_context;
+
+double get_heading_bvmg(boat *aboat, int mode) {
+  return get_heading_bvmg_context(global_vlmc_context, aboat, mode);
+}
 /**
  * get the heading according to the BVMG.
  * The boat structure needs to have its WP filled
@@ -36,7 +41,7 @@
  * @param mode, an int, >0 for 0.1 degree precision, 0 for 1 degree precision
  * @return a double, the heading between 0 and 2*PI in radians
  */
-double get_heading_bvmg(boat *aboat, int mode) {
+double get_heading_bvmg_context(vlmc_context *context, boat *aboat, int mode) {
   int imax;
   double anglediv;
   double speed, maxspeed;
@@ -53,7 +58,7 @@ double get_heading_bvmg(boat *aboat, int mode) {
     anglediv = 1.0;
   }
 
-  get_wind_info(aboat, &aboat->wind);
+  get_wind_info_context(context, aboat, &aboat->wind);
   set_heading_ortho_nowind(aboat);
 
   wanted_heading = aboat->heading;
