@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.h,v 1.10 2009/08/31 13:07:48 ylafon Exp $
+ * $Id: vmg.h,v 1.11 2009/08/31 15:25:30 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -36,6 +36,11 @@ double get_heading_vbvmg_context     PARAM3(vlmc_context *, boat *, int);
 double get_wind_angle_vbvmg          PARAM2(boat *, int);
 double get_wind_angle_vbvmg_context  PARAM3(vlmc_context *, boat *, int);
 
+double get_heading_bvmg             PARAM2(boat *, int);
+double get_heading_bvmg_context     PARAM3(vlmc_context *, boat *, int);
+double get_wind_angle_bvmg          PARAM2(boat *, int);
+double get_wind_angle_bvmg_context  PARAM3(vlmc_context *, boat *, int);
+
 void   do_vbvmg                      PARAM10(boat *, int, double *, double *, 
 					     double *, double *, 
 					     double *, double *, 
@@ -46,4 +51,8 @@ void   do_vbvmg_context              PARAM11(vlmc_context *, boat *, int,
 					     double *, double *, 
 					     double *, double *, 
 					     double *, double *);
+
+void   do_bvmg                      PARAM4(boat *, int, double *, double *);
+void   do_bvmg_context              PARAM5(vlmc_context *, boat *, int, 
+					   double *, double *);
 #endif /* _VMG_H_ */

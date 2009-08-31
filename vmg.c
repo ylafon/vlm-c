@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.28 2009/08/31 13:07:48 ylafon Exp $
+ * $Id: vmg.c,v 1.29 2009/08/31 15:25:30 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -31,22 +31,17 @@
 
 extern vlmc_context *global_vlmc_context;
 
-double get_heading_bvmg(boat *aboat, int mode) {
-  return get_heading_bvmg_context(global_vlmc_context, aboat, mode);
+void do_bvmg(boat *aboat, int mode, double *heading, double *wangle) {
+  do_bvmg_context(global_vlmc_context, aboat, mode, heading, wangle);
 }
-/**
- * get the heading according to the BVMG.
- * The boat structure needs to have its WP filled
- * @param aboat, a pointer to a <code>boat</code> structure
- * @param mode, an int, >0 for 0.1 degree precision, 0 for 1 degree precision
- * @return a double, the heading between 0 and 2*PI in radians
- */
-double get_heading_bvmg_context(vlmc_context *context, boat *aboat, int mode) {
+
+void do_bvmg_context(vlmc_context *context, boat *aboat, int mode, 
+		     double *heading, double *wangle) {
   int imax;
   double anglediv;
-  double speed, maxspeed;
-  double angle, maxangle, t, t_max, t_max2;
-  double wanted_heading;
+  double speed, maxspeed, maxwangle;
+  double maxheading, t, t_max, t_max2;
+  double wanted_heading, t_heading;
   double w_speed, w_angle;
   int i;
 
@@ -62,11 +57,12 @@ double get_heading_bvmg_context(vlmc_context *context, boat *aboat, int mode) {
   set_heading_ortho_nowind(aboat);
 
   wanted_heading = aboat->heading;
-  maxangle = wanted_heading;
+  maxheading = wanted_heading;
     
   w_speed = aboat->wind.speed;
   w_angle = aboat->wind.angle;
 
+  maxwangle = w_angle - wanted_heading;
   /* FIXME, this can be optimized a lot */
   maxspeed = -100.0;
   t_max = -100;
@@ -74,15 +70,16 @@ double get_heading_bvmg_context(vlmc_context *context, boat *aboat, int mode) {
 
   /* -90 to +90 form desired diretion */
   for (i=0; i<imax; i++) {
-    angle = wanted_heading + degToRad(((double)i)/anglediv);
-    speed = find_speed(aboat, w_speed, w_angle - angle);
+    t_heading = wanted_heading + degToRad(((double)i)/anglediv);
+    speed = find_speed(aboat, w_speed, w_angle - t_heading);
     if (speed < 0.0) {
       continue;
     }
-    t = speed * cos(wanted_heading - angle);
+    t = speed * cos(wanted_heading - t_heading);
     if (t > t_max) {
       t_max = t;
-      maxangle = angle;
+      maxheading = t_heading;
+      maxwangle = w_angle - t_heading;
       maxspeed = speed;
     } else if ( t_max - t > (t_max/20.0)) { 
       break;  /* cut if lower enough from current maximum */
@@ -90,16 +87,17 @@ double get_heading_bvmg_context(vlmc_context *context, boat *aboat, int mode) {
   }
 
   for (i=0; i<imax; i++) {
-    angle = wanted_heading - degToRad(((double)i)/anglediv);
-    speed = find_speed(aboat, w_speed, w_angle - angle);
+    t_heading = wanted_heading - degToRad(((double)i)/anglediv);
+    speed = find_speed(aboat, w_speed, w_angle - t_heading);
     if (speed < 0.0) {
       continue;
     }
-    t = speed * cos(wanted_heading - angle);
+    t = speed * cos(wanted_heading - t_heading);
     if (t > t_max2) {
       t_max2 = t;
       if (t > t_max) {
-	maxangle = angle;
+	maxheading = t_heading;
+	maxwangle = w_angle - t_heading;
 	maxspeed = speed;
 	t_max = t;
       }
@@ -108,11 +106,14 @@ double get_heading_bvmg_context(vlmc_context *context, boat *aboat, int mode) {
     }
   }
   /* fixme save speed, and t_max (= bvmg) somewhere ? */
-  angle = fmod(maxangle, TWO_PI);
-  if (angle < 0) {
-    angle += TWO_PI;
+  maxheading = fmod(maxheading, TWO_PI);
+  if (maxheading < 0) {
+    maxheading += TWO_PI;
   }
-  return angle;
+  maxwangle = fmod(maxwangle, TWO_PI);
+
+  *heading = maxheading;
+  *wangle = maxwangle;
 }
 
 /* the algorith used is to maximize the speed vector projection
@@ -587,5 +588,54 @@ double get_wind_angle_vbvmg_context(vlmc_context *context,
   double heading, heading2, wangle, wangle2, time1, time2, dist1, dist2;
   do_vbvmg_context(context, aboat, mode, &heading, &heading2, 
 		   &wangle, &wangle2, &time1, &time2, &dist1, &dist2);
+  return wangle;
+}
+
+/**
+ * get the heading according to the classical BVMG.
+ * The boat structure needs to have its WP filled
+ * @param aboat, a pointer to a <code>boat</code> structure
+ * @param mode, an int, >0 for 0.1 degree precision, 0 for 1 degree precision
+ * @return a double, the heading between 0 and 2*PI in radians
+ */
+double get_heading_bvmg(boat *aboat, int mode) {
+  return get_heading_bvmg_context(global_vlmc_context, aboat, mode);
+}
+
+/**
+ * get the heading according to the classical BVMG.
+ * The boat structure needs to have its WP filled
+ * @param aboat, a pointer to a <code>boat</code> structure
+ * @param mode, an int, >0 for 0.1 degree precision, 0 for 1 degree precision
+ * @return a double, the heading between 0 and 2*PI in radians
+ */
+double get_heading_bvmg_context(vlmc_context *context, boat *aboat, int mode) {
+  double heading, wangle;
+  do_bvmg_context(context, aboat, mode, &heading, &wangle);
+  return heading;
+}
+
+/**
+ * get the heading according to the classical BVMG.
+ * The boat structure needs to have its WP filled
+ * @param aboat, a pointer to a <code>boat</code> structure
+ * @param mode, an int, >0 for 0.1 degree precision, 0 for 1 degree precision
+ * @return a double, the heading between 0 and 2*PI in radians
+ */
+double get_wind_angle_bvmg(boat *aboat, int mode) {
+  return get_wind_angle_bvmg_context(global_vlmc_context, aboat, mode);
+}
+
+/**
+ * get the heading according to the classical BVMG.
+ * The boat structure needs to have its WP filled
+ * @param aboat, a pointer to a <code>boat</code> structure
+ * @param mode, an int, >0 for 0.1 degree precision, 0 for 1 degree precision
+ * @return a double, the heading between 0 and 2*PI in radians
+ */
+double get_wind_angle_bvmg_context(vlmc_context *context,
+				    boat *aboat, int mode) {
+  double heading, wangle;
+  do_bvmg_context(context, aboat, mode, &heading, &wangle);
   return wangle;
 }
