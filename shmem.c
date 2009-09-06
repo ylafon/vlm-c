@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.19 2009/09/02 19:57:34 ylafon Exp $
+ * $Id: shmem.c,v 1.20 2009/09/06 18:44:11 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -437,6 +437,7 @@ int copy_polar_array_to_shmem(int shmid, boat_polar_list *polars,
       exit(-1);
     } else {
       shmid = create_polar_shmid(polars);
+      
       if (shmid == -1) {
 	/* ok we are in trouble, we destroyed the previous existing segment
 	   now we can't create a bigger new one */
@@ -446,6 +447,11 @@ int copy_polar_array_to_shmem(int shmid, boat_polar_list *polars,
 	  return -1;
 	}
 	return shmid;
+      } else {
+	if (shmctl(shmid, IPC_STAT , &shminfo) == -1) {
+	  fprintf(stderr, "Unable to get information on new POLAR segment\n");
+	  return -1;
+	}
       }
       /* don't forget to reattach the new memory */
       memseg = shmat(shmid, (void *) 0, 0);
