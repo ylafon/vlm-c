@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.29 2009/08/31 15:25:30 ylafon Exp $
+ * $Id: vmg.c,v 1.30 2009/09/07 15:51:58 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -125,112 +125,6 @@ void set_heading_bvmg(boat *aboat) {
   set_heading_direct(aboat, angle);
 }
 
-
-/* the algorith used is to minimize the distance to the WP */
-void set_heading_bvmg2(boat *aboat) {
-  double angle, maxangle, t, t_min;
-  double wanted_heading;
-  double w_speed, w_angle;
-  double t_long, t_lat;
-  int i;
-  
-  get_wind_info(aboat, &aboat->wind);
-  set_heading_ortho_nowind(aboat);
-
-  wanted_heading = aboat->heading;
-  maxangle = wanted_heading;
-
-  w_speed = aboat->wind.speed;
-  w_angle = aboat->wind.angle; 
-
-  /* FIXME, this can be optimized a lot */
-  t_min = aboat->wp_distance;
-
-  /* -90 to +90 form desired diretion */
-  for (i=0; i<900; i++) {
-    angle = wanted_heading + degToRad(((double)i)/10.0);
-    estimate_boat_loxo(aboat, aboat->in_race->vac_duration, 
-		       angle, &t_lat, &t_long);
-    t = ortho_distance(t_lat, t_long, 
-		       aboat->wp_latitude, aboat->wp_longitude);
-    if (t < t_min) {
-      t_min = t;
-      maxangle = angle;
-    }
-  }
-    
-  for (i=0; i<900; i++) {
-    angle = wanted_heading - degToRad(((double)i)/10.0);
-    aboat->heading = angle;
-    estimate_boat_loxo(aboat, 600, angle, &t_lat, &t_long);
-    t = ortho_distance(t_lat, t_long, 
-		       aboat->wp_latitude, aboat->wp_longitude);
-    if (t < t_min) {
-      t_min = t;
-      maxangle = angle;
-    }
-  }
-  /* fixme save speed, and t_max (= bvmg) somewhere ? */
-  angle = fmod(maxangle, TWO_PI);
-  if (angle < 0) {
-    angle += TWO_PI;
-  }
-  set_heading_direct(aboat, angle);
-}
-
-/* the algorith used is to minimize the distance to the WP */
-void set_heading_bvmg2_coast(boat *aboat) {
-  double angle, maxangle, t, t_min;
-  double wanted_heading;
-  double w_speed, w_angle;
-  double t_long, t_lat;
-  int i;
-
-  get_wind_info(aboat, &aboat->wind);
-  set_heading_ortho_nowind(aboat);
-
-  wanted_heading = aboat->heading;
-  maxangle = wanted_heading;
-
-  w_speed = aboat->wind.speed;
-  w_angle = aboat->wind.angle; 
-
-  /* FIXME, this can be optimized a lot */
-  t_min = aboat->wp_distance;
-
-  /* -90 to +90 form desired diretion */
-  for (i=0; i<900; i++) {
-    angle = wanted_heading + degToRad(((double)i)/10.0);
-    if (estimate_boat_loxo_coast(aboat, 600, angle, &t_lat, &t_long)) {
-      t = ortho_distance(t_lat, t_long, 
-			 aboat->wp_latitude, aboat->wp_longitude);
-      if (t < t_min) {
-	t_min = t;
-	maxangle = angle;
-      }
-    }
-  }
-    
-  for (i=0; i<900; i++) {
-    angle = wanted_heading - degToRad(((double)i)/10.0);
-    aboat->heading = angle;
-    if (estimate_boat_loxo_coast(aboat, 600, angle, &t_lat, &t_long)) {
-      t = ortho_distance(t_lat, t_long,
-			 aboat->wp_latitude, aboat->wp_longitude);
-      if (t < t_min) {
-	t_min = t;
-	maxangle = angle;
-      }
-    }
-  }
-  /* fixme save speed, and t_max (= bvmg) somewhere ? */
-  angle = fmod(maxangle, TWO_PI);
-  if (angle < 0) {
-    angle += TWO_PI;
-  }
-  set_heading_direct(aboat, angle);
-}
- 
 /**
  * get the best angle in close hauled mode (allure de pres)
  * @return a wind angle in radians
@@ -356,6 +250,8 @@ void do_vbvmg_context(vlmc_context *context, boat *aboat, int mode,
   double dist, tanalpha, d1hypotratio;
   double b_alpha, b_beta, b_t1, b_t2, b_l1, b_l2;
   double b1_alpha, b1_beta;
+  double speed_alpha, speed_beta;
+  double vmg_alpha, vmg_beta;
   int i,j, min_i, min_j, max_i, max_j;
   
   b_t1 = b_t2 = b_l1 = b_l2 = b_alpha = b_beta = beta = 0.0;
@@ -493,7 +389,12 @@ void do_vbvmg_context(vlmc_context *context, boat *aboat, int mode,
 	   radToDeg(b_beta));
 #endif /* DEBUG */
   }
-  if (fabs(alpha) < fabs(beta)) {
+  speed_alpha = find_speed(aboat, w_speed, angle-b_alpha);
+  vmg_alpha = speed_alpha * cos(b_alpha);
+  speed_beta = find_speed(aboat, w_speed, w_angle-b_beta);
+  vmg_beta = speed-beta * cos(b_beta);
+
+  if (vmg_alpha < vmg_beta) {
     *heading1 = fmod(wanted_heading + b_alpha, TWO_PI);
     *heading2 = fmod(wanted_heading + b_beta, TWO_PI);
     *time1 = b_t1;
