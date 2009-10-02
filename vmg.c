@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.34 2009/09/27 07:00:40 ylafon Exp $
+ * $Id: vmg.c,v 1.35 2009/10/02 20:58:06 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -397,6 +397,14 @@ void do_vbvmg_context(vlmc_context *context, boat *aboat, int mode,
   vmg_alpha = speed_alpha * cos(b_alpha);
   speed_beta = find_speed(aboat, w_speed, angle-b_beta);
   vmg_beta = speed_beta * cos(b_beta);
+
+#if DEBUG
+    printf("VBVMG: speedalpha=%.2f, speedbeta=%.2f\n", speed_alpha, speed_beta);
+    printf("VBVMG: vmgalpha=%.2f, vmgbeta=%.2f\n", vmg_alpha, vmg_beta);
+    printf("VBVMG: headingalpha %.2f, headingbeta=%.2f\n",
+	   radToDeg(fmod(wanted_heading + b_alpha, TWO_PI)),
+	   radToDeg(fmod(wanted_heading + b_beta, TWO_PI)));
+#endif /* DEBUG */
 
   if (vmg_alpha > vmg_beta) {
     *heading1 = fmod(wanted_heading + b_alpha, TWO_PI);
