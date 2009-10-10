@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.35 2009/10/02 20:58:06 ylafon Exp $
+ * $Id: vmg.c,v 1.36 2009/10/10 08:35:22 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -111,6 +111,11 @@ void do_bvmg_context(vlmc_context *context, boat *aboat, int mode,
     maxheading += TWO_PI;
   }
   maxwangle = fmod(maxwangle, TWO_PI);
+  if (maxwangle > PI) {
+    maxwangle -= TWO_PI;
+  } else if (maxangle < -PI) {
+    maxwangle += TWO_PI;
+  }
 #if DEBUG
   printf("BVMG: Wind %.2fkts %.2f\n", w_speed, radToDeg(w_angle));
   printf("BVMG Wind Angle : heading %.2f, wind angle %.2f\n",
