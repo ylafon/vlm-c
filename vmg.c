@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.36 2009/10/10 08:35:22 ylafon Exp $
+ * $Id: vmg.c,v 1.37 2009/10/10 08:36:24 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -113,7 +113,7 @@ void do_bvmg_context(vlmc_context *context, boat *aboat, int mode,
   maxwangle = fmod(maxwangle, TWO_PI);
   if (maxwangle > PI) {
     maxwangle -= TWO_PI;
-  } else if (maxangle < -PI) {
+  } else if (maxwangle < -PI) {
     maxwangle += TWO_PI;
   }
 #if DEBUG
