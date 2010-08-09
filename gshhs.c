@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.19 2010/08/09 16:15:55 ylafon Exp $
+ * $Id: gshhs.c,v 1.20 2010/08/09 16:20:15 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -351,14 +351,14 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	latitude  = py;
 #else
 	longitude = degToRad((double)px * GSHHS_SCL);
-	latitude = degToRad((double)py * GSHHS_SCL);
+	latitude  = degToRad((double)py * GSHHS_SCL);
 #endif /* SAVE_MEMORY */
 	assert((x>=0 && x<=3600) && (y>=0 && y< 1800));
 	if (prev_x == -1) {
 	  prev_x = x;
 	  prev_y = y;
 	  prev_longitude = longitude;
-	  prev_latitude = latitude;
+	  prev_latitude  = latitude;
 	  continue;
 	}
 
