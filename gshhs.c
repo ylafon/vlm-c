@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.18 2010/08/09 15:39:33 ylafon Exp $
+ * $Id: gshhs.c,v 1.19 2010/08/09 16:15:55 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -85,7 +85,8 @@ void internal_init_partial_coastline(int minlat, int minlong,
   struct GSHHS h;
   struct POINT p;
   int *segnum;
-  int n, nb_read, level, greenwich,i,k, nb_seg, idx;
+  int n, px, py;
+  int nb_read, level, greenwich,i,k, nb_seg, idx;
   int x,y, prev_x, prev_y;
 #ifdef SAVE_MEMORY
   int longitude, latitude, prev_longitude, prev_latitude;
@@ -207,8 +208,10 @@ void internal_init_partial_coastline(int minlat, int minlong,
 		  global_vlmc_context->gshhs_filename);
 	  exit(2);
 	}
-	x = floor(((double)ntohl(p.x)) * GSHHS_SCL * 10.0);
-	y = floor(((double)ntohl(p.y)) * GSHHS_SCL * 10.0)+900;
+	px = ntohl(p.x);
+	py = ntohl(p.y);
+	x = floor((double)px * GSHHS_SCL * 10.0);
+	y = floor((double)py * GSHHS_SCL * 10.0)+900;
 	assert((x>=0 && x<=3600) && (y>=0 && y< 1800));
 	if (prev_x == -1) {
 	  prev_x = x;
@@ -295,20 +298,20 @@ void internal_init_partial_coastline(int minlat, int minlong,
     
   while (nb_read == 1) {
 #ifndef OPTIMIZE_GSHHS_READ
-    h.id    = ntohl ((unsigned int)h.id);
+    h.id    = ntohl(h.id);
 #endif /* OPTIMIZE_GSHHS_READ */
-    n       = ntohl ((unsigned int)h.n);
-    h.flag  = ntohl ((unsigned int)h.flag);
+    n       = ntohl(h.n);
+    h.flag  = ntohl(h.flag);
 #ifndef OPTIMIZE_GSHHS_READ
-    h.west  = ntohl ((unsigned int)h.west);
-    h.east  = ntohl ((unsigned int)h.east);
-    h.south = ntohl ((unsigned int)h.south);
-    h.north = ntohl ((unsigned int)h.north);
-    h.area  = ntohl ((unsigned int)h.area);
+    h.west  = ntohl(h.west);
+    h.east  = ntohl(h.east);
+    h.south = ntohl(h.south);
+    h.north = ntohl(h.north);
+    h.area  = ntohl(h.area);
 #ifdef USE_GSHHS_20
-    h.area_full = ntohl ((unsigned int)h.area_full);
-    h.container = ntohl ((unsigned int)h.container);
-    h.ancestor  = ntohl ((unsigned int)h.ancestor);
+    h.area_full = ntohl(h.area_full);
+    h.container = ntohl(h.container);
+    h.ancestor  = ntohl(h.ancestor);
 #endif /* USE_GSHHS_20 */
 #endif /* OPTIMIZE_GSHHS_READ */
     level = h.flag & 0xff;
@@ -339,16 +342,16 @@ void internal_init_partial_coastline(int minlat, int minlong,
 		  global_vlmc_context->gshhs_filename);
 	  exit(2);
 	}
-	p.x = ntohl(p.x);
-	p.y = ntohl(p.y);
-	x = floor((double)p.x * GSHHS_SCL * 10.0);
-	y = floor((double)p.y * GSHHS_SCL * 10.0)+900;
+	px = ntohl(p.x);
+	py = ntohl(p.y);
+	x = floor((double)px * GSHHS_SCL * 10.0);
+	y = floor((double)py * GSHHS_SCL * 10.0)+900;
 #ifdef SAVE_MEMORY
-	longitude = p.x;
-	latitude = p.y;
+	longitude = px;
+	latitude  = py;
 #else
-	longitude = degToRad((double)p.x * GSHHS_SCL);
-	latitude = degToRad((double)p.y * GSHHS_SCL);
+	longitude = degToRad((double)px * GSHHS_SCL);
+	latitude = degToRad((double)py * GSHHS_SCL);
 #endif /* SAVE_MEMORY */
 	assert((x>=0 && x<=3600) && (y>=0 && y< 1800));
 	if (prev_x == -1) {
