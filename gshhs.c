@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.17 2010/08/09 13:39:09 ylafon Exp $
+ * $Id: gshhs.c,v 1.18 2010/08/09 15:39:33 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -85,7 +85,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
   struct GSHHS h;
   struct POINT p;
   int *segnum;
-  int nb_read, level, greenwich,i,k, nb_seg, idx;
+  int n, nb_read, level, greenwich,i,k, nb_seg, idx;
   int x,y, prev_x, prev_y;
 #ifdef SAVE_MEMORY
   int longitude, latitude, prev_longitude, prev_latitude;
@@ -165,7 +165,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
 #ifndef OPTIMIZE_GSHHS_READ
     h.id    = ntohl(h.id);
 #endif /* OPTIMIZE_GSHHS_READ */
-    h.n     = ntohl(h.n);
+    n       = ntohl(h.n);
     h.flag  = ntohl(h.flag);
 #ifndef OPTIMIZE_GSHHS_READ
     h.west  = ntohl(h.west);
@@ -190,7 +190,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
     if (level > GSHHS_MAX_DETAILS) { 
       /* keep only land ?, not lake, island in lake, 
 	 pond in island in lake => take everything now */
-      for (i=0; i<h.n; i++) {
+      for (i=0; i<n; i++) {
 	if (fread ((void *)&p, (size_t)sizeof(struct POINT), 
 		   (size_t)1, coastfile) != 1) {
 	  printf ("Fatal error reading Error reading file %s\n",
@@ -200,17 +200,15 @@ void internal_init_partial_coastline(int minlat, int minlong,
       }
     } else {
       prev_x = -1;
-      for (i=0; i<h.n; i++) {
+      for (i=0; i<n; i++) {
 	if (fread ((void *)&p, (size_t)sizeof(struct POINT), 
 		   (size_t)1, coastfile) != 1) {
 	  printf ("Fatal error reading Error reading file %s\n",
 		  global_vlmc_context->gshhs_filename);
 	  exit(2);
 	}
-	p.x = ntohl(p.x);
-	p.y = ntohl(p.y);
-	x = floor((double)p.x * GSHHS_SCL * 10.0);
-	y = floor((double)p.y * GSHHS_SCL * 10.0)+900;
+	x = floor(((double)ntohl(p.x)) * GSHHS_SCL * 10.0);
+	y = floor(((double)ntohl(p.y)) * GSHHS_SCL * 10.0)+900;
 	assert((x>=0 && x<=3600) && (y>=0 && y< 1800));
 	if (prev_x == -1) {
 	  prev_x = x;
@@ -299,7 +297,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
 #ifndef OPTIMIZE_GSHHS_READ
     h.id    = ntohl ((unsigned int)h.id);
 #endif /* OPTIMIZE_GSHHS_READ */
-    h.n     = ntohl ((unsigned int)h.n);
+    n       = ntohl ((unsigned int)h.n);
     h.flag  = ntohl ((unsigned int)h.flag);
 #ifndef OPTIMIZE_GSHHS_READ
     h.west  = ntohl ((unsigned int)h.west);
@@ -324,7 +322,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
     if (level > GSHHS_MAX_DETAILS) {
       /* keep only land ?, not lake, island in lake, 
 	 pond in island in lake => take everything now */
-      for (i=0; i<h.n; i++) {
+      for (i=0; i<n; i++) {
 	if (fread ((void *)&p, (size_t)sizeof(struct POINT), 
 		   (size_t)1, coastfile) != 1) {
 	  printf ("Fatal error reading Error reading file %s\n",
@@ -334,7 +332,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
       }
     } else {
       prev_x = -1;
-      for (i=0; i<h.n; i++) {
+      for (i=0; i<n; i++) {
 	if (fread ((void *)&p, (size_t)sizeof(struct POINT), 
 		   (size_t)1, coastfile) != 1) {
 	  printf ("Fatal error reading Error reading file %s\n",
