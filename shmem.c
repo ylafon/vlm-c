@@ -1,5 +1,5 @@
 /**
- * $Id: shmem.c,v 1.21 2010/08/09 12:37:53 ylafon Exp $
+ * $Id: shmem.c,v 1.22 2010/08/09 12:40:04 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -424,7 +424,7 @@ int copy_polar_array_to_shmem(int shmid, boat_polar_list *polars,
 
   printf("Bytes used: %ld\n", needed_bytes);
   ok = (shminfo.shm_segsz >= needed_bytes);
-  printf("Segment size: %ld %s\n",  (long)shminfo.shm_segsz, 
+  printf("Segment size: %zu %s\n",  shminfo.shm_segsz, 
 	 (ok) ? "OK" : "NOT OK");
   
   if (!ok) {
