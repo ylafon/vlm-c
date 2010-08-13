@@ -1,5 +1,5 @@
 /**
- * $Id: waypoint.h,v 1.4 2010/08/13 10:07:48 ylafon Exp $
+ * $Id: waypoint.h,v 1.5 2010/08/13 16:00:22 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -29,7 +29,7 @@ int check_waypoint_crossed PARAM8(double, double, time_t,
 				  waypoint *, time_t *);
 int check_waypoint         PARAM8(double, double,  
 				  double, double,  
-				  struct waypoint_str *, double *,
+				  waypoint *, double *,
 				  double *, double *);
 
 #endif /* _WAYPOINT_H_ */
