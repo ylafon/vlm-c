@@ -1,5 +1,5 @@
 /**
- * $Id: waypoint.c,v 1.6 2010/08/13 19:27:07 ylafon Exp $
+ * $Id: waypoint.c,v 1.7 2010/08/13 20:03:22 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -21,6 +21,7 @@
 #include "defs.h"
 #include "types.h"
 #include "lines.h"
+#include "loxo.h"
 #include "waypoint.h"
 
 #define __vlm_long_norm(a)			\
@@ -68,6 +69,49 @@ double get_waypoint_xing_ratio(double prev_x, double x,
     return (b - prev_x)/x - prev_x;
   }
   return -1.0;
+}
+
+/**
+ * Create a two buoys wp structure out of any buoy definition
+ * laisser_au is an angle in rad
+ */
+void init_waypoint(waypoint *wp, int wp_type, int id,
+		   double lat1, double long1, 
+		   double lat2, double long2, 
+		   double leave_at, double fake_length) {
+  double new_lat, new_long;
+  double ratio;
+  
+  wp->type       = wp_type;
+  wp->idwaypoint = id;
+  wp->latitude1  = lat1;
+  wp->longitude1 = long1;
+
+  switch (wp_type & 0x000F) {
+  case WP_ONE_BUOY:
+    wp->angle = leave_at;
+    leave_at += PI;
+    get_loxo_coord_from_dist_angle(lat1, long1, fake_length, leave_at,
+				   &new_lat, &new_long);
+    if (fabs(new_lat) > degToRad(80.0)) {
+      ratio = (degToRad(80.0)-fabs(lat1)) / (fabs(new_lat)-fabs(lat1));
+      fake_length *= ratio;
+       get_loxo_coord_from_dist_angle(lat1, long1, fake_length, leave_at,
+				   &new_lat, &new_long);
+    }
+    if (new_long > PI) {
+      new_long -= TWO_PI;
+    } else if (new_long < -PI) {
+      new_long += TWO_PI;
+    }
+    wp->latitude2  = new_lat;
+    wp->longitude2 = new_long;
+    break;
+  case WP_TWO_BUOYS:
+  default:
+    wp->latitude2  = lat2;
+    wp->longitude2 = long2;
+  }
 }
 
 /**
