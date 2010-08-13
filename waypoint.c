@@ -1,5 +1,5 @@
 /**
- * $Id: waypoint.c,v 1.5 2010/08/13 15:59:53 ylafon Exp $
+ * $Id: waypoint.c,v 1.6 2010/08/13 19:27:07 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -101,7 +101,8 @@ int check_waypoint(double prev_latitude, double prev_longitude,
 		   struct waypoint_str *wp, double *intersection,
 		   double *isect_latitude, double *isect_longitude) {
   double intersect_ratio;
-  double icegate_long1, icegate_long2;
+  double wp_long1, wp_long2;
+  double wp_lat1, wp_lat2;
   double vgate_lat, vgate_long;
   double vboat_lat, vboat_long;
   double zvect;
@@ -112,16 +113,28 @@ int check_waypoint(double prev_latitude, double prev_longitude,
     return 0;
   }
   isect = 0;
+  /* use the projection */
+  wp_lat1          = latToY(wp->latitude1);
+  wp_lat2          = latToY(wp->latitude2);
+  prev_latitude    = latToY(prev_latitude);
+  current_latitude = latToY(current_latitude);
+  /* first, normalize the longitudes */
+  wp_long1 = wp->longitude1;
+  wp_long2 = wp->longitude2;
+  __vlm_longitude_normalize(prev_longitude, current_longitude,
+			    wp_long1, wp_long2);
+
   switch (wp->type & 0xFFF0) {
   case WP_DEFAULT:
     intersect_ratio = intersects(prev_latitude, prev_longitude, 
 				 current_latitude, current_longitude,
-				 wp->latitude1, wp->longitude1,
-				 wp->latitude2, wp->longitude2,
+				 wp_lat1, wp_long1,
+				 wp_lat2, wp_long2,
 				 isect_latitude, isect_longitude);
     if (intersect_ratio >= INTER_MIN_LIMIT) {
       isect = 1;
       *intersection = intersect_ratio;
+      *isect_latitude = yToLat(*isect_latitude);
     } else {
       return 0;
     }
@@ -131,39 +144,37 @@ int check_waypoint(double prev_latitude, double prev_longitude,
   case WP_ICE_GATE_N:
     /** IMPORTANT: We assume that the ice gates are always
 	horizontal or vertical **/
-    if ((prev_latitude > wp->latitude1)&&(current_latitude > wp->latitude1)) {
+    if ((prev_latitude > wp_lat1) && (current_latitude > wp_lat1)) {
       return 0;
     }
     /* do we have an intersection ? (general case) */
     intersect_ratio = intersects(prev_latitude, prev_longitude, 
 				 current_latitude, current_longitude,
-				 wp->latitude1, wp->longitude1,
-				 wp->latitude2, wp->longitude2,
+				 wp_lat1, wp_long1,
+				 wp_lat2, wp_long2,
 				 isect_latitude, isect_longitude);
     if (intersect_ratio >= INTER_MIN_LIMIT) {
       isect = 1;
       *intersection = intersect_ratio;
+      *isect_latitude = yToLat(*isect_latitude);
     } else {
-      /* first, normalize the longitudes */
-      icegate_long1 = wp->longitude1;
-      icegate_long2 = wp->longitude2;
-      __vlm_longitude_normalize(prev_longitude, current_longitude,
-				icegate_long1, icegate_long2);
       /*
        * check if new longitude is between the two buoys 
        * As the waypoint was not crossed before, prev_longitude must always
        * be outside as we don't have an intersection
        */
-      if((icegate_long1-current_longitude)*(icegate_long2-current_longitude)<0){
+      if((wp_long1-current_longitude)*(wp_long2-current_longitude)<0){
 	/* if no intersection, check if we ended up north of the gate */
-	if (current_latitude > wp->latitude1) {
+	if (current_latitude > wp_lat1) {
 	  intersect_ratio = get_waypoint_xing_ratio(prev_longitude,
 						    current_longitude,
-						    icegate_long1,
-						    icegate_long2);
+						    wp_long1,
+						    wp_long2);
 	  if (intersect_ratio >= 0.0) {
 	    *isect_latitude = prev_latitude + 
 	      intersect_ratio * (current_latitude - prev_latitude);
+	    /* unproject */
+	    *isect_latitude = yToLat(*isect_latitude);
 	    *isect_longitude = prev_longitude + 
 	      intersect_ratio * (current_longitude - prev_longitude);
 	    *intersection = intersect_ratio;
@@ -174,40 +185,37 @@ int check_waypoint(double prev_latitude, double prev_longitude,
     }
     break;
   case WP_ICE_GATE_S:
-    if ((prev_latitude < wp->latitude1)&&(current_latitude < wp->latitude1)) {
+    if ((prev_latitude < wp_lat1) && (current_latitude < wp_lat1)) {
       return 0;
     }
     /* do we have an intersection ? (general case) */
     intersect_ratio = intersects(prev_latitude, prev_longitude, 
 				 current_latitude, current_longitude,
-				 wp->latitude1, wp->longitude1,
-				 wp->latitude2, wp->longitude2,
+				 wp_lat1, wp_long1,
+				 wp_lat2, wp_long2,
 				 isect_latitude, isect_longitude);
     if (intersect_ratio >= INTER_MIN_LIMIT) {
       isect = 1;
       *intersection = intersect_ratio;
+      *isect_latitude = yToLat(*isect_latitude);
     } else {
-      /* first, normalize everything */
-      icegate_long1 = wp->longitude1;
-      icegate_long2 = wp->longitude2;
-      __vlm_longitude_normalize(prev_longitude, current_longitude,
-				icegate_long1, icegate_long2);
-
     /*
      * check if new longitude is between the two buoys 
      * As the waypoint was not crossed before, prev_longitude must always
      * be outside as we don't have an intersection
      */
-      if((icegate_long1-current_longitude)*(icegate_long2-current_longitude)<0){
+      if((wp_long1-current_longitude)*(wp_long2-current_longitude)<0){
 	/* if no intersection, check if we ended up north of the gate */
-	if (current_latitude > wp->latitude1) {
+	if (current_latitude > wp_lat1) {
 	  intersect_ratio = get_waypoint_xing_ratio(prev_longitude,
 						    current_longitude,
-						    icegate_long1, 
-						    icegate_long2);
+						    wp_long1, 
+						    wp_long2);
 	  if (intersect_ratio >= 0.0) {
 	    *isect_latitude = prev_latitude + 
 	      intersect_ratio * (current_latitude - prev_latitude);
+	    /* unproject */
+	    *isect_latitude = yToLat(*isect_latitude);
 	    *isect_longitude = prev_longitude + 
 	      intersect_ratio * (current_longitude - prev_longitude);
 	    *intersection = intersect_ratio;
@@ -237,11 +245,10 @@ int check_waypoint(double prev_latitude, double prev_longitude,
   case WP_DEFAULT:
     break;
   case WP_CROSS_CLOCKWISE:
-    // FIXME normalize longitude
     vboat_lat  = current_latitude  - prev_latitude;
     vboat_long = current_longitude - prev_longitude; 
-    vgate_lat  = wp->latitude2  - wp->latitude1;
-    vgate_long = wp->longitude2 - wp->longitude1;
+    vgate_lat  = wp_lat2  - wp_lat1;
+    vgate_long = wp_long2 - wp_long1;
     zvect = vboat_long*vgate_lat - vboat_lat*vgate_long;
     // result is positive if we crossed the gate clockwise
     if (zvect < 0) {
@@ -249,11 +256,10 @@ int check_waypoint(double prev_latitude, double prev_longitude,
     }
     break;
   case WP_CROSS_ANTI_CLOCKWISE:
-    // FIXME normalize longitude
     vboat_lat  = current_latitude  - prev_latitude;
     vboat_long = current_longitude - prev_longitude; 
-    vgate_lat  = wp->latitude2  - wp->latitude1;
-    vgate_long = wp->longitude2 - wp->longitude1;
+    vgate_lat  = wp_lat2  - wp_lat1;
+    vgate_long = wp_long2 - wp_long1;
     zvect = vboat_long*vgate_lat - vboat_lat*vgate_long;
     // result is positive if we crossed the gate clockwise
     if (zvect > 0) {
