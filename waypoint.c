@@ -1,5 +1,5 @@
 /**
- * $Id: waypoint.c,v 1.3 2010/08/12 21:52:26 ylafon Exp $
+ * $Id: waypoint.c,v 1.4 2010/08/13 10:07:48 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -29,9 +29,30 @@
  * @returns a boolean, 1 if waypoint was crossed, 0 otherwise
  */
 int check_waypoint_crossed(double prev_latitude, double prev_longitude,
+			   time_t prev_time,
 			   double current_latitude, double current_longitude, 
-			   struct waypoint_str *wp, double *intersection,
-			   double *isect_latitude, double *isect_longitude) {
+			   time_t current_time,
+			   struct waypoint_str *wp, time_t *xing_time) {
+  double isect_ratio, isect_lat, isect_long;
+  if (check_waypoint(prev_latitude, prev_longitude, 
+		     current_latitude, current_longitude,
+		     wp, &isect_ratio, &isect_lat, &isect_long)) {
+    *xing_time = prev_time + (long) rint(isect_ratio * 
+					 ((double) (current_time - prev_time)));
+    return 1;
+  }
+  return 0;
+}
+
+/**
+ * check if a waypoint was in the way
+ * populates the time when the wp was crossed
+ * @returns a boolean, 1 if waypoint was crossed, 0 otherwise
+ */
+int check_waypoint(double prev_latitude, double prev_longitude,
+		   double current_latitude, double current_longitude, 
+		   struct waypoint_str *wp, double *intersection,
+		   double *isect_latitude, double *isect_longitude) {
   double intersect_ratio;
   double icegate_long1, icegate_long2;
   double vgate_lat, vgate_long;
