@@ -1,5 +1,5 @@
 /**
- * $Id: vlm.c,v 1.35 2010/08/16 13:18:00 ylafon Exp $
+ * $Id: vlm.c,v 1.36 2010/08/16 13:20:58 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -27,6 +27,7 @@
 #include "vlm.h"
 #include "vmg.h"
 #include "winds.h"
+#include "waypoint.h"
 #include "boat.h"
 
 extern vlmc_context *global_vlmc_context;
