@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.25 2010/08/16 16:03:07 ylafon Exp $
+ * $Id: defs.h,v 1.26 2010/08/31 15:44:05 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -74,9 +74,12 @@
 #  define GRIB_RESOLUTION_0_5
 #  define DEFAULT_INTERPOLATION_SELECTIVE_TWSA
 #  define ROUND_WIND_ANGLE_IN_POLAR
+# elif  VLM_MINOR_VERSION == 11
+#  define GRIB_RESOLUTION_0_5
+#  define DEFAULT_INTERPOLATION_HYBRID
 # else /* default */
 #  define GRIB_RESOLUTION_0_5
-#  define DEFAULT_INTERPOLATION_SELECTIVE_TWSA
+#  define DEFAULT_INTERPOLATION_HYBRID
 # endif /* VLM_MINOR_VERSION */
 #endif /* VLM_MAJOR_VERSION */
 
