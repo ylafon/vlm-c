@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.30 2010/09/30 13:11:42 ylafon Exp $
+ * $Id: winds.c,v 1.31 2010/09/30 14:12:26 ylafon Exp $
  *
  * (c) 2008-2010 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -1085,6 +1085,9 @@ wind_info *get_wind_info_latlong_hybrid_context(vlmc_context *context,
 #else
     c = - vprev - _Complex_I * uprev;
     angle = carg(c);
+    if (angle < 0) { 
+      angle += TWO_PI; 
+    } 
 #endif /* OLD_C_COMPILER */
   }
 
