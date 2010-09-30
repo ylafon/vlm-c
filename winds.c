@@ -1,5 +1,5 @@
 /**
- * $Id: winds.c,v 1.31 2010/09/30 14:12:26 ylafon Exp $
+ * $Id: winds.c,v 1.32 2010/09/30 20:16:28 ylafon Exp $
  *
  * (c) 2008-2010 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -1068,6 +1068,9 @@ wind_info *get_wind_info_latlong_hybrid_context(vlmc_context *context,
 #else
     c = - v - _Complex_I * u;
     angle = carg(c);
+    if (angle < 0) { 
+      angle += TWO_PI; 
+    } 
 #endif /* OLD_C_COMPILER */
 #ifdef DEBUG
     printf("time stamps: prev %ld, boat_time %ld", prev->prevision_time,
