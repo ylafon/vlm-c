@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.22 2010/10/03 19:43:01 ylafon Exp $
+ * $Id: gshhs.c,v 1.23 2010/10/03 19:43:13 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -256,24 +256,24 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	  continue;
 	}
 #define _increment_array(x1,y1,x2,y2)		\
-  if (x1 == x2) {				\
-    if (y1 == y2) {				\
-      segnum[x2*1800+y2]++;			\
-    } else {					\
-      segnum[x2*1800+y2]++;			\
-      segnum[x2*1800+y1]++;			\
-    }						\
-  } else {					\
-    if (y1 == y2) {				\
-      segnum[x2*1800+y2]++;			\
-      segnum[x1*1800+y2]++;			\
-    } else {					\
-      segnum[x2*1800+y2]++;			\
-      segnum[x2*1800+y1]++;			\
-      segnum[x1*1800+y2]++;			\
-      segnum[x1*1800+y1]++;			\
-    }						\
-  }
+	if (x1 == x2) {				\
+	  if (y1 == y2) {			\
+	    segnum[x2*1800+y2]++;		\
+	  } else {				\
+	    segnum[x2*1800+y2]++;		\
+	    segnum[x2*1800+y1]++;		\
+	  }					\
+	} else {				\
+	  if (y1 == y2) {			\
+	    segnum[x2*1800+y2]++;		\
+	    segnum[x1*1800+y2]++;		\
+	  } else {				\
+	    segnum[x2*1800+y2]++;		\
+	    segnum[x2*1800+y1]++;		\
+	    segnum[x1*1800+y2]++;		\
+	    segnum[x1*1800+y1]++;		\
+	  }					\
+	}
 	_increment_array(prev_x, prev_y, x, y);
 	prev_x = x;
 	prev_y = y;
