@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.31 2010/10/28 10:23:16 ylafon Exp $
+ * $Id: lines.c,v 1.32 2010/10/28 10:34:23 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -468,6 +468,13 @@ double distance_to_line_ratio(double latitude, double longitude,
 				     &x_latitude, &x_longitude,
 				     ab_ratio);
 }
+
+#ifdef OLD_C_COMPILER
+# define __distance(a,b) (sqrt(a*a+b*b))
+#else
+# define __distance(a,b) (hypot(a,b))
+#endif /* OLD_C_COMPILER */
+
 /**
  * compute an approximative distance to a segment. Useful to estimate 
  * distance to a gate. It is at best an approximation, as the intersection
@@ -493,12 +500,6 @@ double distance_to_line_ratio_xing(double latitude, double longitude,
   t_latitude = latToY(latitude);
   latitude_a = latToY(latitude_a);
   latitude_b = latToY(latitude_b);
-  
-#ifdef OLD_C_COMPILER
-# define __distance(a,b) (sqrt(a*a+b*b))
-#else
-# define __distance(a,b) (hypot(a,b))
-#endif /* OLD_C_COMPILER */
   
   /* some normalization */
   /* normalize the line */
@@ -623,7 +624,9 @@ double distance_to_line_dichotomy_xing(double latitude, double longitude,
 				       double *x_latitude, double *x_longitude){
   double p1_latitude, p1_longitude, p2_latitude, p2_longitude;
   double ortho_p1, ortho_p2;
-  int i;
+  double limit;
+
+  limit = PI/(180*60*1852); // 1m precision
 
 #ifdef DEBUG
   printf("Longitude A: %.2f Longitude B: .%2f\n", radToDeg(longitude_a),
@@ -657,9 +660,10 @@ double distance_to_line_dichotomy_xing(double latitude, double longitude,
 
   ortho_p1 = ortho_distance(latitude, longitude, p1_latitude, p1_longitude);
   ortho_p2 = ortho_distance(latitude, longitude, p2_latitude, p2_longitude);
-  // HUGE FIXME, loop for test only, need to define a stop point based
-  // on distance between two points.
-  for (i=0;i<8; i++) {
+
+  // ending test on distance between two points.
+  while (__distance((p1_latitude-p2_latitude), (p1_longitude-p2_longitude)) > 
+	 limit) {
     if (ortho_p1 < ortho_p2) {
       p2_longitude = (p1_longitude+p2_longitude)/2;
       p2_latitude = yToLat((latToY(p1_latitude)+latToY(p2_latitude))/2);
@@ -670,7 +674,7 @@ double distance_to_line_dichotomy_xing(double latitude, double longitude,
     ortho_p1 = ortho_distance(latitude, longitude, p1_latitude, p1_longitude);
     ortho_p2 = ortho_distance(latitude, longitude, p2_latitude, p2_longitude);
   }
-
+  
   if (ortho_p1 < ortho_p2) {
     *x_latitude  = p1_latitude;
     *x_longitude = p1_longitude;
