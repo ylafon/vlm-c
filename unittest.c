@@ -1,5 +1,5 @@
 /**
- * $Id: unittest.c,v 1.16 2010/08/31 16:03:47 ylafon Exp $
+ * $Id: unittest.c,v 1.17 2010/10/28 10:23:16 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -24,6 +24,7 @@
 
 #include "defs.h"
 #include "types.h"
+#include "boat.h"
 #include "ortho.h"
 #include "lines.h"
 #include "winds.h"
@@ -46,6 +47,7 @@ int main (int argc, char **argv) {
   int i;
   wind_info wind_boat;
   waypoint fake_waypoint;
+  boat a_boat;
 
   printf("VERSION: %s\n", get_vlm_build_information());
   printf("WIND INTERPOLATION: %s\n", get_vlm_wind_interpolation_scheme());
@@ -107,7 +109,9 @@ int main (int argc, char **argv) {
 							      latb, longb));
   printf("Distance Point1 -> Line A-B: %.3f\n", 
 	 distance_to_line(lat1, long1, lata, longa, latb, longb));
-
+  printf("Distance Point1 (dicho) -> Line A-B: %.3f\n", 
+	 distance_to_line_dichotomy(lat1, long1, lata, longa, latb, longb,&lat_boat,&long_boat));
+  
   printf("\nUnit test: distance from Point 2 to Line A-B\n");
   printf("Point2: lat %.3f, long %.3f\n", radToDeg(lat2), radToDeg(long2));
   printf("Line A: lat %.3f, long %.3f\n", radToDeg(lata), radToDeg(longa));
@@ -119,6 +123,8 @@ int main (int argc, char **argv) {
 							      latb, longb));
   printf("Distance Point2 -> Line A-B: %.3f\n", 
 	 distance_to_line(lat2, long2, lata, longa, latb, longb));
+  printf("Distance Point1 (dicho) -> Line A-B: %.3f\n", 
+	 distance_to_line_dichotomy(lat2, long2, lata, longa, latb, longb,&lat_boat,&long_boat));
 
   printf("\nUnit test: distance from Point 3 to Line A-B\n");
   printf("Point3: lat %.3f, long %.3f\n", radToDeg(lat3), radToDeg(long3));
@@ -131,6 +137,8 @@ int main (int argc, char **argv) {
 							      latb, longb));
   printf("Distance Point3 -> Line A-B: %.3f\n", 
 	 distance_to_line(lat3, long3, lata, longa, latb, longb));
+  printf("Distance Point1 (dicho) -> Line A-B: %.3f\n", 
+	 distance_to_line_dichotomy(lat3, long3, lata, longa, latb, longb,&lat_boat,&long_boat));
 
   init_polar();
   printf("\nWind test\n");
@@ -275,6 +283,12 @@ int main (int argc, char **argv) {
 	   crossing_time - current_time + 1000, ctime(&crossing_time));
   } else {
     printf("Edge case 6 failed\n");
+  }
+  printf("\nPolar test\n");
+  associate_polar_boat(&a_boat, "Class40");
+  for (i=0; i<1790; i++) {
+    printf("%3.2f => %2.6lf kts\n", ((double)i)/10.0, 
+	   find_speed(&a_boat, 12.2, degToRad(((double)i)/10.)));
   }
   return 0;
 }

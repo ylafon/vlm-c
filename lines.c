@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.30 2009/09/20 20:51:41 ylafon Exp $
+ * $Id: lines.c,v 1.31 2010/10/28 10:23:16 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -594,3 +594,89 @@ double distance_to_line_ratio_xing(double latitude, double longitude,
   return ortho_b;
 }
 
+/**
+ * compute an approximative distance to a segment. Useful to estimate 
+ * distance to a gate.
+ * Parameters: lat/long of point, then lat and long of A & B defining the
+ * segment
+ */
+double distance_to_line_dichotomy(double latitude, double longitude,
+				  double latitude_a, double longitude_a,
+				  double latitude_b, double longitude_b) {
+  
+  double x_latitude, x_longitude;
+  return distance_to_line_dichotomy_xing(latitude, longitude,
+					 latitude_a, longitude_a,
+					 latitude_b, longitude_b,
+					 &x_latitude, &x_longitude);
+}
+
+/**
+ * compute an approximative distance to a segment. Useful to estimate 
+ * distance to a gate.
+ * Parameters: lat/long of point, then lat and long of A & B defining the
+ * segment, and pointers to lat/long of closest point
+ */
+double distance_to_line_dichotomy_xing(double latitude, double longitude,
+				       double latitude_a, double longitude_a,
+				       double latitude_b, double longitude_b,
+				       double *x_latitude, double *x_longitude){
+  double p1_latitude, p1_longitude, p2_latitude, p2_longitude;
+  double ortho_p1, ortho_p2;
+  int i;
+
+#ifdef DEBUG
+  printf("Longitude A: %.2f Longitude B: .%2f\n", radToDeg(longitude_a),
+	 radToDeg(longitude_b));
+#endif /* DEBUG */
+  if (fabs(longitude_a - longitude_b) > PI) {
+    if (longitude_a > longitude_b) {
+      if (longitude_a > 0.0) {
+	longitude_a -= TWO_PI;
+      } else {
+	longitude_b += TWO_PI;
+      }
+    } else {
+      if (longitude_b > 0.0) {
+	longitude_b -= TWO_PI;
+      } else {
+	longitude_a += TWO_PI;
+      }
+    }
+  }
+#ifdef DEBUG
+  printf("AB NORM: Longitude A: %.2f Longitude B: %2f\n", 
+	 radToDeg(longitude_a), radToDeg(longitude_b));
+  printf("Point: Longitude: %.2f\n", radToDeg(longitude));
+#endif /* DEBUG */
+
+  p1_latitude  = latitude_a;
+  p1_longitude = longitude_a;
+  p2_latitude  = latitude_b;
+  p2_longitude = longitude_b;
+
+  ortho_p1 = ortho_distance(latitude, longitude, p1_latitude, p1_longitude);
+  ortho_p2 = ortho_distance(latitude, longitude, p2_latitude, p2_longitude);
+  // HUGE FIXME, loop for test only, need to define a stop point based
+  // on distance between two points.
+  for (i=0;i<8; i++) {
+    if (ortho_p1 < ortho_p2) {
+      p2_longitude = (p1_longitude+p2_longitude)/2;
+      p2_latitude = yToLat((latToY(p1_latitude)+latToY(p2_latitude))/2);
+    } else {
+      p1_longitude = (p1_longitude+p2_longitude)/2;
+      p1_latitude = yToLat((latToY(p1_latitude)+latToY(p2_latitude))/2);
+    }
+    ortho_p1 = ortho_distance(latitude, longitude, p1_latitude, p1_longitude);
+    ortho_p2 = ortho_distance(latitude, longitude, p2_latitude, p2_longitude);
+  }
+
+  if (ortho_p1 < ortho_p2) {
+    *x_latitude  = p1_latitude;
+    *x_longitude = p1_longitude;
+    return ortho_p1;
+  }
+  *x_latitude  = p2_latitude;
+  *x_longitude = p2_longitude;
+  return ortho_p2;
+}
