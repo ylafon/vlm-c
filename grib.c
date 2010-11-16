@@ -1,5 +1,5 @@
 /**
- * $Id: grib.c,v 1.25 2009/01/29 11:06:03 ylafon Exp $
+ * $Id: grib.c,v 1.26 2010/11/16 13:07:53 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -492,7 +492,16 @@ winds *generate_interim_grib(time_t gribtime) {
 #ifdef DEFAULT_INTERPOLATION_UV
   return generate_interim_grib_UV(gribtime);
 #else
+#  ifdef DEFAULT_INTERPOLATION_TWSA
   return generate_interim_grib_TWSA(gribtime);
+#  else
+#    ifdef DEFAULT_INTERPOLATION_HYBRID
+  return generate_interim_grib_hybrid(gribtime);
+#    else
+  /* default is hybrid */
+  return generate_interim_grib_hybrid(gribtime);
+#    endif /* DEFAULT_INTERPOLATION_HYBRID */
+#  endif /* DEFAULT_INTERPOLATION_TWSA */
 #endif /* DEFAULT_INTERPOLATION_UV */
 }
 
@@ -546,6 +555,77 @@ winds *generate_interim_grib_UV(time_t grib_time) {
   for (i=0; i<WIND_GRID_LONG*WIND_GRID_LAT; i++) {
     *ures++ = (1-t_ratio) * (*uprev++) + t_ratio*(*unext++);
     *vres++ = (1-t_ratio) * (*vprev++) + t_ratio*(*vnext++);
+  }
+  winds_t->prevision_time = corrected_time;
+  return winds_t;
+}
+
+/**
+ * return a winds entry interpolated in the time domain using the
+ * hybrid interpolation 
+ */
+winds *generate_interim_grib_hybrid(time_t grib_time) {
+  winds_prev *windtable;
+  winds *prev, *next, *winds_t;
+  double *uprev, *unext, *vprev, *vnext;
+  double *ures, *vres;
+  double t_ratio, hyprev, hynext;
+  double t_hypot, t_angle;
+  double u, v;
+  time_t corrected_time;
+  int i;
+
+  windtable = &global_vlmc_context->windtable;
+  if (windtable->wind == NULL) {
+    return NULL;
+  }
+  /* correct the time according to the offset */
+  corrected_time = grib_time - windtable->time_offset;
+  /* find the surrounding grib entries */
+  prev = next = NULL;
+  for (i=0; i< windtable->nb_prevs; i++) {
+    if (windtable->wind[i]->prevision_time > corrected_time) {
+      if (i) {
+	next = windtable->wind[i];
+	prev = windtable->wind[i-1];
+      } else {
+	prev = windtable->wind[i];
+      }
+      break;
+    }
+  }
+  /* we are before the first of after the last, no work needed */
+  if (!next || !prev) {
+    return NULL;
+  }
+  winds_t = (winds *)calloc(1, sizeof(winds));
+  if (!winds_t) {
+    /* error while allocating the structure -> fail silently */
+    return NULL;
+  }
+  uprev = &prev->wind_u[0][0];
+  vprev = &prev->wind_v[0][0];
+  unext = &next->wind_u[0][0];
+  vnext = &next->wind_v[0][0];
+  ures = &winds_t->wind_u[0][0];
+  vres = &winds_t->wind_v[0][0];
+
+  t_ratio = ((double)(corrected_time - prev->prevision_time)) / 
+    ((double)(next->prevision_time - prev->prevision_time));
+  for (i=0; i<WIND_GRID_LONG*WIND_GRID_LAT; i++) {
+#ifdef OLD_C_COMPILER
+    hyprev = sqrt((*uprev)*(*uprev)*(*vprev)*(*vprev));
+    hynext = sqrt((*unext)*(*unext)*(*vnext)*(*vnext));
+#else
+    hyprev = hypot(*uprev, *vprev);
+    hynext = hypot(*unext, *vnext);
+#endif /* OLD_C_COMPILER */
+    t_hypot = (1-t_ratio) * (hyprev) + t_ratio*(hynext);
+    u = (1-t_ratio) * (*uprev++) + t_ratio*(*unext++);
+    v = (1-t_ratio) * (*vprev++) + t_ratio*(*vnext++);
+    t_angle = atan2(v, u);
+    *ures++ = t_hypot*cos(t_angle);
+    *vres++ = t_hypot*sin(t_angle);
   }
   winds_t->prevision_time = corrected_time;
   return winds_t;
