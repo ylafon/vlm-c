@@ -1,5 +1,5 @@
 /**
- * $Id: types.h,v 1.20 2010/11/17 18:18:50 ylafon Exp $
+ * $Id: types.h,v 1.21 2010/11/18 10:42:06 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -78,6 +78,7 @@ typedef struct race_str {
   time_t              closetime;
   time_t              bobegin;
   time_t              boend;
+  time_t              maxarrivaltime;
   long                startlong;
   long                startlat;
   boat_polar          *boattype;     /* point to the polar */
