@@ -1,10 +1,12 @@
 /**
- * $Id: grib.c,v 1.26 2010/11/16 13:07:53 ylafon Exp $
+ * $Id: grib.c,v 1.27 2010/11/23 21:23:23 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
- * Parts of this code are taken from wgrib-c v1.8.0.12o (5-07) by Wesley Ebisuzaki
+ * Parts of this code are taken from 
+ * wgrib-c v1.8.0.12o (5-07) by Wesley Ebisuzaki
  * and adapted to fit our data structures.
+ *
  * See http://www.cpc.ncep.noaa.gov/products/wesley/wgrib.html
  *
  *      See COPYING file for copying and redistribution conditions.
@@ -24,6 +26,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
 #ifndef OLD_C_COMPILER
 #include <complex.h>
 #endif /* OLD_C_COMPILER */
@@ -534,15 +537,25 @@ winds *generate_interim_grib_UV(time_t grib_time) {
       break;
     }
   }
-  /* we are before the first of after the last, no work needed */
-  if (!next || !prev) {
-    return NULL;
-  }
   winds_t = (winds *)calloc(1, sizeof(winds));
   if (!winds_t) {
     /* error while allocating the structure -> fail silently */
     return NULL;
   }
+  /* we are before the first of after the last, no work needed, copy the last */
+  if (!next || !prev) {
+    if (!windtable->nb_prevs) {
+      return NULL;
+    }
+    prev = windtable->wind[windtable->nb_prevs-1];
+    memcpy(winds_t->wind_u, prev->wind_u,  
+	   WIND_GRID_LONG*WIND_GRID_LAT*sizeof(double));
+    memcpy(winds_t->wind_v, prev->wind_v,  
+	   WIND_GRID_LONG*WIND_GRID_LAT*sizeof(double));
+    winds_t->prevision_time = corrected_time;
+    return winds_t;
+  }
+  /* do real interpolation work */
   uprev = &prev->wind_u[0][0];
   vprev = &prev->wind_v[0][0];
   unext = &next->wind_u[0][0];
@@ -594,15 +607,26 @@ winds *generate_interim_grib_hybrid(time_t grib_time) {
       break;
     }
   }
-  /* we are before the first of after the last, no work needed */
-  if (!next || !prev) {
-    return NULL;
-  }
+
   winds_t = (winds *)calloc(1, sizeof(winds));
   if (!winds_t) {
     /* error while allocating the structure -> fail silently */
     return NULL;
   }
+  /* we are before the first of after the last, no work needed, copy the last */
+  if (!next || !prev) {
+    if (!windtable->nb_prevs) {
+      return NULL;
+    }
+    prev = windtable->wind[windtable->nb_prevs-1];
+    memcpy(winds_t->wind_u, prev->wind_u,  
+	   WIND_GRID_LONG*WIND_GRID_LAT*sizeof(double));
+    memcpy(winds_t->wind_v, prev->wind_v,  
+	   WIND_GRID_LONG*WIND_GRID_LAT*sizeof(double));
+    winds_t->prevision_time = corrected_time;
+    return winds_t;
+  }
+  /* do real interpolation work */
   uprev = &prev->wind_u[0][0];
   vprev = &prev->wind_v[0][0];
   unext = &next->wind_u[0][0];
@@ -663,15 +687,26 @@ winds *generate_interim_grib_TWSA(time_t grib_time) {
       break;
     }
   }
-  /* we are before the first of after the last, no work needed */
-  if (!next || !prev) {
-    return NULL;
-  }
+
   winds_t = (winds *)calloc(1, sizeof(winds));
-  /* error while allocating the structure, fail silently */
   if (!winds_t) {
+    /* error while allocating the structure -> fail silently */
     return NULL;
   }
+  /* we are before the first of after the last, no work needed, copy the last */
+  if (!next || !prev) {
+    if (!windtable->nb_prevs) {
+      return NULL;
+    }
+    prev = windtable->wind[windtable->nb_prevs-1];
+    memcpy(winds_t->wind_u, prev->wind_u,  
+	   WIND_GRID_LONG*WIND_GRID_LAT*sizeof(double));
+    memcpy(winds_t->wind_v, prev->wind_v,  
+	   WIND_GRID_LONG*WIND_GRID_LAT*sizeof(double));
+    winds_t->prevision_time = corrected_time;
+    return winds_t;
+  }
+  /* do real interpolation work */
   uprev = &prev->wind_u[0][0];
   vprev = &prev->wind_v[0][0];
   unext = &next->wind_u[0][0];
