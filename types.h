@@ -1,5 +1,5 @@
 /**
- * $Id: types.h,v 1.21 2010/11/18 10:42:06 ylafon Exp $
+ * $Id: types.h,v 1.22 2010/11/27 15:32:35 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -138,6 +138,7 @@ typedef struct boat_str {
   struct race_str *in_race;    /* the race it belongs to             */
   struct boat_polar_str *polar;/* The polar in use                   */
   time_t      last_vac_time;   /* time of last move                  */
+  time_t      last_update;     /* time of last pilot change          */
   time_t      departure_time;  /* departure time in the race         */
   time_t      release_time;    /* release time (after a penalty)     */
   struct wind_info_str wind;   /* the computed wind                  */
