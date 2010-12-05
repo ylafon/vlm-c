@@ -1,5 +1,5 @@
 /**
- * $Id: waypoint.c,v 1.14 2010/12/05 16:47:00 ylafon Exp $
+ * $Id: waypoint.c,v 1.15 2010/12/05 16:47:41 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -334,12 +334,10 @@ int check_waypoint(double prev_latitude, double prev_longitude,
  * of the boat and return the distance to that point.
  */
 double best_way_to_waypoint(boat *b, waypoint *wp) {
-  boat *b;
   double x_lat, x_long, dist, ratio;
   double latitude_a, longitude_a, latitude_b, longitude_b;
   double latitude, longitude;
   
-  b = cur_boat->vlm_boat;
   /* sanity check */
   latitude    = b->latitude;
   longitude   = fmod(b->longitude, TWO_PI);
