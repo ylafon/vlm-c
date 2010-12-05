@@ -1,5 +1,5 @@
 /**
- * $Id: waypoint.c,v 1.15 2010/12/05 16:47:41 ylafon Exp $
+ * $Id: waypoint.c,v 1.16 2010/12/05 20:23:57 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *      See COPYING file for copying and redistribution conditions.
@@ -371,7 +371,7 @@ double best_way_to_waypoint(boat *b, waypoint *wp) {
   } else if (x_long < -PI) {
     x_long += TWO_PI;
   }
-  b->real_wp_lat = x_lat;
-  b->real_wp_lon = x_long;
+  b->wp_latitude  = x_lat;
+  b->wp_longitude = x_long;
   return dist;
 }
