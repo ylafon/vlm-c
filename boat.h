@@ -1,7 +1,7 @@
 /**
- * $Id: boat.h,v 1.5 2010/12/09 10:44:54 ylafon Exp $
+ * $Id: boat.h,v 1.6 2010/12/09 10:45:29 ylafon Exp $
  *
- * (c) 2008-2010 by Yves Lafon
+ * (c) 2008 by Yves Lafon
  *
  *      See COPYING file for copying and redistribution conditions.
  *
