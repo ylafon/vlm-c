@@ -1,5 +1,5 @@
 /**
- * $Id: vmg.c,v 1.40 2011/04/05 12:15:32 ylafon Exp $
+ * $Id: vmg.c,v 1.41 2011/04/05 21:11:38 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -328,11 +328,11 @@ void do_vbvmg_context(vlmc_context *context, boat *aboat, int mode,
     max_j = 90;
   }
 
+  // pre-compute resulting speed for the inner-loop values.
   for (j=min_j; j<max_j; j++) {
-      beta = degToRad((double)j);
-      w_speed_cache[j-min_j] = find_speed(aboat, w_speed, angle-beta);
+    w_speed_cache[j-min_j] = find_speed(aboat, w_speed, angle-((double)j));
   }
-
+  
   for (i=min_i; i<max_i; i++) {
     alpha = degToRad((double)i);
     tanalpha = tan(alpha);
@@ -350,7 +350,6 @@ void do_vbvmg_context(vlmc_context *context, boat *aboat, int mode,
 	continue;
       }
       d2 = dist - d1; 
-      //      speed_t2 = find_speed(aboat, w_speed, angle-beta);
       speed_t2 = w_speed_cache[j-min_j];
       if (speed_t2 <= 0.0) {
 	continue;
