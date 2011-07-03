@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.26 2011/07/03 07:06:32 ylafon Exp $
+ * $Id: gshhs.c,v 1.27 2011/07/03 08:27:04 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -88,9 +88,13 @@ void internal_init_partial_coastline(int minlat, int minlong,
   struct GSHHS h;
   struct POINT *plist, *p;
   int *segnum;
-  int n, px, py, max_n;
-  int nb_read, level, greenwich,i,k, nb_seg, idx;
-  int x,y, prev_x, prev_y;
+  int i, k, n, px, py, max_n, idx;
+#ifdef USE_GSHHS_22
+  int nb_read, level, greenwich, dateline, nb_seg;
+#else
+  int nb_read, level, greenwich, nb_seg;
+#endif /* USE_GSHHS_22 */
+  int x, y, prev_x, prev_y;
 #if defined USE_GSHHS_20 || defined USE_GSHHS_22
   int first_x, first_y;
 #endif /* USE_GSHHS_20 || USE_GSHHS_22 */
@@ -213,6 +217,9 @@ void internal_init_partial_coastline(int minlat, int minlong,
     /* the previous version should work, but be ready for 
        future releases */
     greenwich = (h.flag >>16) & 0x01;
+#ifdef USE_GSHHS_22
+    dateline  = (h.flag >>16) & 0x02;
+#endif /* USE_GSHHS_22 */
 #else
     greenwich = (h.flag >>16) & 0xff;
 #endif /* USE_GSHHS_20 || USE_GSHHS_22 */
@@ -250,7 +257,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	x = floor((double)px * GSHHS_SCL * 10.0);
 	y = floor((double)py * GSHHS_SCL * 10.0)+900;
 #ifdef USE_GSHHS_22
-	assert((x>=-1800 && x<=1800) && (y>=0 && y< 1800));
+	assert((x>=-1800 && x<=3600) && (y>=0 && y< 1800));
 	if (x < 0) {
 	  x += 3600;
 	}
@@ -375,6 +382,9 @@ void internal_init_partial_coastline(int minlat, int minlong,
     /* the previous version should work, but be ready for 
        future releases */
     greenwich = (h.flag >>16) & 0x01;
+#ifdef USE_GSHHS_22
+    dateline  = (h.flag >>16) & 0x02;
+#endif /* USE_GSHHS_22 */
 #else
     greenwich = (h.flag >>16) & 0xff;
 #endif /* USE_GSHHS_20 || USE_GSHHS_22 */
@@ -410,7 +420,7 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	latitude  = degToRad((double)py * GSHHS_SCL);
 #endif /* SAVE_MEMORY */
 #ifdef USE_GSHHS_22
-	assert((x>=-1800 && x<=1800) && (y>=0 && y< 1800));
+	assert((x>=-1800 && x<=3600) && (y>=0 && y< 1800));
 	if (x < 0) {
 	  x += 3600;
 	}
