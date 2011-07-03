@@ -1,5 +1,5 @@
 /**
- * $Id: gshhs.c,v 1.25 2010/12/09 13:54:26 ylafon Exp $
+ * $Id: gshhs.c,v 1.26 2011/07/03 07:06:32 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -91,20 +91,20 @@ void internal_init_partial_coastline(int minlat, int minlong,
   int n, px, py, max_n;
   int nb_read, level, greenwich,i,k, nb_seg, idx;
   int x,y, prev_x, prev_y;
-#ifdef USE_GSHHS_20
+#if defined USE_GSHHS_20 || defined USE_GSHHS_22
   int first_x, first_y;
-#endif /* USE_GSHHS_20 */
+#endif /* USE_GSHHS_20 || USE_GSHHS_22 */
 
 #ifdef SAVE_MEMORY
   int longitude, latitude, prev_longitude, prev_latitude;
-# ifdef USE_GSHHS_20
+# if defined USE_GSHHS_20 || defined USE_GSHHS_22
   int first_longitude, first_latitude;
-# endif /* USE_GSHHS_20 */
+# endif /* USE_GSHHS_20 || USE_GSHHS_22 */
 #else
   double longitude, latitude, prev_longitude, prev_latitude;
-# ifdef USE_GSHHS_20
+# if defined USE_GSHHS_20 || defined USE_GSHHS_22
   double first_longitude, first_latitude;
-# endif /* USE_GSHHS_20 */
+# endif /* USE_GSHHS_20 || USE_GSHHS_22 */
 #endif /* SAVE_MEMORY */
   coast_seg *segment;
   coast *wholecoast;
@@ -151,22 +151,22 @@ void internal_init_partial_coastline(int minlat, int minlong,
   prev_y = 0;
 #ifdef SAVE_MEMORY
   prev_longitude = prev_latitude = 0;
-# ifdef USE_GSHHS_20
+# if defined USE_GSHHS_20 || defined USE_GSHHS_22
   first_longitude = first_latitude = 0;
-# endif /* USE_GSHHS_20 */
+# endif /* USE_GSHHS_20 || USE_GSHHS_22 */
 #else
   prev_longitude = prev_latitude = 0.0;
-# ifdef USE_GSHHS_20
+# if defined USE_GSHHS_20 || defined USE_GSHHS_22
   first_longitude = first_latitude = 0.0;
-# endif /* USE_GSHHS_20 */
+# endif /* USE_GSHHS_20 || USE_GSHHS_22 */
 #endif /* SAVE MEMORY */
 
-#ifdef USE_GSHHS_20
+#if defined USE_GSHHS_20 || defined USE_GSHHS_22
   first_x = 0;
   first_y = 0;
   x = 0;
   y = 0;
-#endif /* USE_GSHHS_20 */
+#endif /* USE_GSHHS_20 || USE_GSHHS_22 */
 
   coastfile = fopen(global_vlmc_context->gshhs_filename, "rb");
   if (coastfile == NULL) {
@@ -184,11 +184,11 @@ void internal_init_partial_coastline(int minlat, int minlong,
 
   // FIXME we might want to test the version before proceeding
   // but ntohl takes cares automagically of endianess 
-#ifdef USE_GSHHS_20
+#if defined USE_GSHHS_20 || defined USE_GSHHS_22
   //  flip = (((h.flag >> 8) & 0xff) != GSHHS_DATA_RELEASE);
-#else /* USE_GSHHS_20 */
+#else
   //  flip = (((h.flag >> 8) & 0xff) != GSHHS_DATA_VERSION);
-#endif /* USE_GSHHS_20 */
+#endif /* USE_GSHHS_20 || USE_GSHHS_22 */
 
   while (nb_read == 1) {
 #ifndef OPTIMIZE_GSHHS_READ
@@ -202,20 +202,20 @@ void internal_init_partial_coastline(int minlat, int minlong,
     h.south = ntohl(h.south);
     h.north = ntohl(h.north);
     h.area  = ntohl(h.area);
-#ifdef USE_GSHHS_20
+#if defined USE_GSHHS_20 || defined USE_GSHHS_22
     h.area_full = ntohl(h.area_full);
     h.container = ntohl(h.container);
     h.ancestor  = ntohl(h.ancestor);
-#endif /* USE_GSHHS_20 */
+#endif /* USE_GSHHS_20 || USE_GSHHS_22 */
 #endif /* OPTIMIZE_GSHHS_READ */
     level = h.flag & 0xff;
-#ifdef USE_GSHHS_20
+#if defined USE_GSHHS_20 || defined USE_GSHHS_22
     /* the previous version should work, but be ready for 
        future releases */
     greenwich = (h.flag >>16) & 0x01;
 #else
     greenwich = (h.flag >>16) & 0xff;
-#endif /* USE_GSHHS_20 */
+#endif /* USE_GSHHS_20 || USE_GSHHS_22 */
     if (level > GSHHS_MAX_DETAILS) { 
       /* keep only land ?, not lake, island in lake, 
 	 pond in island in lake => take everything now */
@@ -249,14 +249,21 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	py = ntohl(p->y);
 	x = floor((double)px * GSHHS_SCL * 10.0);
 	y = floor((double)py * GSHHS_SCL * 10.0)+900;
+#ifdef USE_GSHHS_22
+	assert((x>=-1800 && x<=1800) && (y>=0 && y< 1800));
+	if (x < 0) {
+	  x += 3600;
+	}
+#else
 	assert((x>=0 && x<=3600) && (y>=0 && y< 1800));
+#endif /* USE_GSHHS_22 */
 	if (prev_x == -1) {
 	  prev_x = x;
 	  prev_y = y;
-#ifdef USE_GSHHS_20
+#if defined USE_GSHHS_20 || defined USE_GSHHS_22
 	  first_x = x;
 	  first_y = y;
-#endif /* USE_GSHHS_20 */
+#endif /* USE_GSHHS_20 || USE_GSHHS_22 */
 	  continue;
 	}
 #define _increment_array(x1,y1,x2,y2)		\
@@ -283,11 +290,11 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	prev_y = y;
 	p++;
       }
-#ifdef USE_GSHHS_20
+#if defined USE_GSHHS_20 || defined USE_GSHHS_22
       if (n > 1) {
 	_increment_array(x, y, first_x, first_y);
       }
-#endif /* USE_GSHHS_20 */
+#endif /* USE_GSHHS_20 || USE_GSHHS_22 */
     }
     nb_read = fread((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, 
 		    coastfile);
@@ -357,20 +364,20 @@ void internal_init_partial_coastline(int minlat, int minlong,
     h.south = ntohl(h.south);
     h.north = ntohl(h.north);
     h.area  = ntohl(h.area);
-#ifdef USE_GSHHS_20
+#if defined USE_GSHHS_20 || defined USE_GSHHS_22
     h.area_full = ntohl(h.area_full);
     h.container = ntohl(h.container);
     h.ancestor  = ntohl(h.ancestor);
-#endif /* USE_GSHHS_20 */
+#endif /* USE_GSHHS_20 || USE_GSHHS_22 */
 #endif /* OPTIMIZE_GSHHS_READ */
     level = h.flag & 0xff;
-#ifdef USE_GSHHS_20
+#if defined USE_GSHHS_20 || defined USE_GSHHS_22
     /* the previous version should work, but be ready for 
        future releases */
     greenwich = (h.flag >>16) & 0x01;
 #else
     greenwich = (h.flag >>16) & 0xff;
-#endif /* USE_GSHHS_20 */
+#endif /* USE_GSHHS_20 || USE_GSHHS_22 */
     if (level > GSHHS_MAX_DETAILS) {
       /* keep only land ?, not lake, island in lake, 
 	 pond in island in lake => take everything now */
@@ -402,18 +409,25 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	longitude = degToRad((double)px * GSHHS_SCL);
 	latitude  = degToRad((double)py * GSHHS_SCL);
 #endif /* SAVE_MEMORY */
+#ifdef USE_GSHHS_22
+	assert((x>=-1800 && x<=1800) && (y>=0 && y< 1800));
+	if (x < 0) {
+	  x += 3600;
+	}
+#else
 	assert((x>=0 && x<=3600) && (y>=0 && y< 1800));
+#endif /* USE_GSHHS_22 */
 	if (prev_x == -1) {
 	  prev_x = x;
 	  prev_y = y;
 	  prev_longitude = longitude;
 	  prev_latitude  = latitude;
-#ifdef USE_GSHHS_20
+#if defined USE_GSHHS_20 || defined USE_GSHHS_22
 	  first_x = x;
 	  first_y = y;
 	  first_longitude = longitude;
 	  first_latitude = latitude;
-#endif /* USE_GSHHS_20 */
+#endif /* USE_GSHHS_20 || USE_GSHHS_22 */
 	  continue;
 	}
 
@@ -456,14 +470,14 @@ void internal_init_partial_coastline(int minlat, int minlong,
 	prev_latitude = latitude;
 	p++;
       }
-#ifdef USE_GSHHS_20
+#if defined USE_GSHHS_20 || defined USE_GSHHS_22
       if (n>1) {
 	// add the last one
 	longitude = first_longitude;
 	latitude  = first_latitude;
 	_add_segment_in_array(first_x, first_y, x, y);
       }
-#endif /* USE_GSHHS_20 */
+#endif /* USE_GSHHS_20 || USE_GSHHS_22 */
     }
     nb_read = fread((void *)&h, (size_t)sizeof (struct GSHHS), (size_t)1, 
 		    coastfile);
