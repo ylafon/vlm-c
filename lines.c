@@ -1,5 +1,5 @@
 /**
- * $Id: lines.c,v 1.34 2011/04/07 21:03:50 ylafon Exp $
+ * $Id: lines.c,v 1.35 2011/07/12 06:50:13 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -785,12 +785,12 @@ double distance_to_line_dichotomy_xing(double latitude, double longitude,
     if (ortho_p1 < ortho_p2) {
       p2_longitude = (p1_longitude+p2_longitude)/2;
       p2_latitude = yToLat((latToY(p1_latitude)+latToY(p2_latitude))/2);
+      ortho_p2 = ortho_distance(latitude, longitude, p2_latitude, p2_longitude);
     } else {
       p1_longitude = (p1_longitude+p2_longitude)/2;
       p1_latitude = yToLat((latToY(p1_latitude)+latToY(p2_latitude))/2);
+      ortho_p1 = ortho_distance(latitude, longitude, p1_latitude, p1_longitude);
     }
-    ortho_p1 = ortho_distance(latitude, longitude, p1_latitude, p1_longitude);
-    ortho_p2 = ortho_distance(latitude, longitude, p2_latitude, p2_longitude);
   }
   
   if (ortho_p1 < ortho_p2) {
