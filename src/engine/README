@@ -1,0 +1,42 @@
+main thread
+   ||
+   ||
+   \/
+init structures,
+config etc...
+ |       |
+ |       |
+ V       V
+init   init
+GSHHS  polar
+ |       |
+ |       V
+ |    attach meteo / interpolate grib
+ |       | 
+ |       V
+ |     get races definitions from DB 
+ |     (raceinfo + waypoints + users +
+ |      pilototo + positions         )
+ |        |   |   | [...] |              ]
+ |        V   V   V [...] V              ]
+ |      (recompute boat heading based on ] [OPTIONAL, currently done in
+ |       weather information)            ]  Compute boat move]
+ |        |   | [...]                    ]
+ V        V   V                          ]
+ (synch point)
+ | | | [...] |
+ V V V       V
+compute boat move
+(one SQL conn per thread ?)
+ | | | [...] |   
+ V V V       V
+ (synch point)
+      |
+      V
+ write races
+      |
+      V
+ check new races
+      |
+      V
+  write stats
