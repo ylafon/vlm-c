@@ -1,5 +1,5 @@
 /**
- * $Id: defs.h,v 1.30 2010/12/09 10:47:33 ylafon Exp $
+ * $Id: defs.h,v 1.31 2015/03/04 16:52:13 ylafon Exp $
  *
  * (c) 2008 by Yves Lafon
  *
@@ -96,13 +96,27 @@
 
 /* for now, no default when major != 0 */
 
-#ifdef GRIB_RESOLUTION_1
-# define WIND_GRID_LONG   360
-# define WIND_GRID_LAT    181
-#else
-# define WIND_GRID_LONG   720
-# define WIND_GRID_LAT    361
+#if !defined(GRIB_RESOLUTION_1)
+# if !defined(GRIB_RESOLUTION_0_25)
 # define GRIB_RESOLUTION_0_5
+# endif /* !defined(GRIB_RESOLUTION_0_25) */
+#endif /* !defined(GRIB_RESOLUTION_1) */
+
+/*
+  For now, Grib sources are 0.5
+  when the source will be 0.25, things 
+  will need an update
+*/
+#if defined(GRIB_RESOLUTION_1)
+# define WIND_GRID_LONG  360
+# define WIND_GRID_LAT   181
+# define GRIB_DOWNGRADE    2
+#elif defined(GRIB_RESOLUTION_0_5)
+# define WIND_GRID_LONG  720
+# define WIND_GRID_LAT   361
+#elif defined(GRIB_RESOLUTION_0_25)
+# define WIND_GRID_LONG 1440
+# define WIND_GRID_LAT   721
 #endif /* GRIB_RESOLUTION_1 */
 
 /* 1 land, 2 lake, 3 island_in_lake, 4 pond_in_island_in_lake */
