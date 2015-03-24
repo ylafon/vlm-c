@@ -88,10 +88,12 @@
 #  define DEFAULT_INTERPOLATION_HYBRID
 #  define VLM_WIND_INTERPOLATION "Hybrid"
 # elif  VLM_MINOR_VERSION == 12
+#  define GRIB_SOURCE_RESOLUTION 25
 #  define GRIB_RESOLUTION_0_25
 #  define DEFAULT_INTERPOLATION_HYBRID
 #  define VLM_WIND_INTERPOLATION "Hybrid"
 # else /* default */
+#  define GRIB_SOURCE_RESOLUTION 25
 #  define GRIB_RESOLUTION_0_25
 #  define DEFAULT_INTERPOLATION_HYBRID
 #  define VLM_WIND_INTERPOLATION "Hybrid"
@@ -111,10 +113,28 @@
   when the source will be 0.25, things 
   will need an update
 */
+
+#if !defined(GRIB_SOURCE_RESOLUTION)
+#  define GRIB_SOURCE_RESOLUTION 50
+#endif /* !defined(GRIB_SOURCE_RESOLUTION) */
+
+#if GRIB_SOURCE_RESOLUTION == 50
+#  if defined(GRIB_RESOLUTION_1)
+#    define GRIB_DOWNGRADE    2
+#  elif defined(GRIB_RESOLUTION_0_25)
+  /* THIS SHOULD NEVER HAPPEN!!! */
+#  endif /* GRIB_RESOLUTION_1 */
+#elif GRIB_SOURCE_RESOLUTION == 25
+#  if defined(GRIB_RESOLUTION_1)
+#    define GRIB_DOWNGRADE    4
+#  elif defined(GRIB_RESOLUTION_0_5)
+#    define GRIB_DOWNGRADE    2
+#  endif /* GRIB_RESOLUTION_1 */
+#endif /* GRIB_SOURCE_RESOLUTION */
+
 #if defined(GRIB_RESOLUTION_1)
 # define WIND_GRID_LONG  360
 # define WIND_GRID_LAT   181
-# define GRIB_DOWNGRADE    2
 #elif defined(GRIB_RESOLUTION_0_5)
 # define WIND_GRID_LONG  720
 # define WIND_GRID_LAT   361
