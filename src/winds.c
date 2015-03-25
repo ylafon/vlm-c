@@ -183,13 +183,23 @@ wind_info *get_wind_info_latlong_UV_context(vlmc_context *context,
   if (!next && !prev) {
     prev = windtable->wind[windtable->nb_prevs-1];
   } 
-#if defined(GRIB_RESOLUTION_0_25)
+#if defined(GRIB_DOWNGRADE)
+#if   defined(GRIB_RESOLUTION_0_25)
+  d_long = d_long*4.0/GRIB_DOWNGRADE;
+  d_lat  = d_lat*4.0/GRIB_DOWNGRADE;
+#elif   defined(GRIB_RESOLUTION_0_5)
+  d_long = d_long*2.0/GRIB_DOWNGRADE;
+  d_lat = d_lat*2.0/GRIB_DOWNGRADE;
+#endif   /* GRID_RESOLUTION_0_25 */
+#else /* defined(GRIB_DOWNGRADE) */
+#if   defined(GRIB_RESOLUTION_0_25)
   d_long = d_long*4.0;
   d_lat  = d_lat*4.0;
-#elif defined(GRIB_RESOLUTION_0_5)
+#elif   defined(GRIB_RESOLUTION_0_5)
   d_long = d_long*2.0;
   d_lat = d_lat*2.0;
-#endif /* GRID_RESOLUTION_0_25 */
+#endif   /* GRID_RESOLUTION_0_25 */
+#endif /* defined(GRIB_DOWNGRADE) */
   t_long = (int)floor(d_long);
   t_lat = (int)floor(d_lat);
 
@@ -404,13 +414,23 @@ wind_info *get_wind_info_latlong_TWSA_context(vlmc_context *context,
   if (!next && !prev) {
     prev = windtable->wind[windtable->nb_prevs-1];
   } 
-#if defined(GRIB_RESOLUTION_0_25)
+#if defined(GRIB_DOWNGRADE)
+#if   defined(GRIB_RESOLUTION_0_25)
+  d_long = d_long*4.0/GRIB_DOWNGRADE;
+  d_lat  = d_lat*4.0/GRIB_DOWNGRADE;
+#elif   defined(GRIB_RESOLUTION_0_5)
+  d_long = d_long*2.0/GRIB_DOWNGRADE;
+  d_lat = d_lat*2.0/GRIB_DOWNGRADE;
+#endif   /* GRID_RESOLUTION_0_25 */
+#else /* defined(GRIB_DOWNGRADE) */
+#if   defined(GRIB_RESOLUTION_0_25)
   d_long = d_long*4.0;
   d_lat  = d_lat*4.0;
-#elif defined(GRIB_RESOLUTION_0_5)
+#elif   defined(GRIB_RESOLUTION_0_5)
   d_long = d_long*2.0;
   d_lat = d_lat*2.0;
-#endif /* GRID_RESOLUTION_0_25 */
+#endif   /* GRID_RESOLUTION_0_25 */
+#endif /* defined(GRIB_DOWNGRADE) */
   t_long = (int)floor(d_long);
   t_lat = (int)floor(d_lat);
 
@@ -651,13 +671,23 @@ wind_info *get_wind_info_latlong_selective_TWSA_context(vlmc_context *context,
   if (!next && !prev) {
     prev = windtable->wind[windtable->nb_prevs-1];
   } 
-#if defined(GRIB_RESOLUTION_0_25)
+#if defined(GRIB_DOWNGRADE)
+#if   defined(GRIB_RESOLUTION_0_25)
+  d_long = d_long*4.0/GRIB_DOWNGRADE;
+  d_lat  = d_lat*4.0/GRIB_DOWNGRADE;
+#elif   defined(GRIB_RESOLUTION_0_5)
+  d_long = d_long*2.0/GRIB_DOWNGRADE;
+  d_lat = d_lat*2.0/GRIB_DOWNGRADE;
+#endif   /* GRID_RESOLUTION_0_25 */
+#else /* defined(GRIB_DOWNGRADE) */
+#if   defined(GRIB_RESOLUTION_0_25)
   d_long = d_long*4.0;
   d_lat  = d_lat*4.0;
-#elif defined(GRIB_RESOLUTION_0_5)
+#elif   defined(GRIB_RESOLUTION_0_5)
   d_long = d_long*2.0;
   d_lat = d_lat*2.0;
-#endif /* GRID_RESOLUTION_0_25 */
+#endif   /* GRID_RESOLUTION_0_25 */
+#endif /* defined(GRIB_DOWNGRADE) */
   t_long = (int)floor(d_long);
   t_lat = (int)floor(d_lat);
 
@@ -940,13 +970,23 @@ wind_info *get_wind_info_latlong_hybrid_context(vlmc_context *context,
   if (!next && !prev) {
     prev = windtable->wind[windtable->nb_prevs-1];
   } 
-#if defined(GRIB_RESOLUTION_0_25)
+#if defined(GRIB_DOWNGRADE)
+#if   defined(GRIB_RESOLUTION_0_25)
+  d_long = d_long*4.0/GRIB_DOWNGRADE;
+  d_lat  = d_lat*4.0/GRIB_DOWNGRADE;
+#elif   defined(GRIB_RESOLUTION_0_5)
+  d_long = d_long*2.0/GRIB_DOWNGRADE;
+  d_lat = d_lat*2.0/GRIB_DOWNGRADE;
+#endif   /* GRID_RESOLUTION_0_25 */
+#else /* defined(GRIB_DOWNGRADE) */
+#if   defined(GRIB_RESOLUTION_0_25)
   d_long = d_long*4.0;
   d_lat  = d_lat*4.0;
-#elif defined(GRIB_RESOLUTION_0_5)
+#elif   defined(GRIB_RESOLUTION_0_5)
   d_long = d_long*2.0;
   d_lat = d_lat*2.0;
-#endif /* GRID_RESOLUTION_0_25 */
+#endif   /* GRID_RESOLUTION_0_25 */
+#endif /* defined(GRIB_DOWNGRADE) */
   t_long = (int)floor(d_long);
   t_lat = (int)floor(d_lat);
 
